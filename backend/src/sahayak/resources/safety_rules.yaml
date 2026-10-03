@@ -1,0 +1,73 @@
+# Safety rules, checked in order before any retrieval or model call.
+#
+# STARTER SET. It has not been clinically reviewed. Before real users touch this,
+# have a clinician review the patterns and the replies, and a native speaker
+# review the Hindi and Gujarati text. Verify every phone number below.
+#
+# Patterns are regular expressions (case-insensitive) applied to the whole question,
+# whichever language it is in. Avoid \b in Hindi/Gujarati patterns: Python treats
+# vowel signs as non-word characters, so \b misbehaves there. Prefer specific
+# first-person phrasings; broad ones ("chest pain") also match purely informational
+# questions and produce unhelpful refusals.
+version: 1
+
+categories:
+  emergency:
+    patterns:
+      en:
+        - "\\bi (can'?t|cannot) breathe\\b"
+        - "\\bi am (bleeding|having (severe )?chest pain)\\b"
+        - "\\b(bleeding (heavily|a lot)|won'?t stop bleeding)\\b"
+        - "\\bit'?s an emergency\\b"
+      hi:
+        - "मुझे सांस नहीं आ रही"
+        - "बहुत (ज़्यादा )?खून (बह|आ) रहा"
+        - "सीने में (तेज़ )?दर्द हो रहा"
+      gu:
+        - "મને શ્વાસ (લઈ શકાતો|નથી લઈ શકાતો|નથી આવતો)"
+        - "ખૂબ (વધારે )?લોહી (નીકળે|વહે) છે"
+        - "છાતીમાં (તીવ્ર )?દુખાવો થાય છે"
+    replies:
+      en: "This sounds urgent. Please contact a doctor or go to the nearest hospital right away. In India you can call 112 for emergency help."
+      hi: "यह गंभीर लग रहा है। कृपया तुरंत डॉक्टर से संपर्क करें या नज़दीकी अस्पताल जाएँ। भारत में आप आपातकालीन मदद के लिए 112 पर कॉल कर सकते हैं।"
+      gu: "આ ગંભીર લાગે છે. કૃપા કરીને તરત ડૉક્ટરનો સંપર્ક કરો અથવા નજીકની હોસ્પિટલમાં જાઓ. ભારતમાં તમે કટોકટીની મદદ માટે 112 પર કૉલ કરી શકો છો."
+
+  self_harm:
+    patterns:
+      en:
+        - "\\b(kill myself|end my life|suicide|don'?t want to live)\\b"
+      hi:
+        - "आत्महत्या"
+        - "(जान दे|मर) (दूँ|जाऊँ|जाना चाहता|जाना चाहती)"
+        - "जीना नहीं चाहता|जीना नहीं चाहती"
+      gu:
+        - "આત્મહત્યા"
+        - "મરી જવું છે|જીવવું નથી"
+    replies:
+      en: "I'm really sorry you're feeling this much pain. You don't have to face it alone. Please talk to someone you trust, or call Tele-MANAS, India's free mental health helpline, on 14416. If you are in immediate danger, call 112."
+      hi: "मुझे बहुत दुख है कि आप इतना दर्द महसूस कर रहे हैं। आप अकेले नहीं हैं। कृपया किसी भरोसेमंद व्यक्ति से बात करें, या भारत की मुफ़्त मानसिक स्वास्थ्य हेल्पलाइन टेली-मानस को 14416 पर कॉल करें। अगर आप तुरंत खतरे में हैं, तो 112 पर कॉल करें।"
+      gu: "તમે આટલી પીડા અનુભવો છો તેનું મને ખૂબ દુઃખ છે. તમારે એકલા સહન કરવાની જરૂર નથી. કૃપા કરીને કોઈ વિશ્વાસુ વ્યક્તિ સાથે વાત કરો, અથવા ભારતની મફત માનસિક સ્વાસ્થ્ય હેલ્પલાઇન ટેલી-માનસ પર 14416 પર કૉલ કરો. જો તમે તાત્કાલિક જોખમમાં હો, તો 112 પર કૉલ કરો."
+
+  personal_medical:
+    patterns:
+      en:
+        - "\\bdo i have (breast )?cancer\\b"
+        - "\\bam i (going to )?(die|dying)\\b"
+        - "\\bhow (much|many) (mg|milligrams|tablets|pills)\\b"
+        - "\\bwhich (medicine|medication|drug|tablet)s? (should|can|do) i\\b"
+        - "\\bshould i (take|stop|start|skip) (my |the )?(medicine|medication|drug|tablet|treatment|chemo)"
+        - "\\bmy (report|scan|biopsy|mammogram|test results?)\\b"
+      hi:
+        - "क्या मुझे (ब्रेस्ट )?कैंसर है"
+        - "कौन सी दवा (लूँ|लेनी|लेना)"
+        - "कितनी (गोली|खुराक)"
+        - "मेरी (रिपोर्ट|बायोप्सी|मैमोग्राफी)"
+      gu:
+        - "શું મને (બ્રેસ્ટ )?કેન્સર છે"
+        - "કઈ દવા (લઉં|લેવી)"
+        - "કેટલી (ગોળી|માત્રા)"
+        - "મારો રિપોર્ટ|મારી બાયોપ્સી"
+    replies:
+      en: "I can only share general information, so I can't say what applies to your own situation. Please talk to your doctor about this."
+      hi: "मैं सिर्फ़ सामान्य जानकारी दे सकता हूँ, इसलिए आपकी अपनी स्थिति के बारे में कुछ नहीं कह सकता। कृपया इसके बारे में अपने डॉक्टर से बात करें।"
+      gu: "હું ફક્ત સામાન્ય માહિતી આપી શકું છું, તેથી તમારી પોતાની સ્થિતિ વિશે કંઈ કહી શકતો નથી. કૃપા કરીને આ વિશે તમારા ડૉક્ટર સાથે વાત કરો."
