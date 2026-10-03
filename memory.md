@@ -9,15 +9,15 @@
 | Area | State | Evidence |
 |---|---|---|
 | Backend code | Written | `backend/src/sahayak/` |
-| Backend tests | **83 pass** (unittest/pytest, fakes only) | `PYTHONPATH=src python -m unittest discover -s tests` |
-| FastAPI routes, WebSocket handler | Written, **UNVERIFIED** (never started; web stack unavailable where it was written) | none yet |
+| Backend tests | **85 pass** (unittest/pytest, fakes + web layer) | `pytest` and `python -m unittest discover -s tests` |
+| FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
 | Model adapters (Whisper, IndicConformer, MMS, Parler, sentence-transformers, Chroma, llama.cpp client) | Written, **UNVERIFIED** against real libraries | none yet |
 | FAQ data / index | Not in repo | `backend/data/faqs.example.jsonl` shows the format |
 | Frontend | Not started | n/a |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 
-**Phase progress:** see the checklist at the top of `phases.md`.
+**Phase progress:** Phase 0 complete (see `phases.md`).
 
 ## 2. Decisions and why
 
@@ -47,7 +47,7 @@
 
 ## 4. Unverified items (must be confirmed on real hardware)
 
-1. Server starts; `/ready`, `/v1/config`, `/v1/chat`, `/v1/voice` behave as documented (Phase 0, 2).
+1. **[VERIFIED in Phase 0]** Server starts; `/ready`, `/v1/config`, `/v1/chat`, `/v1/voice` behave as documented with echo model & disabled services. Real model adapters remain to be verified (Phase 2, 3).
 2. `faster-whisper` call shape, including `info.all_language_probs` fallback in `adapters/stt_whisper.py`.
 3. `IndicConformer` call: `model(waveform, lang, decoder)` and `trust_remote_code` loading (`adapters/stt_indic_conformer.py`).
 4. `MMS-TTS` (VITS) load and output sample rate (`adapters/tts_mms.py`).
@@ -104,3 +104,25 @@
 | 2026-10-03 | Backend designed and built from scratch; 81 tests passing with fakes. |
 | 2026-10-03 | Protocol gap found while planning the voice phase (stale frames after interruption). Fixed with client-assigned turn ids; 83 tests passing. |
 | 2026-10-03 | `product.md`, `CLAUDE.md`, `agent.md`, `memory.md`, `phases.md` written. No phase started. |
+| 2026-10-03 | **Phase 0 completed**: Real machine verification on Windows (Python 3.13.9). Verified FastAPI routes, WebSocket handler, SSE streaming, sessions, safety guard, error cases. Added `backend/scripts/smoke_http.py` and `backend/tests/test_web_layer.py`. 85 tests passing. |
+
+## 9. Environment & Package Versions (Phase 0)
+
+- Python: 3.13.9 (64-bit Windows)
+- Packages installed in `backend/.venv` via `pip install -e ".[dev]"`:
+  - fastapi: 0.142.2
+  - starlette: 1.7.0
+  - uvicorn: 0.54.0
+  - websockets: 17.1
+  - pydantic: 2.13.5
+  - pydantic-settings: 2.15.0
+  - httpx: 0.28.1
+  - httpcore: 1.0.9
+  - numpy: 2.5.3
+  - pyyaml: 6.0.3
+  - pytest: 9.1.1
+  - ruff: 0.16.10
+  - mypy: 2.4.0
+  - watchfiles: 1.3.0
+  - anyio: 4.15.1
+
