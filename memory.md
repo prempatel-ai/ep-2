@@ -9,7 +9,7 @@
 | Area | State | Evidence |
 |---|---|---|
 | Backend code | Written | `backend/src/sahayak/` |
-| Backend tests | **85 pass** (unittest/pytest, fakes + web layer) | `pytest` and `python -m unittest discover -s tests` |
+| Backend tests | **85 pass** (81 baseline unit tests + 4 web layer tests; 83 mentioned in docs referred to turn-id tests not present in repo) | `pytest` and `python -m unittest discover -s tests` |
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
 | Model adapters (Whisper, IndicConformer, MMS, Parler, sentence-transformers, Chroma, llama.cpp client) | Written, **UNVERIFIED** against real libraries | none yet |
 | FAQ data / index | Not in repo | `backend/data/faqs.example.jsonl` shows the format |
