@@ -36,6 +36,7 @@ export type ConversationAction =
   | { type: "FAIL_MESSAGE"; assistantId: string; error: string }
   | { type: "STOP_MESSAGE"; assistantId: string }
   | { type: "CLEAR_CONVERSATION" }
+  | { type: "LOAD_CONVERSATION"; sessionId: string | null; messages: ChatMessageItem[] }
   | { type: "SET_GLOBAL_ERROR"; error: string | null };
 
 export const initialConversationState: ConversationState = {
@@ -153,6 +154,16 @@ export function conversationReducer(
     case "CLEAR_CONVERSATION": {
       return {
         ...initialConversationState,
+      };
+    }
+
+    case "LOAD_CONVERSATION": {
+      return {
+        sessionId: action.sessionId,
+        messages: action.messages,
+        isSubmitting: false,
+        activeAssistantMessageId: null,
+        error: null,
       };
     }
 

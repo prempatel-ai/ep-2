@@ -2,6 +2,11 @@ import React, { useReducer, useState, useRef, useEffect, useCallback } from "rea
 import { AlertCircle } from "lucide-react";
 import type { LanguageCode, AnswerSource } from "@/api/types";
 import { chat, deleteSession, getReady } from "@/api/http";
+import type { SavedConversation } from "@/features/history/types";
+import {
+  generateConversationTitle,
+  sanitizeMessagesForStorage,
+} from "@/features/history/storage";
 import {
   conversationReducer,
   initialConversationState,
@@ -16,13 +21,24 @@ interface ChatViewProps {
   onLanguageChange?: (lang: LanguageCode) => void;
   onNewConversation?: () => void;
   onSwitchToVoice?: () => void;
+  activeConversation?: SavedConversation | null;
+  onSaveConversation?: (conv: SavedConversation) => void;
 }
 
 export function ChatView({
   currentLanguage,
   onSwitchToVoice,
+  activeConversation,
+  onSaveConversation,
 }: ChatViewProps) {
-  const [state, dispatch] = useReducer(conversationReducer, initialConversationState);
+  const [state, dispatch] = useReducer(conversationReducer, {
+    ...initialConversationState,
+    sessionId: activeConversation?.sessionId ?? null,
+    messages: activeConversation?.messages ?? [],
+  });
+  const convIdRef = useRef<string>(activeConversation?.id ?? "");
+  const createdAtRef = useRef<number>(activeConversation?.createdAt ?? 0);
+  const titleRef = useRef<string>(activeConversation?.title ?? "");
   const [serverReady, setServerReady] = useState<boolean | null>(null);
   const [llmReady, setLlmReady] = useState<boolean | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -67,6 +83,35 @@ export function ChatView({
       clearInterval(interval);
     };
   }, [checkReadiness]);
+
+  // Persist conversation updates safely
+  useEffect(() => {
+    const validMessages = sanitizeMessagesForStorage(state.messages);
+    const firstUserMsg = validMessages.find((m) => m.role === "user");
+
+    if (firstUserMsg && onSaveConversation) {
+      if (!convIdRef.current) {
+        convIdRef.current = `conv_${Date.now()}`;
+      }
+      if (!createdAtRef.current) {
+        createdAtRef.current = Date.now();
+      }
+
+      const title =
+        titleRef.current || generateConversationTitle(firstUserMsg.text);
+      titleRef.current = title;
+
+      onSaveConversation({
+        id: convIdRef.current,
+        title,
+        createdAt: createdAtRef.current,
+        updatedAt: Date.now(),
+        language: currentLanguage,
+        sessionId: state.sessionId,
+        messages: validMessages,
+      });
+    }
+  }, [state.messages, state.sessionId, currentLanguage, onSaveConversation]);
 
   const handleSend = async (text: string) => {
     if (state.isSubmitting) return;

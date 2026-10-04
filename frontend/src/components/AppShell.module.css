@@ -1,13 +1,85 @@
-.container {
+.appLayout {
   display: flex;
-  flex-direction: column;
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+.container {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebarToggleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sidebarToggleButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.sidebarToggleButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+/* Hide header toggle on desktop when sidebar is already open (sidebar has its own collapse button) */
+.sidebarToggleWhenOpen {
+  display: none !important;
+}
+
+.conversationTitle {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 480px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .container::-webkit-scrollbar {
@@ -16,9 +88,9 @@
   height: 0 !important;
 }
 
-/* Navbar: Exactly 64px height, crisp bottom border #eaeaea, no shadow, no gradient */
+/* Navbar: Exactly 56px height, crisp bottom border #eaeaea, no shadow */
 .header {
-  height: 64px;
+  height: 56px;
   flex-shrink: 0;
   border-bottom: 1px solid #eaeaea;
   background-color: #ffffff;
@@ -28,7 +100,7 @@
 }
 
 .headerContent {
-  max-width: 1140px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 0 var(--space-6);
@@ -36,50 +108,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-}
-
-/* LEFT: Sahayak Identity */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.brandSymbol {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background-color: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.brandInfo {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
-}
-
-.title {
-  font-size: 0.9375rem; /* 15px */
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: #111827;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.subtitle {
-  font-size: 0.75rem; /* 12px */
-  color: #6b7280;
-  line-height: 1.2;
-  margin: 0;
-  font-weight: 400;
 }
 
 /* RIGHT: Cohesive System Status & Actions */
@@ -218,7 +246,7 @@
 
 .mainContent {
   width: 100%;
-  max-width: 1140px;
+  max-width: 1180px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -235,7 +263,7 @@
 }
 
 .footerContent {
-  max-width: 1140px;
+  max-width: 1180px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -264,6 +292,9 @@
 
 /* Tablet (<= 768px) */
 @media (max-width: 768px) {
+  .sidebarToggleWhenOpen {
+    display: inline-flex !important;
+  }
   .headerContent {
     padding: 0 var(--space-4);
     gap: var(--space-2);
@@ -275,7 +306,7 @@
     padding: 0 var(--space-4);
   }
   .footer {
-    padding: 10px var(--space-4);
+    padding: 8px var(--space-4);
   }
   .footerContent {
     text-align: left;
@@ -292,11 +323,9 @@
     gap: 8px;
     flex-wrap: nowrap;
   }
-  .brand {
-    gap: 8px;
-  }
-  .subtitle {
-    display: none;
+  .conversationTitle {
+    max-width: 130px;
+    font-size: 0.8125rem;
   }
   .headerRightGroup {
     gap: 6px;
@@ -313,13 +342,5 @@
     height: 32px;
     padding: 0 8px;
     gap: 4px;
-  }
-  .newChatButton {
-    height: 32px;
-    padding: 0 8px;
-    width: 32px;
-  }
-  .newChatButton span {
-    display: none;
   }
 }

@@ -1,14 +1,9 @@
 .container {
   display: flex;
   flex-direction: column;
-  flex: 1;
   width: 100%;
   min-height: 0;
-  padding: var(--space-4) 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  padding: 0;
 }
 
 .container::-webkit-scrollbar {
@@ -189,10 +184,11 @@
   width: 100%;
 }
 
-/* User Message: Clean, subtle surface, compact, right-aligned */
+/* User Message: Comfortable max-width 600-700px, subtle neutral background, moderate radius */
 .turnUser {
   align-items: flex-end;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  width: 100%;
 }
 
 .turnUser .turnHeader {
@@ -201,14 +197,15 @@
 
 .bodyUser {
   width: fit-content;
-  max-width: 75%;
-  background-color: #f3f4f6;
+  min-width: 140px;
+  max-width: 680px;
+  background-color: #f4f4f5;
   color: #111827;
   border-radius: 14px;
-  padding: 8px 14px;
+  padding: 12px 18px;
   font-size: 0.9375rem;
-  line-height: 1.45;
-  border: 1px solid #e5e7eb;
+  line-height: 1.55;
+  border: 1px solid #e4e4e7;
   word-break: break-word;
 }
 
@@ -218,10 +215,11 @@
   white-space: pre-wrap;
 }
 
-/* Assistant Message: Clean plain content area */
+/* Assistant Message: Clean main reading area, max-width around 700px, comfortable line-height */
 .turnAssistant {
   align-items: flex-start;
   margin-bottom: var(--space-6);
+  width: 100%;
 }
 
 .turnAssistant:last-child {
@@ -232,12 +230,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .senderRole {
   font-size: 0.8125rem;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   letter-spacing: -0.01em;
   color: #111827;
 }
@@ -255,18 +253,19 @@
 
 .bodyAssistant {
   width: 100%;
-  max-width: 740px;
+  max-width: 710px;
   background-color: transparent;
   padding: 0;
-  color: #111827;
+  color: #18181b;
   font-size: 0.9375rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .bodyAssistant .textContent {
   margin: 0;
   text-align: left;
   white-space: pre-wrap;
+  line-height: 1.65;
 }
 
 .processingIndicator {
