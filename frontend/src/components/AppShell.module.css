@@ -16,6 +16,7 @@
   height: 0 !important;
 }
 
+/* Navbar: Exactly 64px height, crisp bottom border #eaeaea, no shadow, no gradient */
 .header {
   height: 64px;
   flex-shrink: 0;
@@ -37,16 +38,18 @@
   gap: var(--space-4);
 }
 
+/* LEFT: Sahayak Identity */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .brandSymbol {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-xs);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   background-color: #f0fdfa;
   border: 1px solid #ccfbf1;
   display: flex;
@@ -58,33 +61,42 @@
 .brandInfo {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 1px;
 }
 
 .title {
   font-size: 0.9375rem; /* 15px */
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   letter-spacing: -0.01em;
   color: #111827;
   line-height: 1.2;
+  margin: 0;
 }
 
 .subtitle {
   font-size: 0.75rem; /* 12px */
   color: #6b7280;
-  line-height: 1.25;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 400;
 }
 
-.headerActions {
+/* RIGHT: Cohesive System Status & Actions */
+.headerRightGroup {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px;
+  flex-shrink: 0;
 }
 
+/* 1. Connected Status: quiet, inline, no pill */
 .statusIndicator {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;
+  padding: 0 4px;
+  margin-right: 4px;
 }
 
 .statusDotOnline {
@@ -92,6 +104,7 @@
   height: 6px;
   border-radius: 50%;
   background-color: #0d9488;
+  flex-shrink: 0;
 }
 
 .statusDotOffline {
@@ -99,57 +112,101 @@
   height: 6px;
   border-radius: 50%;
   background-color: #ef4444;
+  flex-shrink: 0;
 }
 
 .statusText {
-  font-size: 0.75rem;
+  font-size: 0.8125rem; /* 13px */
   color: #6b7280;
-  font-weight: var(--font-weight-medium);
+  font-weight: 400;
+  white-space: nowrap;
 }
 
-.voiceModeButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: var(--font-weight-medium);
-  color: #0d9488;
-  background-color: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  padding: 4px 10px;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.voiceModeButton:hover {
-  background-color: #ccfbf1;
-  color: #0f766e;
-}
-
+/* 2. Language Control */
 .languageControl {
   display: flex;
   align-items: center;
 }
 
+/* 3. Voice Mode: Primary Outlined Action */
+.voiceButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: #0f766e;
+  background-color: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.voiceButton:hover {
+  background-color: #ccfbf1;
+  border-color: #5eead4;
+  color: #0d9488;
+}
+
+.voiceButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+.voiceButtonIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #0d9488;
+}
+
+/* 4. New Conversation: Secondary Action */
 .newChatButton {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
   font-size: 0.8125rem; /* 13px */
-  font-weight: var(--font-weight-regular);
-  color: #6b7280;
-  background: transparent;
-  border: none;
-  padding: 4px 6px;
-  border-radius: var(--radius-xs);
+  font-weight: 500;
+  color: #4b5563;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color var(--transition-fast);
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
 .newChatButton:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
   color: #111827;
 }
 
+.newChatButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+.newChatIcon {
+  width: 14px;
+  height: 14px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.newChatButton:hover .newChatIcon {
+  color: #374151;
+}
+
+/* Main Conversation Canvas */
 .main {
   flex: 1;
   display: flex;
@@ -169,6 +226,7 @@
   padding: 0 var(--space-6);
 }
 
+/* Footer Safety Disclaimer */
 .footer {
   flex-shrink: 0;
   border-top: 1px solid #f3f4f6;
@@ -204,10 +262,14 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* Tablet (<= 768px) */
 @media (max-width: 768px) {
   .headerContent {
     padding: 0 var(--space-4);
     gap: var(--space-2);
+  }
+  .headerRightGroup {
+    gap: 6px;
   }
   .mainContent {
     padding: 0 var(--space-4);
@@ -220,20 +282,44 @@
   }
 }
 
+/* Mobile (<= 640px): strictly prevent multi-row wrapping */
 @media (max-width: 640px) {
+  .header {
+    height: 56px;
+  }
+  .headerContent {
+    padding: 0 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .brand {
+    gap: 8px;
+  }
   .subtitle {
     display: none;
+  }
+  .headerRightGroup {
+    gap: 6px;
+    flex-wrap: nowrap;
   }
   .statusText {
     display: none;
   }
   .statusIndicator {
-    padding: 4px;
+    padding: 0 2px;
+    margin-right: 0;
   }
-  .voiceModeButton span {
+  .voiceButton {
+    height: 32px;
+    padding: 0 8px;
+    gap: 4px;
+  }
+  .newChatButton {
+    height: 32px;
+    padding: 0 8px;
+    width: 32px;
+  }
+  .newChatButton span {
     display: none;
-  }
-  .voiceModeButton {
-    padding: 6px 8px;
   }
 }

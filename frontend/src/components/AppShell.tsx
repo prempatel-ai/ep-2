@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Mic, Plus } from "lucide-react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -37,12 +38,13 @@ export function AppShell({
       {/* Top Header - Professional healthcare product toolbar */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
+          {/* LEFT: Sahayak identity */}
           <div className={styles.brand}>
             {/* Minimal geometric medical mark: clean, flat teal emblem */}
             <div className={styles.brandSymbol} aria-hidden="true">
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 20 20"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -57,8 +59,9 @@ export function AppShell({
             </div>
           </div>
 
-          <div className={styles.headerActions}>
-            {/* System connectivity status */}
+          {/* RIGHT: Cohesive system status & user actions */}
+          <div className={styles.headerRightGroup}>
+            {/* 1. Connected status */}
             <div
               className={styles.statusIndicator}
               role="status"
@@ -73,34 +76,7 @@ export function AppShell({
               </span>
             </div>
 
-            {/* Voice Mode primary utility button */}
-            {onSwitchToVoice && activeMode === "text" && (
-              <button
-                type="button"
-                onClick={onSwitchToVoice}
-                className={styles.voiceModeButton}
-                aria-label="Switch to interactive voice mode"
-              >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.25"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" y1="19" x2="12" y2="22" />
-                </svg>
-                <span>Voice Mode</span>
-              </button>
-            )}
-
-            {/* Language Selector */}
+            {/* 2. Language Selector */}
             <div className={styles.languageControl}>
               <LanguageSelector
                 currentLanguage={currentLanguage}
@@ -108,7 +84,20 @@ export function AppShell({
               />
             </div>
 
-            {/* New Conversation secondary action */}
+            {/* 3. Voice Mode primary action */}
+            {onSwitchToVoice && activeMode === "text" && (
+              <button
+                type="button"
+                onClick={onSwitchToVoice}
+                className={styles.voiceButton}
+                aria-label="Switch to interactive voice mode"
+              >
+                <Mic size={14} className={styles.voiceButtonIcon} aria-hidden="true" />
+                <span>Voice</span>
+              </button>
+            )}
+
+            {/* 4. New Conversation secondary action */}
             {onNewConversation && (
               <button
                 type="button"
@@ -116,6 +105,7 @@ export function AppShell({
                 className={styles.newChatButton}
                 aria-label="Start new conversation"
               >
+                <Plus size={14} className={styles.newChatIcon} aria-hidden="true" />
                 <span>{t.header.newConversation}</span>
               </button>
             )}
