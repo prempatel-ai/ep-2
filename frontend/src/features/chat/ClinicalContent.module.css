@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #111827;
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.65;
+}
+
+.paragraph {
+  margin: 0;
+  line-height: 1.65;
+  color: #18181b;
+}
+
+.subheading {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 14px 0 6px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.subheading:first-child {
+  margin-top: 0;
+}
+
+.bulletList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulletItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.55;
+  color: #18181b;
+}
+
+.bulletDot {
+  color: #0d9488;
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.numberedList {
+  padding-left: 20px;
+  margin: 0 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.numberedItem {
+  line-height: 1.6;
+  color: #18181b;
+}
+
+.strongText {
+  font-weight: 600;
+  color: #111827;
+}

@@ -1,56 +1,19 @@
-.badge {
+.provenanceGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-medium);
-  padding: 1px 6px;
-  border-radius: var(--radius-xs);
-  border: 1px solid transparent;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
+  gap: 6px;
+  user-select: none;
 }
 
 .dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  line-height: 1;
 }
 
 .text {
-  white-space: nowrap;
-}
-
-/* Safety Badge */
-.badgeSafety {
-  background-color: var(--color-badge-safety-bg);
-  color: var(--color-badge-safety-text);
-  border-color: var(--color-badge-safety-border);
-}
-
-.badgeSafety .dot {
-  background-color: var(--color-badge-safety-text);
-}
-
-/* FAQ Badge */
-.badgeFaq {
-  background-color: var(--color-badge-faq-bg);
-  color: var(--color-badge-faq-text);
-  border-color: var(--color-badge-faq-border);
-}
-
-.badgeFaq .dot {
-  background-color: var(--color-badge-faq-text);
-}
-
-/* Model Badge */
-.badgeModel {
-  background-color: var(--color-badge-model-bg);
-  color: var(--color-badge-model-text);
-  border-color: var(--color-badge-model-border);
-}
-
-.badgeModel .dot {
-  background-color: var(--color-badge-model-text);
+  font-size: 0.75rem; /* 12px */
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1;
 }
