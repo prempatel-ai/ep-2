@@ -81,7 +81,7 @@
 .inConversation .messagesContainer {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .messagesContainer {
