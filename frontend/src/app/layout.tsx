@@ -1,3 +1,4 @@
+import "@/styles/globals.css";
 import "@/styles/base.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
