@@ -7,17 +7,21 @@
 }
 
 .header {
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-surface);
+  height: 64px;
+  border-bottom: 1px solid #eaeaea;
+  background-color: #ffffff;
   position: sticky;
   top: 0;
   z-index: 30;
+  display: flex;
+  align-items: center;
 }
 
 .headerContent {
-  max-width: 800px;
+  max-width: 760px;
+  width: 100%;
   margin: 0 auto;
-  padding: var(--space-3) var(--space-4);
+  padding: 0 var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -27,16 +31,15 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 10px;
 }
 
 .brandSymbol {
   width: 28px;
   height: 28px;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-accent-subtle);
-  border: 1px solid var(--color-accent-border);
-  color: var(--color-accent);
+  border-radius: var(--radius-xs);
+  background-color: #f0fdfa;
+  border: 1px solid #ccfbf1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,56 +51,38 @@
   flex-direction: column;
 }
 
-.brandTitleRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
 .title {
-  font-size: var(--font-size-md);
+  font-size: 0.9375rem; /* 15px */
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.01em;
-  color: var(--color-text-primary);
+  color: #111827;
   line-height: 1.2;
 }
 
-.statusOfflineTag {
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
-  padding: 1px 5px;
-  border-radius: var(--radius-xs);
-}
-
 .subtitle {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-size: 0.75rem; /* 12px */
+  color: #6b7280;
   line-height: 1.25;
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .statusIndicator {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: 0.25rem 0.5rem;
+  gap: 6px;
+  padding: 4px 6px;
 }
 
 .statusDotOnline {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: var(--color-accent);
+  background-color: #0d9488;
 }
 
 .statusDotOffline {
@@ -108,13 +93,52 @@
 }
 
 .statusText {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: var(--font-weight-medium);
+}
+
+.voiceModeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  color: #0d9488;
+  background-color: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.voiceModeButton:hover {
+  background-color: #ccfbf1;
+  color: #0f766e;
 }
 
 .languageControl {
   display: flex;
   align-items: center;
+}
+
+.newChatButton {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: var(--font-weight-medium);
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.newChatButton:hover {
+  color: #111827;
 }
 
 .main {
@@ -126,7 +150,7 @@
 
 .mainContent {
   width: 100%;
-  max-width: 800px;
+  max-width: 760px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -134,64 +158,48 @@
 }
 
 .footer {
-  border-top: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid #eaeaea;
+  background-color: #ffffff;
+  padding: 12px var(--space-4);
 }
 
 .footerContent {
-  max-width: 800px;
+  max-width: 760px;
   margin: 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
 }
 
 .disclaimerText {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-  line-height: var(--line-height-normal);
-  max-width: 72%;
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+  margin: 0;
 }
 
-.disclaimerLabel {
+.emergencyText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.emergencyNumber {
+  color: #b91c1c;
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-}
-
-.emergencyTag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  background-color: var(--color-badge-safety-bg);
-  border: 1px solid var(--color-badge-safety-border);
-  color: var(--color-badge-safety-text);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-xs);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-}
-
-.emergencyIcon {
-  flex-shrink: 0;
-  color: var(--color-badge-safety-text);
 }
 
 @media (max-width: 768px) {
   .headerContent {
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
   }
   .mainContent {
     padding: 0 var(--space-2);
   }
   .footerContent {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-  }
-  .disclaimerText {
-    max-width: 100%;
+    text-align: left;
   }
 }

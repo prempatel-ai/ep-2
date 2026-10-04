@@ -1,29 +1,30 @@
 export const en = {
   app: {
     title: "Sahayak",
-    subtitle: "Verified Breast Cancer Information Assistant",
+    subtitle: "Breast Cancer Information Assistant",
     tagline: "Offline multilingual health guidance in Gujarati, Hindi, and English",
   },
   disclaimer: {
     notice:
-      "General information only. Not a medical diagnosis, treatment plan, or personal consultation. Always consult a qualified physician for your personal health concerns.",
-    emergency: "For emergencies, dial 112 immediately. For mental health support, dial 14416.",
+      "This tool provides clinical information only and does not replace professional medical judgment.",
+    emergency:
+      "If you are experiencing severe pain, urgent symptoms, or a medical emergency, please contact local emergency services immediately: 112 (National Emergency) or 14416 (Tele-MANAS).",
   },
   header: {
     statusOnline: "Connected",
-    statusOffline: "Offline / Disconnected",
+    statusOffline: "Offline",
     newConversation: "New conversation",
   },
   composer: {
-    placeholder: "Ask a question about breast cancer symptoms, screening, or FAQs...",
+    placeholder: "Ask a question about breast cancer symptoms, screening, or treatment...",
     send: "Send message",
     speak: "Start voice turn",
     stop: "Stop response",
   },
   source: {
-    safety: "Verified Safety Response",
-    faq: "Verified FAQ (Direct)",
-    model: "AI Model (Assisted)",
+    safety: "Clinical safety protocol",
+    faq: "Verified source",
+    model: "Synthesized response",
   },
 };
 

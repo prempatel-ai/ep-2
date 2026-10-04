@@ -9,9 +9,21 @@ import type { LanguageCode } from "@/api/types";
 export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("gu");
   const [activeMode, setActiveMode] = useState<"text" | "voice">("text");
+  const [conversationResetKey, setConversationResetKey] = useState(0);
+
+  const handleNewConversation = () => {
+    setActiveMode("text");
+    setConversationResetKey((k) => k + 1);
+  };
 
   return (
-    <AppShell currentLanguage={language} onLanguageChange={setLanguage}>
+    <AppShell
+      currentLanguage={language}
+      onLanguageChange={setLanguage}
+      activeMode={activeMode}
+      onSwitchToVoice={() => setActiveMode("voice")}
+      onNewConversation={handleNewConversation}
+    >
       {activeMode === "voice" ? (
         <VoiceView
           currentLanguage={language}
@@ -19,6 +31,7 @@ export default function Home() {
         />
       ) : (
         <ChatView
+          key={conversationResetKey}
           currentLanguage={language}
           onLanguageChange={setLanguage}
           onSwitchToVoice={() => setActiveMode("voice")}

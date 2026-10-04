@@ -114,15 +114,14 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   const getStateLabel = () => {
     switch (voiceState.machineState) {
       case "listening":
-        return "Listening (speak anytime)...";
       case "capturing":
-        return "Hearing your speech...";
+        return "Listening...";
       case "thinking":
         return "Thinking...";
       case "speaking":
-        return "Sahayak is speaking (tap or speak to interrupt)";
+        return "Sahayak is speaking";
       case "error":
-        return "Microphone or connection issue";
+        return "Microphone unavailable";
       default:
         return "Voice inactive";
     }
@@ -145,8 +144,8 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
           className={styles.exitButton}
           aria-label="Switch back to text chat"
         >
-          <ArrowLeft size={14} aria-hidden="true" />
-          <span>Return to Text Chat</span>
+          <ArrowLeft size={13} aria-hidden="true" />
+          <span>Return to text chat</span>
         </button>
       </div>
 
@@ -157,30 +156,48 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
             <span>{voiceState.errorMessage}</span>
           </div>
           <p className={styles.errorHint}>
-            Please check that your microphone is connected and permissions are granted.
+            Please check that your microphone is connected and browser permission is granted.
           </p>
         </div>
       )}
 
-      {/* Central Interactive Voice Presence Region */}
-      <div className={styles.orbStage}>
-        <div className={styles.orbWrapper}>
-          <VoicePresence state={voiceState.machineState} />
+      {/* Central Audio Tool Interaction */}
+      <div className={styles.audioStage}>
+        <div className={styles.micContainer}>
+          <VoicePresence
+            state={voiceState.machineState}
+            onPress={voiceState.machineState === "speaking" ? handleInterrupt : undefined}
+          />
         </div>
 
-        <div className={styles.statusIndicator}>
-          <span
-            className={`${styles.statusPill} ${
-              styles[`pill_${voiceState.machineState}`] || ""
-            }`}
+        <div className={styles.statusSection}>
+          <h3 className={styles.statusHeading}>{getStateLabel()}</h3>
+          <p className={styles.statusSubtext}>Speak naturally in Gujarati, Hindi, or English</p>
+        </div>
+
+        {/* Clean Controls: Stop and Exit */}
+        <div className={styles.actionsRow}>
+          {voiceState.machineState === "speaking" && (
+            <button
+              type="button"
+              className={styles.stopButton}
+              onClick={handleInterrupt}
+              aria-label="Stop assistant speech"
+            >
+              <Square size={12} fill="currentColor" aria-hidden="true" />
+              <span>Stop</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={styles.exitVoiceButton}
+            onClick={onExitVoice}
+            aria-label="Exit voice conversation"
           >
-            {getStateLabel()}
-          </span>
+            <span>Exit Voice Mode</span>
+          </button>
         </div>
-
-        <p className={styles.headphoneTip}>
-          Tip: Wearing headphones helps prevent your speaker sound from being picked up as an interruption.
-        </p>
       </div>
 
       {/* Transcript and Response Card */}
@@ -188,7 +205,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         <div className={styles.transcriptSection}>
           {voiceState.transcript && (
             <div className={styles.userBubble}>
-              <span className={styles.speakerTag}>You:</span>
+              <span className={styles.speakerTag}>You</span>
               <p className={styles.transcriptText}>{voiceState.transcript}</p>
             </div>
           )}
@@ -196,7 +213,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
           {latestAssistantText && (
             <div className={styles.assistantBubble}>
               <div className={styles.assistantHeader}>
-                <span className={styles.speakerTag}>Sahayak:</span>
+                <span className={styles.speakerTag}>Sahayak</span>
                 {latestSource && <SourceBadge source={latestSource} />}
               </div>
               <p className={styles.assistantText}>{latestAssistantText}</p>
@@ -204,26 +221,6 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
           )}
         </div>
       )}
-
-      {/* Primary Push-to-Interrupt / Stop control */}
-      <div className={styles.controlsBar}>
-        {voiceState.machineState === "speaking" ? (
-          <button
-            type="button"
-            className={styles.interruptButton}
-            onClick={handleInterrupt}
-            aria-label="Interrupt assistant speech"
-          >
-            <Square size={12} fill="currentColor" aria-hidden="true" />
-            <span>Interrupt / Stop Speaking</span>
-          </button>
-        ) : (
-          <div className={styles.liveVoiceTag}>
-            <span className={styles.pulseLive} />
-            <span>Voice mode active ({currentLanguage.toUpperCase()})</span>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

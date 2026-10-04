@@ -1,5 +1,5 @@
 import React, { useReducer, useState, useRef, useEffect, useCallback } from "react";
-import { AlertCircle, Mic, RotateCcw } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import type { LanguageCode, AnswerSource } from "@/api/types";
 import { chat, deleteSession, getReady } from "@/api/http";
 import {
@@ -148,21 +148,23 @@ export function ChatView({
     }
   };
 
-  const handleNewConversation = async () => {
-    handleStop();
-    if (state.sessionId) {
-      try {
-        await deleteSession(state.sessionId);
-      } catch {
-        // ignore deletion cleanup
+  useEffect(() => {
+    return () => {
+      handleStop();
+      if (state.sessionId) {
+        void deleteSession(state.sessionId).catch(() => {});
       }
-    }
-    dispatch({ type: "CLEAR_CONVERSATION" });
-    checkReadiness();
-  };
+    };
+  }, [state.sessionId]);
+
+  const hasMessages = state.messages.length > 0;
 
   return (
-    <div className={styles.chatWorkspace}>
+    <div
+      className={`${styles.chatWorkspace} ${
+        hasMessages ? styles.inConversation : styles.inEmptyState
+      }`}
+    >
       {/* Systematic Status / Offline Banners */}
       {state.error && (
         <div className={styles.warningBanner} role="alert">
@@ -185,33 +187,6 @@ export function ChatView({
           Verified FAQ direct answering active. Offline language model currently unavailable.
         </div>
       )}
-
-      {/* Clean Utility Subheader */}
-      <div className={styles.workspaceHeader}>
-        <div className={styles.workspaceControls}>
-          {onSwitchToVoice && (
-            <button
-              type="button"
-              onClick={onSwitchToVoice}
-              className={styles.voiceButton}
-              aria-label="Switch to interactive voice mode"
-            >
-              <Mic size={13} className={styles.controlIcon} aria-hidden="true" />
-              <span>Voice Mode</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleNewConversation}
-            className={styles.newChatButton}
-            aria-label="Clear chat session and start new conversation"
-          >
-            <RotateCcw size={13} className={styles.controlIcon} aria-hidden="true" />
-            <span>New conversation</span>
-          </button>
-        </div>
-      </div>
 
       {/* Main Conversation Stream */}
       <div className={styles.messagesContainer}>

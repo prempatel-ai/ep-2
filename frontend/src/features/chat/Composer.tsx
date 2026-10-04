@@ -19,7 +19,7 @@ export function Composer({
   onStop,
   onSwitchToVoice,
   disabled = false,
-  placeholder = "Type your breast cancer symptom, screening, or medical FAQ inquiry...",
+  placeholder = "Ask a question about breast cancer symptoms, screening, or treatment...",
 }: ComposerProps) {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);

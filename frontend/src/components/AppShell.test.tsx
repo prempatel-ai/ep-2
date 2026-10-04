@@ -3,10 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { AppShell } from "./AppShell";
 
 describe("AppShell Scaffold", () => {
-  it("renders header title and offline badge", () => {
+  it("renders header title and status indicator", () => {
     render(<AppShell currentLanguage="en" />);
     expect(screen.getByText("Sahayak")).toBeDefined();
-    expect(screen.getByText("Offline Core")).toBeDefined();
+    expect(screen.getByText("Connected")).toBeDefined();
   });
 
   it("renders Gujarati title when Gujarati language is selected", () => {
@@ -21,7 +21,7 @@ describe("AppShell Scaffold", () => {
 
   it("renders mandatory clinical disclaimer and emergency hotline numbers", () => {
     render(<AppShell currentLanguage="en" />);
-    expect(screen.getByText(/General information only/)).toBeDefined();
-    expect(screen.getByText(/dial 112 immediately/)).toBeDefined();
+    expect(screen.getByText(/This tool provides clinical information only/)).toBeDefined();
+    expect(screen.getByText(/112 \(National Emergency\)/)).toBeDefined();
   });
 });

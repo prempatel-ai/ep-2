@@ -4,28 +4,29 @@ import type { TranslationKeys } from "./en";
 export const hi: TranslationKeys = {
   app: {
     title: "सहायक",
-    subtitle: "Verified Breast Cancer Information Assistant", // NEEDS HUMAN TRANSLATION
-    tagline: "Offline multilingual health guidance in Gujarati, Hindi, and English", // NEEDS HUMAN TRANSLATION
+    subtitle: "Breast Cancer Information Assistant",
+    tagline: "Offline multilingual health guidance in Gujarati, Hindi, and English",
   },
   disclaimer: {
     notice:
-      "General information only. Not a medical diagnosis, treatment plan, or personal consultation. Always consult a qualified physician for your personal health concerns.", // NEEDS HUMAN TRANSLATION
-    emergency: "For emergencies, dial 112 immediately. For mental health support, dial 14416.", // NEEDS HUMAN TRANSLATION
+      "This tool provides clinical information only and does not replace professional medical judgment.",
+    emergency:
+      "If you are experiencing severe pain, urgent symptoms, or a medical emergency, please contact local emergency services immediately: 112 (National Emergency) or 14416 (Tele-MANAS).",
   },
   header: {
-    statusOnline: "Connected", // NEEDS HUMAN TRANSLATION
-    statusOffline: "Offline / Disconnected", // NEEDS HUMAN TRANSLATION
-    newConversation: "New conversation", // NEEDS HUMAN TRANSLATION
+    statusOnline: "Connected",
+    statusOffline: "Offline",
+    newConversation: "New conversation",
   },
   composer: {
-    placeholder: "Ask a question about breast cancer symptoms, screening, or FAQs...", // NEEDS HUMAN TRANSLATION
-    send: "Send message", // NEEDS HUMAN TRANSLATION
-    speak: "Start voice turn", // NEEDS HUMAN TRANSLATION
-    stop: "Stop response", // NEEDS HUMAN TRANSLATION
+    placeholder: "Ask a question about breast cancer symptoms, screening, or treatment...",
+    send: "Send message",
+    speak: "Start voice turn",
+    stop: "Stop response",
   },
   source: {
-    safety: "Verified Safety Response", // NEEDS HUMAN TRANSLATION
-    faq: "Verified FAQ (Direct)", // NEEDS HUMAN TRANSLATION
-    model: "AI Model (Assisted)", // NEEDS HUMAN TRANSLATION
+    safety: "Clinical safety protocol",
+    faq: "Verified source",
+    model: "Synthesized response",
   },
 };

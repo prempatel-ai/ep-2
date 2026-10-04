@@ -45,59 +45,64 @@ export function MessageList({
       {messages.length === 0 ? (
         <div className={styles.welcomeWorkspace}>
           <div className={styles.welcomeIntro}>
-            <div className={styles.welcomeBadge}>
-              <span className={styles.pulseTeal} />
-              <span>Verified Clinical Knowledge</span>
-            </div>
             <h2 className={styles.welcomeTitle}>
-              {emptyPromptText || "What breast cancer questions can I help with?"}
+              {emptyPromptText || "How can we help?"}
             </h2>
             <p className={styles.welcomeDesc}>
-              Sahayak is an offline clinical assistant providing verified guidance on symptoms,
-              screening guidelines, diagnosis, and staging queries in Gujarati, Hindi, and English.
+              Sahayak provides evidence-based information on symptoms, screening, diagnosis, and treatment.
+            </p>
+            <p className={styles.verificationNote}>
+              Based on verified medical guidelines.
             </p>
           </div>
 
-          <div className={styles.suggestedGrid}>
-            <button
-              type="button"
-              className={styles.suggestedCard}
-              onClick={() =>
-                onSelectPrompt?.("What are the most common early signs of breast cancer?")
-              }
-            >
-              <span className={styles.cardPrompt}>What are early signs of breast cancer?</span>
-            </button>
+          <div className={styles.suggestionsContainer}>
+            <span className={styles.suggestionsLabel}>Common questions</span>
+            <div className={styles.suggestionsList}>
+              <button
+                type="button"
+                className={styles.questionRow}
+                onClick={() =>
+                  onSelectPrompt?.("What are the most common early signs of breast cancer?")
+                }
+              >
+                <span className={styles.questionText}>What are the early signs of breast cancer?</span>
+                <span className={styles.questionArrow} aria-hidden="true">→</span>
+              </button>
 
-            <button
-              type="button"
-              className={styles.suggestedCard}
-              onClick={() =>
-                onSelectPrompt?.("How often should women get a mammogram screening?")
-              }
-            >
-              <span className={styles.cardPrompt}>How often should women get a mammogram?</span>
-            </button>
+              <button
+                type="button"
+                className={styles.questionRow}
+                onClick={() =>
+                  onSelectPrompt?.("How often should women get a mammogram screening?")
+                }
+              >
+                <span className={styles.questionText}>How often should women get a mammogram?</span>
+                <span className={styles.questionArrow} aria-hidden="true">→</span>
+              </button>
 
-            <button
-              type="button"
-              className={styles.suggestedCard}
-              onClick={() =>
-                onSelectPrompt?.("Is every breast lump cancerous?")
-              }
-            >
-              <span className={styles.cardPrompt}>Is every breast lump cancerous?</span>
-            </button>
+              <button
+                type="button"
+                className={styles.questionRow}
+                onClick={() =>
+                  onSelectPrompt?.("Is every breast lump cancerous?")
+                }
+              >
+                <span className={styles.questionText}>Is every breast lump cancerous?</span>
+                <span className={styles.questionArrow} aria-hidden="true">→</span>
+              </button>
 
-            <button
-              type="button"
-              className={styles.suggestedCard}
-              onClick={() =>
-                onSelectPrompt?.("What are the standard stages of breast cancer?")
-              }
-            >
-              <span className={styles.cardPrompt}>What are the standard stages of breast cancer?</span>
-            </button>
+              <button
+                type="button"
+                className={styles.questionRow}
+                onClick={() =>
+                  onSelectPrompt?.("What are the standard stages of breast cancer?")
+                }
+              >
+                <span className={styles.questionText}>What are the standard stages of breast cancer?</span>
+                <span className={styles.questionArrow} aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
         </div>
       ) : (

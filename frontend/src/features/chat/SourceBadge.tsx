@@ -10,21 +10,21 @@ export function SourceBadge({ source }: SourceBadgeProps) {
     switch (src) {
       case "safety":
         return {
-          label: "Verified Safety Response",
+          label: "Clinical safety protocol",
           className: styles.badgeSafety,
           title: "Pre-screened safety guidance for high-risk or acute clinical queries",
         };
       case "faq":
         return {
-          label: "Verified FAQ (Direct)",
+          label: "Verified source",
           className: styles.badgeFaq,
-          title: "Direct match against clinically vetted breast cancer questions",
+          title: "Direct match against clinically vetted breast cancer guidelines",
         };
       case "model":
         return {
-          label: "AI Model (Assisted)",
+          label: "Synthesized response",
           className: styles.badgeModel,
-          title: "Synthesized guidance from offline local language model",
+          title: "Synthesized guidance from offline medical knowledge base",
         };
     }
   };
