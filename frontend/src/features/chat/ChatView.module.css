@@ -61,6 +61,7 @@
 .inEmptyState {
   justify-content: flex-start;
   padding-top: var(--space-4);
+  overflow-y: auto;
 }
 
 .inEmptyState .messagesContainer {
@@ -74,19 +75,23 @@
 
 .inConversation {
   height: 100%;
+  min-height: 0;
 }
 
 .inConversation .messagesContainer {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
 .messagesContainer {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .composerContainer {
   flex-shrink: 0;
   width: 100%;
+  padding-top: 6px;
 }

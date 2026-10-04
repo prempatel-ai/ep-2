@@ -119,7 +119,7 @@ export function MessageList({
               >
                 <div className={styles.turnHeader}>
                   <span className={styles.senderRole}>
-                    {isUser ? "Inquiry" : "Clinical Guidance"}
+                    {isUser ? "You" : "Sahayak"}
                   </span>
                   {!isUser && message.source && (
                     <SourceBadge source={message.source} />

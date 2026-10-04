@@ -1,17 +1,18 @@
 .container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
 
 .header {
   height: 64px;
+  flex-shrink: 0;
   border-bottom: 1px solid #eaeaea;
   background-color: #ffffff;
-  position: sticky;
-  top: 0;
   z-index: 30;
   display: flex;
   align-items: center;
@@ -146,6 +147,8 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .mainContent {
@@ -154,13 +157,15 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
   padding: 0 var(--space-4);
 }
 
 .footer {
+  flex-shrink: 0;
   border-top: 1px solid #eaeaea;
   background-color: #ffffff;
-  padding: 12px var(--space-4);
+  padding: 10px var(--space-4);
 }
 
 .footerContent {
