@@ -3,6 +3,7 @@
   align-items: center;
   gap: 6px;
   height: 34px;
+  min-height: 34px;
   padding: 0 10px;
   font-size: 0.8125rem; /* 13px */
   font-weight: 500;
@@ -13,6 +14,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+  user-select: none;
 }
 
 .triggerButton:hover {
@@ -45,17 +47,20 @@
 }
 
 .popoverMenu {
-  width: 190px;
-  padding: 4px;
+  width: 220px;
+  padding: 6px;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  z-index: 50;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 60;
 }
 
 .menuHeader {
-  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
   font-size: 0.6875rem;
   font-weight: 600;
   color: #9ca3af;
@@ -63,6 +68,17 @@
   letter-spacing: 0.05em;
   border-bottom: 1px solid #f3f4f6;
   margin-bottom: 4px;
+}
+
+.mobileCloseBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
 }
 
 .optionsList {
@@ -76,8 +92,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 6px 8px;
-  border-radius: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 8px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -96,6 +113,7 @@
 
 .optionSelected {
   background-color: #f0fdfa;
+  border: 1px solid #ccfbf1;
 }
 
 .optionText {
@@ -105,30 +123,61 @@
 }
 
 .nativeText {
-  font-size: 0.8125rem;
-  color: #111827;
+  font-size: 0.9375rem; /* 15px */
   font-weight: 500;
+  color: #111827;
+  line-height: 1.25;
 }
 
 .subText {
-  font-size: 0.6875rem;
+  font-size: 0.75rem; /* 12px */
   color: #6b7280;
+  line-height: 1.2;
 }
 
 .checkIcon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: #0d9488;
   flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
+/* Mobile responsive enhancement: touch target >= 44px */
+@media (max-width: 768px) {
   .triggerButton {
-    height: 32px;
+    height: 44px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 10px;
+  }
+
+  .activeSub {
+    display: none;
+  }
+
+  .popoverMenu {
+    width: min(calc(100vw - 32px), 280px);
+    padding: 8px;
+  }
+
+  .mobileCloseBtn {
+    display: inline-flex;
+  }
+
+  .optionItem {
+    min-height: 48px;
+    padding: 10px 12px;
+  }
+}
+
+/* Ultra small mobile <= 360px */
+@media (max-width: 360px) {
+  .triggerButton {
     padding: 0 8px;
     gap: 4px;
   }
-  .activeSub {
-    display: none;
+
+  .activeLabel {
+    font-size: 0.75rem;
   }
 }

@@ -78,7 +78,7 @@ export function Sidebar({
   const displayedConversations = isLoaded ? conversations : [];
   const grouped = groupConversations(displayedConversations);
 
-  // Close context menu on outside click or Escape
+  // Close context menu on outside click or Escape, handle mobile drawer escape
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -90,18 +90,35 @@ export function Sidebar({
         setMenuOpenId(null);
         setConfirmDeleteId(null);
         setEditingId(null);
+        if (isOpen && typeof window !== "undefined" && window.innerWidth < 768) {
+          if (onCloseMobile) onCloseMobile();
+          else onToggleCollapse();
+        }
       }
     };
 
     if (menuOpenId || confirmDeleteId) {
       document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
     }
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [menuOpenId, confirmDeleteId]);
+  }, [menuOpenId, confirmDeleteId, isOpen, onCloseMobile, onToggleCollapse]);
+
+  // Lock body scroll while mobile drawer is open
+  useEffect(() => {
+    if (isOpen && typeof window !== "undefined" && window.innerWidth < 768) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (editingId && editInputRef.current) {
@@ -150,11 +167,11 @@ export function Sidebar({
     if (editingId) return;
     onSelectConversation(id);
     if (
-      onCloseMobile &&
       typeof window !== "undefined" &&
-      window.innerWidth <= 700
+      window.innerWidth < 768
     ) {
-      onCloseMobile();
+      if (onCloseMobile) onCloseMobile();
+      else onToggleCollapse();
     }
   };
 
@@ -163,11 +180,11 @@ export function Sidebar({
       onExploreTopic(topic);
     }
     if (
-      onCloseMobile &&
       typeof window !== "undefined" &&
-      window.innerWidth <= 700
+      window.innerWidth < 768
     ) {
-      onCloseMobile();
+      if (onCloseMobile) onCloseMobile();
+      else onToggleCollapse();
     }
   };
 
@@ -177,7 +194,7 @@ export function Sidebar({
       {isOpen && (
         <div
           className={styles.mobileBackdrop}
-          onClick={onCloseMobile}
+          onClick={onCloseMobile || onToggleCollapse}
           aria-hidden="true"
         />
       )}
@@ -227,11 +244,11 @@ export function Sidebar({
             onClick={() => {
               onNewConversation();
               if (
-                onCloseMobile &&
                 typeof window !== "undefined" &&
-                window.innerWidth <= 700
+                window.innerWidth < 768
               ) {
-                onCloseMobile();
+                if (onCloseMobile) onCloseMobile();
+                else onToggleCollapse();
               }
             }}
             className={styles.newChatButton}

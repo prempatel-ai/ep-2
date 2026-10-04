@@ -377,16 +377,69 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
+  .composerForm {
+    padding-bottom: 0;
+  }
+
   .shortcutHint {
     display: none;
   }
+
+  .standaloneMicButton {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .voiceSplitGroup {
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .voiceModeButton {
+    width: 36px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .chevronButton {
+    width: 28px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .sendButton {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
+  .stopButton {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+
+  .inputBox {
+    padding: 10px 12px 8px;
+    border-radius: 18px;
+  }
+
   .micPopoverMenu {
     right: 0;
-    width: 260px;
-    min-width: 260px;
+    width: min(calc(100vw - 32px), 280px);
+    min-width: unset;
   }
+
   .micDeviceLabel {
-    max-width: 190px;
+    max-width: 200px;
+  }
+
+  .micDeviceItem {
+    min-height: 44px;
+    padding: 8px 10px;
   }
 }

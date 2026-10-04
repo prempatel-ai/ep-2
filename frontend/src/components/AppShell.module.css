@@ -77,6 +77,22 @@
   max-width: 640px;
 }
 
+.mobileBrandTitle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -223,13 +239,62 @@
   padding: 6px var(--space-4);
 }
 
-.footerContent {
+.desktopFooterContent {
   max-width: 940px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 2px;
   text-align: center;
+}
+
+.mobileFooterContent {
+  display: none;
+}
+
+.mobileDisclaimerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.mobileDisclaimerCompact {
+  font-size: 0.6875rem; /* 11px */
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+.emergencyToggleButton {
+  font-size: 0.6875rem; /* 11px */
+  color: #0f766e;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  touch-action: manipulation;
+}
+
+.emergencyToggleButton:hover {
+  color: #0d9488;
+}
+
+.mobileEmergencyExpanded {
+  font-size: 0.6875rem; /* 11px */
+  color: #4b5563;
+  line-height: 1.35;
+  text-align: center;
+  margin: 4px 0 0;
+  padding: 6px 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  animation: fadeIn 150ms ease-out;
 }
 
 .disclaimerText {
@@ -251,83 +316,219 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* Medium Desktop / Laptop (900px - 1199px) */
-@media (max-width: 1199px) {
-  .leftGroup {
-    padding: 0 24px;
-  }
-
-  .headerRightGroup {
-    width: 240px;
-    padding: 0 16px;
-  }
+.detailsButton {
+  display: none; /* hidden on desktop where right rail is visible */
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms ease;
+  user-select: none;
 }
 
-/* Tablet / Compact (< 900px): Provenance rail hides */
-@media (max-width: 899px) {
+.detailsButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.detailsButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+.detailsButtonIcon {
+  width: 14px;
+  height: 14px;
+  color: #0d9488;
+  flex-shrink: 0;
+}
+
+.detailsButtonText {
+  line-height: 1;
+}
+
+.voiceButtonText {
+  line-height: 1;
+}
+
+/* Tablet (768px - 1199px): Provenance rail becomes collapsible / bottom sheet */
+@media (max-width: 1199px) and (min-width: 768px) {
   .leftGroup {
-    padding: 0 16px;
+    padding: 0 20px;
   }
 
   .headerRightGroup {
+    padding: 0 16px;
+    gap: 8px;
     width: auto;
-    border-left: none;
-    padding: 0 16px;
+  }
+
+  .detailsButton {
+    display: inline-flex;
   }
 }
 
-/* Mobile (<= 700px): strictly prevent multi-row wrapping */
-@media (max-width: 700px) {
+/* Mobile (< 768px): Simplified Navbar (Menu + Brand on Left, Single Details Icon on Right) */
+@media (max-width: 767px) {
   .sidebarToggleWhenOpen {
     display: inline-flex !important;
   }
 
   .header {
-    height: 56px;
+    height: 58px;
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   .headerContent {
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 16px;
+    gap: 12px;
     flex-wrap: nowrap;
   }
 
   .leftGroup {
     padding: 0;
-    gap: 8px;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .sidebarToggleButton {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+
+  /* Show brand title, hide conversation title on mobile */
+  .mobileBrandTitle {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    clip: auto;
+    overflow: visible;
+    display: inline-block !important;
   }
 
   .conversationTitle {
-    max-width: 140px;
-    font-size: 0.8125rem;
+    display: none !important;
   }
 
   .headerRightGroup {
     padding: 0;
-    gap: 6px;
-    flex-wrap: nowrap;
+    gap: 0;
+    width: auto;
+    border-left: none;
+    flex-shrink: 0;
+    justify-content: flex-end;
   }
 
-  .statusText {
-    display: none;
-  }
-
+  /* Remove desktop controls from mobile navbar */
   .statusIndicator {
-    padding: 0 2px;
-    margin-right: 0;
+    display: none !important;
+  }
+
+  .languageControl {
+    display: none !important;
   }
 
   .voiceButton {
-    height: 32px;
-    padding: 0 8px;
-    gap: 4px;
+    display: none !important;
+  }
+
+  /* Single notification/details icon is the only utility action visible */
+  .detailsButton {
+    display: inline-flex !important;
+    height: 44px;
+    min-height: 44px;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detailsButtonText {
+    display: none !important;
+  }
+
+  .detailsButtonIcon {
+    width: 18px;
+    height: 18px;
+    color: #0d9488;
+  }
+
+  /* Mobile Footer: Compact disclaimer */
+  .desktopFooterContent {
+    display: none !important;
+  }
+
+  .mobileFooterContent {
+    display: flex !important;
   }
 
   .footer {
-    padding: 6px 12px;
+    padding: 6px 16px max(6px, env(safe-area-inset-bottom, 6px));
+  }
+}
+
+/* Small mobile (<= 480px) */
+@media (max-width: 480px) {
+  .headerContent {
+    padding: 0 12px;
   }
 
-  .footerContent {
-    text-align: left;
+  .mobileBrandTitle {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Ultra small mobile (<= 360px) */
+@media (max-width: 360px) {
+  .headerContent {
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .sidebarToggleButton {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .mobileBrandTitle {
+    font-size: 1rem;
+  }
+
+  .detailsButton {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .mobileDisclaimerCompact {
+    font-size: 0.625rem;
+  }
+
+  .emergencyToggleButton {
+    font-size: 0.625rem;
   }
 }

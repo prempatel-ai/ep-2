@@ -23,11 +23,12 @@ export default function Home() {
 
   const isMobile = useSyncExternalStore(
     emptySubscribe,
-    () => window.innerWidth <= 700,
+    () => window.innerWidth < 768,
     () => false,
   );
   const [sidebarOverride, setSidebarOverride] = useState<boolean | null>(null);
   const isSidebarOpen = sidebarOverride !== null ? sidebarOverride : !isMobile;
+  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
   const history = useConversationHistory(setLanguage);
 
@@ -37,6 +38,7 @@ export default function Home() {
   const handleNewConversation = () => {
     setActiveMode("text");
     setInitialPrompt(null);
+    setIsDetailsOpen(false);
     history.createNewConversation();
     setChatSessionKey(`new_${Date.now()}`);
   };
@@ -44,12 +46,14 @@ export default function Home() {
   const handleSelectConversation = (id: string) => {
     setActiveMode("text");
     setInitialPrompt(null);
+    setIsDetailsOpen(false);
     history.selectConversation(id);
     setChatSessionKey(id);
   };
 
   const handleExploreTopic = (topic: "symptoms" | "screening" | "diagnosis" | "treatment") => {
     setActiveMode("text");
+    setIsDetailsOpen(false);
     history.createNewConversation();
     const prompt = EXPLORE_TOPIC_PROMPTS[topic];
     setInitialPrompt(prompt);
@@ -76,6 +80,7 @@ export default function Home() {
       isSidebarOpen={isSidebarOpen}
       onToggleSidebar={() => setSidebarOverride(!isSidebarOpen)}
       activeConversationTitle={history.activeConversation?.title || null}
+      onOpenClinicalDetails={() => setIsDetailsOpen(true)}
       sidebar={
         <Sidebar
           conversations={history.conversations}
@@ -110,6 +115,8 @@ export default function Home() {
           onSaveConversation={history.saveConversation}
           onNewConversation={handleNewConversation}
           initialPrompt={initialPrompt ?? undefined}
+          isDetailsOpen={isDetailsOpen}
+          onCloseDetails={() => setIsDetailsOpen(false)}
         />
       )}
     </AppShell>

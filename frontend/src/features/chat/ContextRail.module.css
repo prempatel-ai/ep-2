@@ -64,14 +64,8 @@
   width: 100%;
 }
 
+/* Tablet & Mobile (< 1200px): Provenance rail becomes Clinical details sheet */
 @media (max-width: 1199px) {
-  .contextRail {
-    width: 240px;
-    padding: 20px 16px;
-  }
-}
-
-@media (max-width: 899px) {
   .contextRail {
     display: none !important;
   }

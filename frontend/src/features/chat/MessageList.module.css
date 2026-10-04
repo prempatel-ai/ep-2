@@ -379,32 +379,74 @@
   color: var(--color-badge-safety-text);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .welcomeWorkspace {
     grid-template-columns: 1fr;
-    row-gap: var(--space-6);
-    padding: var(--space-4) 0;
+    row-gap: var(--space-5);
+    padding: var(--space-3) 0 var(--space-4);
+  }
+
+  .questionRow {
+    min-height: 48px;
+    padding: 12px 14px;
   }
 
   .userMessage {
     margin-bottom: 18px;
   }
 
+  .userBubble {
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 1rem; /* 16px comfortable reading */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .assistantMessage {
     margin-bottom: 28px;
   }
 
-  .userBubble {
-    max-width: 85%;
+  .messageContent {
+    max-width: 100%;
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
   }
 
   .messageActions {
     opacity: 1;
+    max-width: 100%;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .actionBtn {
+    height: 44px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    font-size: 0.8125rem; /* 13px */
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background-color: #f9fafb;
   }
 }
 
 @media (max-width: 480px) {
+  .welcomeTitle {
+    font-size: 1.25rem; /* 20px */
+  }
+
+  .welcomeDesc {
+    font-size: 0.875rem; /* 14px */
+  }
+
   .userBubble {
-    max-width: 90%;
+    max-width: 88%;
+  }
+
+  .actionBtn {
+    padding: 0 10px;
   }
 }

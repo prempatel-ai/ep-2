@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from "react";
-import { Mic, PanelLeft } from "lucide-react";
+import { useState, useEffect, type ReactNode } from "react";
+import { Mic, PanelLeft, Activity } from "lucide-react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -17,6 +17,7 @@ interface AppShellProps {
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
   activeConversationTitle?: string | null;
+  onOpenClinicalDetails?: () => void;
 }
 
 export function AppShell({
@@ -30,8 +31,10 @@ export function AppShell({
   isSidebarOpen = true,
   onToggleSidebar,
   activeConversationTitle,
+  onOpenClinicalDetails,
 }: AppShellProps) {
   const t = getTranslation(currentLanguage);
+  const [showEmergency, setShowEmergency] = useState(false);
 
   // Synchronize document root lang attribute for assistive technology and font matching
   useEffect(() => {
@@ -47,10 +50,10 @@ export function AppShell({
 
       {/* Main App Workspace */}
       <div className={styles.container}>
-        {/* Top Header - Compact healthcare product toolbar (56px) */}
+        {/* Top Header - Compact healthcare product toolbar (56–60px) */}
         <header className={styles.header}>
           <div className={styles.headerContent}>
-            {/* LEFT: Sidebar Toggle (when collapsed/mobile) & Conversation Title */}
+            {/* LEFT: Sidebar Toggle & Brand Title (Mobile) or Conversation Title (Desktop) */}
             <div className={styles.leftGroup}>
               {onToggleSidebar && (
                 <button
@@ -66,10 +69,10 @@ export function AppShell({
                 </button>
               )}
 
-              {/* Accessible Document Heading for Screen Readers & Test Suites */}
-              <h1 className={styles.srOnly}>{t.app.title}</h1>
+              {/* Document Heading & Mobile Brand Title */}
+              <h1 className={styles.mobileBrandTitle}>{t.app.title}</h1>
 
-              {/* Contextual Conversation Title (Only when present) */}
+              {/* Desktop / Tablet Contextual Conversation Title */}
               {activeConversationTitle ? (
                 <span
                   className={styles.conversationTitle}
@@ -81,9 +84,9 @@ export function AppShell({
               ) : null}
             </div>
 
-            {/* RIGHT: Connected status, Language, Voice Mode */}
+            {/* RIGHT: Status, Language, Details, Voice */}
             <div className={styles.headerRightGroup}>
-              {/* 1. Connected status */}
+              {/* 1. Connected status (Desktop & Tablet only) */}
               <div
                 className={styles.statusIndicator}
                 role="status"
@@ -98,7 +101,7 @@ export function AppShell({
                 </span>
               </div>
 
-              {/* 2. Language Selector */}
+              {/* 2. Language Selector (Desktop & Tablet only) */}
               <div className={styles.languageControl}>
                 <LanguageSelector
                   currentLanguage={currentLanguage}
@@ -106,7 +109,21 @@ export function AppShell({
                 />
               </div>
 
-              {/* 3. Voice Mode Action */}
+              {/* 3. Clinical Details Action: Single right action on mobile, optional on tablet */}
+              {onOpenClinicalDetails && (
+                <button
+                  type="button"
+                  onClick={onOpenClinicalDetails}
+                  className={styles.detailsButton}
+                  aria-label="View clinical details and provenance"
+                  title="Clinical details"
+                >
+                  <Activity size={16} className={styles.detailsButtonIcon} aria-hidden="true" />
+                  <span className={styles.detailsButtonText}>Details</span>
+                </button>
+              )}
+
+              {/* 4. Voice Mode Action (Desktop & Tablet only) */}
               {onSwitchToVoice && activeMode === "text" && (
                 <button
                   type="button"
@@ -115,7 +132,7 @@ export function AppShell({
                   aria-label="Switch to interactive voice mode"
                 >
                   <Mic size={14} className={styles.voiceButtonIcon} aria-hidden="true" />
-                  <span>Voice</span>
+                  <span className={styles.voiceButtonText}>Voice</span>
                 </button>
               )}
             </div>
@@ -127,9 +144,10 @@ export function AppShell({
           <div className={styles.mainContent}>{children}</div>
         </main>
 
-        {/* Restrained Clinical Safety Notice Footer */}
+        {/* Clinical Safety Notice Footer */}
         <footer className={styles.footer}>
-          <div className={styles.footerContent}>
+          {/* Desktop full disclaimer */}
+          <div className={styles.desktopFooterContent}>
             <p className={styles.disclaimerText}>
               {t.disclaimer.notice}
             </p>
@@ -138,6 +156,30 @@ export function AppShell({
               <span className={styles.emergencyNumber}>112 (National Emergency)</span> or{" "}
               <span className={styles.emergencyNumber}>14416 (Tele-MANAS)</span>.
             </p>
+          </div>
+
+          {/* Mobile compact disclaimer with expandable emergency info */}
+          <div className={styles.mobileFooterContent}>
+            <div className={styles.mobileDisclaimerRow}>
+              <span className={styles.mobileDisclaimerCompact}>
+                Clinical information only · Not medical advice
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowEmergency((prev) => !prev)}
+                className={styles.emergencyToggleButton}
+                aria-expanded={showEmergency}
+              >
+                Emergency information
+              </button>
+            </div>
+            {showEmergency && (
+              <p className={styles.mobileEmergencyExpanded} role="region" aria-label="Emergency contact information">
+                If you are experiencing severe pain, urgent symptoms, or a medical emergency, contact local emergency services immediately:{" "}
+                <span className={styles.emergencyNumber}>112 (National Emergency)</span> or{" "}
+                <span className={styles.emergencyNumber}>14416 (Tele-MANAS)</span>.
+              </p>
+            )}
           </div>
         </footer>
       </div>

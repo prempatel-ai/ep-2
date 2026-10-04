@@ -14,6 +14,7 @@ import {
 import { MessageList } from "./MessageList";
 import { Composer } from "./Composer";
 import { ContextRail } from "./ContextRail";
+import { ClinicalDetailsSheet } from "./ClinicalDetailsSheet";
 import styles from "./ChatView.module.css";
 
 interface ChatViewProps {
@@ -24,6 +25,8 @@ interface ChatViewProps {
   activeConversation?: SavedConversation | null;
   onSaveConversation?: (conv: SavedConversation) => void;
   initialPrompt?: string;
+  isDetailsOpen?: boolean;
+  onCloseDetails?: () => void;
 }
 
 export function ChatView({
@@ -32,6 +35,8 @@ export function ChatView({
   activeConversation,
   onSaveConversation,
   initialPrompt,
+  isDetailsOpen,
+  onCloseDetails,
 }: ChatViewProps) {
   const [state, dispatch] = useReducer(conversationReducer, {
     ...initialConversationState,
@@ -362,8 +367,17 @@ export function ChatView({
           </div>
         </div>
 
-        {/* Quiet Context Rail */}
+        {/* Quiet Context Rail (Desktop >= 1200px) */}
         <ContextRail
+          latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
+          currentLanguage={currentLanguage}
+          isOnline={serverReady !== false}
+        />
+
+        {/* Clinical Details Bottom Sheet (Mobile & Tablet < 1200px) */}
+        <ClinicalDetailsSheet
+          isOpen={Boolean(isDetailsOpen)}
+          onClose={onCloseDetails || (() => {})}
           latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
           currentLanguage={currentLanguage}
           isOnline={serverReady !== false}

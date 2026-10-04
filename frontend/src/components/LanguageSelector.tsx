@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Check, Globe } from 'lucide-react'
+import { Check, Globe, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { LanguageCode } from '@/api/types'
 import styles from './LanguageSelector.module.css'
@@ -40,14 +40,24 @@ export function LanguageSelector({
           aria-expanded={open}
           aria-label="Select language"
         >
-          <Globe className={styles.globeIcon} />
+          <Globe className={styles.globeIcon} aria-hidden="true" />
           <span className={styles.activeLabel}>{activeLang.nativeLabel}</span>
           <span className={styles.activeSub}>({activeLang.label})</span>
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className={styles.popoverMenu}>
-        <div className={styles.menuHeader}>Select language</div>
-        <div className={styles.optionsList} role="listbox">
+        <div className={styles.menuHeader}>
+          <span>Select language / ભાષા પસંદ કરો</span>
+          <button
+            type="button"
+            className={styles.mobileCloseBtn}
+            onClick={() => setOpen(false)}
+            aria-label="Close language selector"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        </div>
+        <div className={styles.optionsList} role="listbox" aria-label="Available languages">
           {languages.map((lang) => {
             const isSelected = lang.code === currentLanguage
             return (
@@ -66,7 +76,7 @@ export function LanguageSelector({
                   <span className={styles.nativeText}>{lang.nativeLabel}</span>
                   <span className={styles.subText}>{lang.label}</span>
                 </div>
-                {isSelected && <Check className={styles.checkIcon} />}
+                {isSelected && <Check className={styles.checkIcon} aria-hidden="true" />}
               </button>
             )
           })}
