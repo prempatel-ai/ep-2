@@ -71,29 +71,100 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-left: auto;
 }
 
-/* STATE 1: Compact Voice Control Group [Mic] [Voice] [Chevron] */
+/* STATE 1: Controls Group [Standalone Mic] [Voice Mode + Mic Selector Pill] */
 .voiceControlGroup {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--radius-xs);
-  padding: 2px;
-  gap: 1px;
+  gap: 6px;
   animation: fadeIn 150ms ease-out;
 }
 
-.voiceButton {
+/* Standalone Dictation Button */
+.standaloneMicButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.standaloneMicButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.standaloneMicButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.standaloneMicActive {
+  background-color: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+  animation: pulseMic 1.5s infinite ease-in-out;
+}
+
+/* Voice Mode + Microphone Selector Split Capsule */
+.voiceSplitGroup {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  height: 32px;
+  padding: 2px;
+  gap: 1px;
+  transition: border-color 120ms ease;
+}
+
+.voiceSplitGroup:hover {
+  border-color: #d1d5db;
+}
+
+.voiceModeButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
-  height: 28px;
-  border-radius: 4px;
+  height: 26px;
+  border-radius: 6px;
+  background-color: transparent;
+  border: none;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.voiceModeButton:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.voiceModeButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.chevronButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 26px;
+  border-radius: 6px;
   background-color: transparent;
   border: none;
   color: #6b7280;
@@ -101,29 +172,19 @@
   transition: background-color 120ms ease, color 120ms ease;
 }
 
-.voiceButton:hover {
+.chevronButton:hover {
   background-color: #f3f4f6;
   color: #111827;
 }
 
-.voiceButton:focus-visible {
+.chevronButtonActive {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+.chevronButton:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
-}
-
-.voiceButtonActive {
-  background-color: #fef2f2 !important;
-  color: #dc2626 !important;
-  animation: pulseMic 1.5s infinite ease-in-out;
-}
-
-.chevronButton {
-  width: 20px;
-  color: #9ca3af;
-}
-
-.chevronButton:hover {
-  color: #4b5563;
 }
 
 /* STATE 2: Send Button (Shown immediately when text is typed) */
@@ -182,79 +243,104 @@
   outline-offset: 1px;
 }
 
-/* Lightweight Voice Options Popover Menu */
-.voiceMenu {
+/* Microphone Device Selector Popover Menu */
+.micPopoverMenu {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  width: 210px;
+  min-width: 280px;
+  max-width: 320px;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  z-index: 50;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  padding: 8px 6px 6px;
+  z-index: 60;
   display: flex;
   flex-direction: column;
-  padding: 4px;
   animation: menuFadeIn 140ms ease-out;
 }
 
-.menuHeader {
-  padding: 5px 8px 3px;
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #9ca3af;
-  border-bottom: 1px solid #f3f4f6;
-  margin-bottom: 2px;
-}
-
-.menuItem {
+/* Top live input level test meter */
+.micMeterRow {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
-  padding: 7px 8px;
-  background-color: transparent;
-  border: none;
-  border-radius: 6px;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 120ms ease;
+  padding: 6px 8px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.menuItem:hover {
-  background-color: #f9fafb;
-}
-
-.menuItem:focus-visible {
-  background-color: #f3f4f6;
-  outline: none;
-}
-
-.menuIcon {
+.micMeterIcon {
   color: #6b7280;
   flex-shrink: 0;
 }
 
-.menuItemContent {
+.micMeterTrack {
+  flex: 1;
+  height: 4px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.micMeterFill {
+  height: 100%;
+  background-color: #2563eb;
+  border-radius: 9999px;
+  transition: width 60ms ease-out;
+}
+
+/* Microphone devices list */
+.micDeviceList {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.menuItemTitle {
+.micDeviceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease;
+}
+
+.micDeviceItem:hover {
+  background-color: #f3f4f6;
+}
+
+.micDeviceItem:focus-visible {
+  background-color: #f3f4f6;
+  outline: none;
+}
+
+.micDeviceItemSelected {
+  background-color: #f9fafb;
+}
+
+.micDeviceLabel {
   font-size: 0.8125rem;
-  font-weight: var(--font-weight-medium);
-  color: #111827;
-  line-height: 1.25;
+  color: #1f2937;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 }
 
-.menuItemDesc {
-  font-size: 0.6875rem;
-  color: #6b7280;
-  line-height: 1.25;
+.checkIcon {
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
 @keyframes fadeIn {
@@ -292,8 +378,12 @@
   .shortcutHint {
     display: none;
   }
-  .voiceMenu {
+  .micPopoverMenu {
     right: 0;
-    width: 200px;
+    width: 260px;
+    min-width: 260px;
+  }
+  .micDeviceLabel {
+    max-width: 190px;
   }
 }

@@ -40,8 +40,17 @@ export class AudioRecorder {
   async start(): Promise<void> {
     if (this.isRecording) return;
 
+    const savedMicId =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("sahayak_selected_mic_id")
+        : null;
+
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: {
+        deviceId:
+          savedMicId && savedMicId !== "default"
+            ? { exact: savedMicId }
+            : undefined,
         channelCount: 1,
         echoCancellation: true,
         noiseSuppression: true,

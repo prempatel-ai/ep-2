@@ -1,9 +1,13 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Composer } from "./Composer";
 
-describe("Composer Progressive Disclosure Interactions", () => {
-  it("renders Dictate, Voice conversation, and Chevron buttons when input is empty", () => {
+describe("Composer Microphone & Input Controls", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("renders Dictate, Voice conversation, and Select microphone buttons when input is empty", () => {
     const handleSend = vi.fn();
     const handleStop = vi.fn();
     const handleSwitchToVoice = vi.fn();
@@ -19,7 +23,7 @@ describe("Composer Progressive Disclosure Interactions", () => {
 
     expect(screen.getByRole("button", { name: "Dictate" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Voice conversation" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Voice options" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Select microphone" })).toBeDefined();
     expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
   });
 
@@ -44,10 +48,10 @@ describe("Composer Progressive Disclosure Interactions", () => {
     // Enter single character
     fireEvent.change(textarea, { target: { value: "W" } });
 
-    // Voice buttons disappear
+    // Voice & mic controls disappear
     expect(screen.queryByRole("button", { name: "Dictate" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Voice conversation" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Voice options" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Select microphone" })).toBeNull();
 
     // Send button appears
     expect(screen.getByRole("button", { name: "Send message" })).toBeDefined();
@@ -81,7 +85,7 @@ describe("Composer Progressive Disclosure Interactions", () => {
     // Controls return
     expect(screen.getByRole("button", { name: "Dictate" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Voice conversation" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Voice options" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Select microphone" })).toBeDefined();
     expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
   });
 
@@ -104,7 +108,7 @@ describe("Composer Progressive Disclosure Interactions", () => {
     expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
   });
 
-  it("toggles voice options popover menu and closes on Escape", () => {
+  it("toggles microphone selection popover menu, selects device, and closes on Escape", async () => {
     const handleSend = vi.fn();
     const handleStop = vi.fn();
     const handleSwitchToVoice = vi.fn();
@@ -118,17 +122,29 @@ describe("Composer Progressive Disclosure Interactions", () => {
       />,
     );
 
-    const chevronBtn = screen.getByRole("button", { name: "Voice options" });
+    const chevronBtn = screen.getByRole("button", { name: "Select microphone" });
     fireEvent.click(chevronBtn);
 
     // Menu should be open
-    expect(screen.getByRole("menu", { name: "Voice options menu" })).toBeDefined();
-    expect(screen.getByText("Speak to enter text")).toBeDefined();
-    expect(screen.getByText("Talk with Sahayak")).toBeDefined();
+    expect(screen.getByRole("menu", { name: "Microphone selection menu" })).toBeDefined();
+    const realtekMic = screen.getByRole("menuitemradio", {
+      name: /Microphone Array \(Realtek\(R\) Audio\)/,
+    });
+    expect(realtekMic).toBeDefined();
+
+    // Select second device
+    const defaultSysMic = screen.getByRole("menuitemradio", {
+      name: /Default - Microphone Array/,
+    });
+    fireEvent.click(defaultSysMic);
+
+    await waitFor(() => {
+      expect(localStorage.getItem("sahayak_selected_mic_id")).toBe("default-sys");
+    });
 
     // Pressing Escape closes menu
     fireEvent.keyDown(document, { key: "Escape" });
-    expect(screen.queryByRole("menu", { name: "Voice options menu" })).toBeNull();
+    expect(screen.queryByRole("menu", { name: "Microphone selection menu" })).toBeNull();
   });
 
   it("submits message on Enter and ignores Shift+Enter", () => {
