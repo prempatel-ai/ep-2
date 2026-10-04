@@ -5,6 +5,7 @@ interface ComposerProps {
   isSubmitting: boolean;
   onSend: (text: string) => void;
   onStop: () => void;
+  onSwitchToVoice?: () => void;
   disabled?: boolean;
   placeholder?: string;
 }
@@ -15,8 +16,9 @@ export function Composer({
   isSubmitting,
   onSend,
   onStop,
+  onSwitchToVoice,
   disabled = false,
-  placeholder = "Ask a question about breast cancer symptoms, screening, or FAQs...",
+  placeholder = "Type your breast cancer symptom, screening, or medical FAQ inquiry...",
 }: ComposerProps) {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -52,7 +54,7 @@ export function Composer({
     setText(val);
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 180)}px`;
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
   };
 
@@ -61,7 +63,7 @@ export function Composer({
 
   return (
     <form className={styles.composerForm} onSubmit={handleSubmit} role="search">
-      <div className={styles.inputContainer}>
+      <div className={styles.inputBox}>
         <textarea
           ref={textareaRef}
           value={text}
@@ -75,38 +77,51 @@ export function Composer({
           aria-label="Ask a medical information question"
         />
 
-        <div className={styles.controlsRow}>
-          <div className={styles.metaInfo}>
+        <div className={styles.composerToolbar}>
+          <div className={styles.metaSection}>
+            <span className={styles.shortcutHint}>Press ↵ Enter to send, Shift+↵ for new line</span>
             {text.length > 1500 && (
               <span
                 className={`${styles.charCount} ${
                   isTooLong ? styles.charCountError : ""
                 }`}
               >
-                {remainingChars} characters remaining
+                {remainingChars} chars remaining
               </span>
             )}
           </div>
 
-          <div className={styles.actions}>
+          <div className={styles.actionSection}>
+            {onSwitchToVoice && !isSubmitting && (
+              <button
+                type="button"
+                onClick={onSwitchToVoice}
+                className={styles.voiceTrigger}
+                aria-label="Switch to voice input"
+                title="Voice mode"
+              >
+                <span>🎙</span>
+              </button>
+            )}
+
             {isSubmitting ? (
               <button
                 type="button"
                 onClick={onStop}
                 className={styles.stopButton}
-                aria-label="Stop generation"
+                aria-label="Stop current response generation"
               >
-                <span className={styles.stopSquare} />
+                <span className={styles.stopIcon} aria-hidden="true" />
                 <span>Stop</span>
               </button>
             ) : (
               <button
                 type="submit"
                 disabled={!text.trim() || disabled || isTooLong}
-                className={styles.sendButton}
-                aria-label="Send message"
+                className={styles.submitButton}
+                aria-label="Send clinical inquiry"
               >
-                <span>Send</span>
+                <span>Submit Query</span>
               </button>
             )}
           </div>

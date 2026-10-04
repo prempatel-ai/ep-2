@@ -1,8 +1,9 @@
-.chatView {
+.chatWorkspace {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   width: 100%;
+  height: 100%;
   position: relative;
 }
 
@@ -10,105 +11,120 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  background-color: var(--color-badge-safety-bg, #fef2f2);
-  color: var(--color-badge-safety-text, #991b1b);
-  border-bottom: 1px solid var(--color-badge-safety-border, #fecaca);
-  padding: 0.5rem 1rem;
-  font-size: var(--font-size-sm, 0.875rem);
+  gap: var(--space-3);
+  background-color: var(--color-badge-safety-bg);
+  border-bottom: 1px solid var(--color-badge-safety-border);
+  color: var(--color-badge-safety-text);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
 }
 
-.warningIcon {
-  flex-shrink: 0;
+.bannerText {
+  font-weight: var(--font-weight-medium);
 }
 
 .retryButton {
   background-color: transparent;
-  color: var(--color-badge-safety-text, #991b1b);
-  border: 1px solid var(--color-badge-safety-border, #fecaca);
-  border-radius: var(--radius-sm, 4px);
-  padding: 0.2rem 0.5rem;
-  font-size: var(--font-size-xs, 0.75rem);
-  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-badge-safety-text);
+  border: 1px solid var(--color-badge-safety-border);
+  border-radius: var(--radius-xs);
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  white-space: nowrap;
+  transition: all var(--transition-fast);
 }
 
 .retryButton:hover {
-  background-color: #fee2e2;
+  background-color: var(--color-surface);
 }
 
 .infoBanner {
-  background-color: var(--color-surface-subtle, #f5f5f5);
-  color: var(--color-text-secondary, #525252);
-  border-bottom: 1px solid var(--color-border, #e5e5e5);
-  padding: 0.4rem 1rem;
-  font-size: var(--font-size-xs, 0.75rem);
+  background-color: var(--color-surface-subtle);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 4px var(--space-4);
+  font-size: var(--font-size-xs);
   text-align: center;
 }
 
-.toolbar {
+.workspaceHeader {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--color-border, #e5e5e5);
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.voiceModeButton {
+.workspaceMeta {
+  display: flex;
+  align-items: center;
+}
+
+.sessionStatus {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-medium);
+}
+
+.workspaceControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.voiceButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: var(--font-size-xs, 0.75rem);
-  font-weight: var(--font-weight-medium, 500);
-  color: var(--color-accent, #0f766e);
-  background-color: var(--color-accent-subtle, #f0fdfa);
-  border: 1px solid var(--color-accent-border, #99f6e4);
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius-sm, 4px);
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: background-color 150ms ease;
+  transition: all var(--transition-fast);
 }
 
-.voiceModeButton:hover {
-  background-color: #ccfbf1;
-}
-
-.micIcon {
-  font-size: 0.875rem;
+.voiceButton:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-accent);
 }
 
 .newChatButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: var(--font-size-xs, 0.75rem);
-  color: var(--color-text-secondary, #525252);
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
   background-color: transparent;
-  border: 1px solid var(--color-border, #e5e5e5);
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition: all var(--transition-fast);
 }
 
 .newChatButton:hover {
-  color: var(--color-text-primary, #171717);
-  border-color: var(--color-border-strong, #d4d4d4);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-subtle);
 }
 
-.resetIcon {
-  font-size: 0.875rem;
+.controlIcon {
+  font-size: 0.8125rem;
+  line-height: 1;
 }
 
-.messageRegion {
+.messagesContainer {
   flex: 1;
   display: flex;
   overflow-y: auto;
 }
 
-.composerRegion {
+.composerContainer {
   flex-shrink: 0;
   width: 100%;
 }

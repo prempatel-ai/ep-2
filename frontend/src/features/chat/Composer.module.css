@@ -1,24 +1,21 @@
 .composerForm {
   width: 100%;
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 0 1.25rem 1.25rem;
+  padding-bottom: var(--space-4);
 }
 
-.inputContainer {
+.inputBox {
   display: flex;
   flex-direction: column;
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  padding: 0.875rem 1rem 0.625rem;
-  box-shadow: var(--shadow-sm);
-  transition: all 150ms ease;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-3) var(--space-2);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.inputContainer:focus-within {
+.inputBox:focus-within {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-ring), var(--shadow-xs);
+  box-shadow: 0 0 0 2px var(--color-accent-ring);
 }
 
 .textarea {
@@ -28,11 +25,11 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 0.9375rem;
+  font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
-  max-height: 180px;
-  min-height: 48px;
+  max-height: 160px;
+  min-height: 44px;
 }
 
 .textarea::placeholder {
@@ -43,79 +40,114 @@
   color: var(--color-badge-safety-text);
 }
 
-.controlsRow {
+.composerToolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.625rem;
-  padding-top: 0.5rem;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--color-border);
 }
 
-.metaInfo {
-  font-size: var(--font-size-xs);
+.metaSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.shortcutHint {
+  font-size: 0.6875rem;
   color: var(--color-text-tertiary);
 }
 
 .charCountError {
+  font-size: 0.6875rem;
   color: var(--color-badge-safety-text);
   font-weight: var(--font-weight-medium);
 }
 
-.actions {
+.actionSection {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
-.sendButton {
+.voiceTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.voiceTrigger:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.submitButton {
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   background-color: var(--color-accent);
-  color: var(--color-text-inverse);
-  padding: 0.45rem 1rem;
-  border-radius: var(--radius-sm);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: var(--radius-xs);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 150ms ease;
-  box-shadow: var(--shadow-xs);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.sendButton:hover:not(:disabled) {
+.submitButton:hover:not(:disabled) {
   background-color: var(--color-accent-hover);
-  transform: translateY(-1px);
 }
 
-.sendButton:disabled {
+.submitButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submitButton:disabled {
   background-color: var(--color-surface-subtle);
   color: var(--color-text-tertiary);
   cursor: not-allowed;
   border-color: var(--color-border);
-  box-shadow: none;
 }
 
 .stopButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.875rem;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   background-color: var(--color-badge-safety-bg);
   color: var(--color-badge-safety-text);
-  padding: 0.45rem 0.875rem;
-  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--color-badge-safety-border);
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: background-color var(--transition-fast);
 }
 
 .stopButton:hover {
-  background-color: #fee2e2;
+  background-color: #3b171c;
 }
 
-.stopSquare {
-  width: 8px;
-  height: 8px;
+.stopIcon {
+  width: 7px;
+  height: 7px;
   background-color: var(--color-badge-safety-text);
   border-radius: 1px;
+}
+
+@media (max-width: 640px) {
+  .shortcutHint {
+    display: none;
+  }
 }

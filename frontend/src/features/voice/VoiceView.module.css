@@ -3,54 +3,53 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: calc(100vh - 160px);
+  min-height: calc(100vh - 130px);
   width: 100%;
-  max-width: 720px;
   margin: 0 auto;
   position: relative;
-  padding: 1.25rem 1.25rem 2rem;
+  padding: var(--space-3) 0 var(--space-4);
 }
 
 .topBar {
   width: 100%;
   display: flex;
   justify-content: flex-start;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .exitButton {
-  font-size: 0.8125rem;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xs);
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.875rem;
+  border-radius: var(--radius-xs);
+  padding: 4px 10px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all var(--transition-fast);
 }
 
 .exitButton:hover {
   color: var(--color-text-primary);
   border-color: var(--color-border-strong);
-  transform: translateY(-1px);
+  background-color: var(--color-surface-hover);
 }
 
 .errorAlert {
   background-color: var(--color-badge-safety-bg);
   border: 1px solid var(--color-badge-safety-border);
   color: var(--color-badge-safety-text);
-  border-radius: var(--radius-md);
-  padding: 0.875rem 1.25rem;
-  margin-top: 1rem;
+  border-radius: var(--radius-xs);
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
   width: 100%;
-  font-size: 0.875rem;
-  box-shadow: var(--shadow-xs);
+  font-size: var(--font-size-xs);
 }
 
 .errorHint {
-  margin-top: 0.35rem;
-  font-size: 0.75rem;
+  margin-top: 2px;
+  font-size: 0.6875rem;
   opacity: 0.9;
 }
 
@@ -59,7 +58,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem 0 1.5rem;
+  padding: var(--space-6) 0 var(--space-4);
 }
 
 .orbWrapper {
@@ -67,27 +66,24 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 1rem;
-  background: radial-gradient(circle, var(--color-accent-subtle) 0%, transparent 70%);
   border-radius: 50%;
 }
 
 .statusIndicator {
-  margin-top: 1.5rem;
+  margin-top: var(--space-4);
 }
 
 .statusPill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8125rem;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  padding: 0.35rem 1rem;
+  padding: 4px 14px;
   border-radius: var(--radius-full);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  box-shadow: var(--shadow-xs);
 }
 
 .pill_speaking {
@@ -97,76 +93,78 @@
 }
 
 .pill_capturing {
-  background-color: #fefce8;
-  border-color: #fef08a;
-  color: #854d0e;
+  background-color: #2e2608;
+  border-color: #715809;
+  color: #fbbf24;
 }
 
 .pill_thinking {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
 }
 
 .headphoneTip {
-  margin-top: 1rem;
-  font-size: 0.75rem;
+  margin-top: var(--space-2);
+  font-size: 0.6875rem;
   color: var(--color-text-tertiary);
   text-align: center;
-  max-width: 380px;
+  max-width: 360px;
 }
 
 .transcriptSection {
   width: 100%;
+  max-width: 760px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  min-height: 140px;
+  gap: var(--space-3);
+  min-height: 120px;
+  padding: var(--space-2) 0;
 }
 
 .userBubble {
-  background-color: var(--color-surface-subtle);
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.875rem 1.125rem;
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
 }
 
 .assistantBubble {
-  background-color: var(--color-surface);
+  background-color: var(--color-surface-subtle);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  box-shadow: var(--shadow-xs);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
 }
 
 .assistantHeader {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .speakerTag {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-tertiary);
 }
 
 .transcriptText {
-  margin-top: 0.25rem;
-  font-size: 0.9375rem;
+  font-size: var(--font-size-base);
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .assistantText {
-  font-size: 0.9375rem;
-  line-height: var(--line-height-normal);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .controlsBar {
-  margin-top: 2rem;
+  margin-top: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,27 +174,25 @@
 .interruptButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   background-color: var(--color-badge-safety-bg);
   color: var(--color-badge-safety-text);
   border: 1px solid var(--color-badge-safety-border);
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-full);
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-semibold);
+  padding: 6px 16px;
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: all 150ms ease;
+  transition: all var(--transition-fast);
 }
 
 .interruptButton:hover {
-  background-color: #fee2e2;
-  transform: translateY(-1px);
+  background-color: #3b171c;
 }
 
 .stopIcon {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background-color: var(--color-badge-safety-text);
   border-radius: 1px;
 }
@@ -204,36 +200,19 @@
 .liveVoiceTag {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
+  gap: var(--space-2);
+  font-size: 0.6875rem;
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  padding: 0.35rem 0.875rem;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-xs);
+  padding: 3px 10px;
+  border-radius: var(--radius-xs);
 }
 
 .pulseLive {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: var(--color-accent);
-  animation: livePulse 2s infinite;
-}
-
-@keyframes livePulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 8px rgba(13, 148, 136, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(13, 148, 136, 0);
-  }
 }

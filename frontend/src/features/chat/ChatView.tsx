@@ -25,7 +25,6 @@ export function ChatView({
   const [llmReady, setLlmReady] = useState<boolean | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Check backend readiness on load and poll occasionally
   const checkReadiness = useCallback(async () => {
     try {
       const readyData = await getReady();
@@ -34,7 +33,7 @@ export function ChatView({
       if (!readyData.ready) {
         dispatch({
           type: "SET_GLOBAL_ERROR",
-          error: "The medical assistant engine is initializing. Please wait a moment...",
+          error: "The clinical assistant engine is initializing. Please wait...",
         });
       } else {
         dispatch({ type: "SET_GLOBAL_ERROR", error: null });
@@ -44,7 +43,7 @@ export function ChatView({
       setLlmReady(false);
       dispatch({
         type: "SET_GLOBAL_ERROR",
-        error: "Backend server is currently unreachable. Make sure the local server is running.",
+        error: "Backend server is offline or unreachable.",
       });
     }
   }, []);
@@ -154,7 +153,7 @@ export function ChatView({
       try {
         await deleteSession(state.sessionId);
       } catch {
-        // ignore deletion cleanup failure
+        // ignore deletion cleanup
       }
     }
     dispatch({ type: "CLEAR_CONVERSATION" });
@@ -162,12 +161,11 @@ export function ChatView({
   };
 
   return (
-    <div className={styles.chatView}>
-      {/* Top Banner for Server / LLM offline or degraded status */}
+    <div className={styles.chatWorkspace}>
+      {/* Systematic Status / Offline Banners */}
       {state.error && (
         <div className={styles.warningBanner} role="alert">
-          <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
-          <span>{state.error}</span>
+          <span className={styles.bannerText}>{state.error}</span>
           <button
             type="button"
             className={styles.retryButton}
@@ -180,47 +178,60 @@ export function ChatView({
 
       {serverReady === true && llmReady === false && (
         <div className={styles.infoBanner} role="status">
-          <span>
-            Notice: Offline LLM generation is unavailable. Direct verified FAQ answers and safety protocols remain fully operational.
-          </span>
+          Verified FAQ direct answering active. Offline language model currently unavailable.
         </div>
       )}
 
-      <div className={styles.toolbar}>
-        {onSwitchToVoice && (
+      {/* Clean Utility Subheader */}
+      <div className={styles.workspaceHeader}>
+        <div className={styles.workspaceMeta}>
+          <span className={styles.sessionStatus}>
+            {state.messages.length > 0
+              ? `Session active (${state.messages.length / 2} query turns)`
+              : "Ready for medical query"}
+          </span>
+        </div>
+
+        <div className={styles.workspaceControls}>
+          {onSwitchToVoice && (
+            <button
+              type="button"
+              onClick={onSwitchToVoice}
+              className={styles.voiceButton}
+              aria-label="Switch to interactive voice mode"
+            >
+              <span className={styles.controlIcon} aria-hidden="true">🎙</span>
+              <span>Voice Mode</span>
+            </button>
+          )}
+
           <button
             type="button"
-            onClick={onSwitchToVoice}
-            className={styles.voiceModeButton}
-            aria-label="Start voice conversation with interactive globe"
+            onClick={handleNewConversation}
+            className={styles.newChatButton}
+            aria-label="Clear chat session and start new conversation"
           >
-            <span className={styles.micIcon} aria-hidden="true">🎙️</span>
-            <span>Voice Mode</span>
+            <span className={styles.controlIcon} aria-hidden="true">↺</span>
+            <span>New conversation</span>
           </button>
-        )}
-        <button
-          type="button"
-          onClick={handleNewConversation}
-          className={styles.newChatButton}
-          aria-label="Clear chat and start new conversation"
-        >
-          <span className={styles.resetIcon} aria-hidden="true">↺</span>
-          <span>New conversation</span>
-        </button>
+        </div>
       </div>
 
-      <div className={styles.messageRegion}>
+      {/* Main Conversation Stream */}
+      <div className={styles.messagesContainer}>
         <MessageList
           messages={state.messages}
           onSelectPrompt={(prompt) => handleSend(prompt)}
         />
       </div>
 
-      <div className={styles.composerRegion}>
+      {/* Primary Interaction Composer */}
+      <div className={styles.composerContainer}>
         <Composer
           isSubmitting={state.isSubmitting}
           onSend={handleSend}
           onStop={handleStop}
+          onSwitchToVoice={onSwitchToVoice}
           disabled={serverReady === false}
         />
       </div>

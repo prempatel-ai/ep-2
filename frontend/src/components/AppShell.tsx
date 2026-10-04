@@ -21,24 +21,24 @@ export function AppShell({
 
   return (
     <div className={styles.container}>
-      {/* Top Header - Production Grade, Refined Clinical Hierarchy */}
+      {/* Top Header - Restrained, modern healthcare enterprise software */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brand}>
-            <div className={styles.brandIcon} aria-hidden="true">
-              સ
-            </div>
+            <span className={styles.brandSymbol} aria-hidden="true">
+              +
+            </span>
             <div className={styles.brandInfo}>
               <div className={styles.brandTitleRow}>
                 <h1 className={styles.title}>{t.app.title}</h1>
-                <span className={styles.badgeOffline}>Offline Core</span>
+                <span className={styles.statusOfflineTag}>Offline Core</span>
               </div>
               <p className={styles.subtitle}>{t.app.subtitle}</p>
             </div>
           </div>
 
           <div className={styles.headerActions}>
-            {/* Status indicator */}
+            {/* Understated connection status indicator */}
             <div
               className={styles.statusIndicator}
               role="status"
@@ -64,17 +64,20 @@ export function AppShell({
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Expansive natural workspace layout */}
       <main className={styles.main}>
         <div className={styles.mainContent}>{children}</div>
       </main>
 
-      {/* Footer - Mandatory clinical safety disclaimers & emergency helpline pill */}
+      {/* Persistent Quiet Safety Notice Bar */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <p className={styles.disclaimerText}>{t.disclaimer.notice}</p>
-          <div className={styles.emergencyPill}>
-            <span>🚨</span>
+          <p className={styles.disclaimerText}>
+            <span className={styles.disclaimerLabel}>Clinical Note:</span>{" "}
+            {t.disclaimer.notice}
+          </p>
+          <div className={styles.emergencyTag}>
+            <span className={styles.emergencyIcon}>!</span>
             <span>{t.disclaimer.emergency}</span>
           </div>
         </div>
