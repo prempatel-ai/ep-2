@@ -19,125 +19,108 @@
   border: 0;
 }
 
-/* Welcome Workspace (When conversation hasn't started) */
+/* Welcome Workspace (ChatGPT-style empty state) */
 .welcomeWorkspace {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  padding: var(--space-6) 0 var(--space-4);
-  max-width: 860px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  margin: auto 0;
+  padding: var(--space-8) var(--space-2);
+  width: 100%;
 }
 
 .welcomeIntro {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 580px;
+  margin-bottom: var(--space-8);
 }
 
-.clinicalContextTag {
-  font-size: 0.6875rem;
+.welcomeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--color-accent);
+  background-color: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-border);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.pulseTeal {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-accent);
 }
 
 .welcomeTitle {
-  font-size: var(--font-size-xl);
+  font-size: 1.5rem;
   font-weight: var(--font-weight-semibold);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   color: var(--color-text-primary);
-  line-height: var(--line-height-tight);
+  line-height: 1.3;
 }
 
 .welcomeDesc {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
-  max-width: 640px;
 }
 
-/* Suggested Questions Section (Lightweight Interactive Rows) */
-.suggestedSection {
-  display: flex;
-  flex-direction: column;
+/* Suggested Questions Grid (Clean ChatGPT cards) */
+.suggestedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-3);
-  margin-top: var(--space-2);
+  width: 100%;
+  max-width: 680px;
 }
 
-.suggestedLabel {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.suggestedList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.suggestedRow {
+.suggestedCard {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: 14px 18px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   transition: all var(--transition-fast);
+  box-shadow: var(--shadow-subtle);
 }
 
-.suggestedRow:hover {
+.suggestedCard:hover {
   background-color: var(--color-surface-hover);
-  border-color: var(--color-accent-border);
+  border-color: var(--color-border-strong);
+  transform: translateY(-1px);
 }
 
-.suggestedRow:focus-visible {
+.suggestedCard:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.suggestedRow:hover .rowArrow {
-  color: var(--color-accent);
-  transform: translateX(2px);
-}
-
-.rowContent {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.rowText {
+.cardPrompt {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
   color: var(--color-text-primary);
   line-height: var(--line-height-normal);
 }
 
-.rowTopic {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-}
-
-.rowArrow {
-  color: var(--color-text-tertiary);
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-}
-
-/* Conversation Stream (When messages exist) */
+/* Conversation Stream (Clean ChatGPT/OpenAI style) */
 .conversationStream {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding-bottom: var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
+  width: 100%;
 }
 
 .turnBlock {
@@ -147,28 +130,44 @@
   width: 100%;
 }
 
+/* User Message: Clean pill bubble on the right */
 .turnUser {
-  max-width: 88%;
-  align-self: flex-start;
+  align-self: flex-end;
+  max-width: 80%;
 }
 
+.turnUser .turnHeader {
+  display: none;
+}
+
+.bodyUser {
+  background-color: #f4f4f5;
+  color: #18181b;
+  border-radius: 18px;
+  padding: 10px 18px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  border: 1px solid #e4e4e7;
+}
+
+/* Assistant Message: Clean response directly on canvas on the left */
 .turnAssistant {
-  width: 100%;
   align-self: flex-start;
+  width: 100%;
 }
 
-.turnHeader {
+.turnAssistant .turnHeader {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .senderRole {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
 }
 
 .stoppedTag {
@@ -185,21 +184,12 @@
   word-break: break-word;
 }
 
-/* User Query: Clean, calm border, subtle container */
-.bodyUser {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text-primary);
-}
-
-/* Assistant Guidance: Clean editorial card block without cartoon bubbles */
 .bodyAssistant {
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-accent);
-  padding: var(--space-4);
+  background-color: transparent;
+  padding: 0;
   color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
 }
 
 .textContent {
@@ -258,4 +248,13 @@
 .errorIcon {
   flex-shrink: 0;
   color: var(--color-badge-safety-text);
+}
+
+@media (max-width: 640px) {
+  .suggestedGrid {
+    grid-template-columns: 1fr;
+  }
+  .turnUser {
+    max-width: 90%;
+  }
 }

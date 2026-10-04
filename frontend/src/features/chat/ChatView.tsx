@@ -188,14 +188,6 @@ export function ChatView({
 
       {/* Clean Utility Subheader */}
       <div className={styles.workspaceHeader}>
-        <div className={styles.workspaceMeta}>
-          <span className={styles.sessionStatus}>
-            {state.messages.length > 0
-              ? `Session active (${state.messages.length / 2} query turns)`
-              : "Ready for medical query"}
-          </span>
-        </div>
-
         <div className={styles.workspaceControls}>
           {onSwitchToVoice && (
             <button

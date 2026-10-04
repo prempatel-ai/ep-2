@@ -1,0 +1,183 @@
+.stage {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Atmospheric Soft Aura */
+.aura {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+  transition: all 400ms ease;
+  pointer-events: none;
+}
+
+.aura_speaking {
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.22) 0%, rgba(255, 255, 255, 0) 75%);
+  transform: scale(1.15);
+}
+
+.aura_thinking {
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.aura_capturing {
+  background: radial-gradient(circle, rgba(202, 138, 4, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+/* Concentric Ripple Rings */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(13, 148, 136, 0.2);
+  transition: all 300ms ease;
+  pointer-events: none;
+}
+
+.ring1 {
+  width: 160px;
+  height: 160px;
+}
+
+.ring2 {
+  width: 190px;
+  height: 190px;
+  opacity: 0.5;
+}
+
+/* Core Orb - Pure ChatGPT fluid organic presence */
+.coreOrb {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #0f766e 100%);
+  box-shadow: 0 10px 30px rgba(13, 148, 136, 0.25), inset 0 2px 6px rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.innerGlow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45) 0%, transparent 60%);
+}
+
+/* States */
+
+/* 1. Idle / Listening - Calm breathing */
+.core_listening {
+  animation: breathe 3.2s infinite ease-in-out;
+}
+
+.core_idle {
+  animation: breathe 4s infinite ease-in-out;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(0.96);
+    box-shadow: 0 8px 25px rgba(13, 148, 136, 0.2);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 12px 36px rgba(13, 148, 136, 0.32);
+  }
+}
+
+/* 2. Capturing - Hearing user speech, responsive pulsation */
+.core_capturing {
+  animation: pulseListen 1.2s infinite ease-in-out;
+  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+}
+
+@keyframes pulseListen {
+  0%, 100% {
+    transform: scale(1.0);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* 3. Thinking - Subtle smooth rotation */
+.core_thinking {
+  animation: thinkingPulse 1.8s infinite ease-in-out, subtleSpin 6s infinite linear;
+}
+
+@keyframes thinkingPulse {
+  0%, 100% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes subtleSpin {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(25deg);
+  }
+}
+
+/* 4. Speaking - Active voice audio pulse */
+.core_speaking {
+  animation: speakPulse 1.4s infinite ease-in-out;
+  box-shadow: 0 12px 40px rgba(13, 148, 136, 0.35);
+}
+
+.ring_speaking.ring1 {
+  animation: rippleOut 2s infinite ease-out;
+}
+
+.ring_speaking.ring2 {
+  animation: rippleOut 2s infinite ease-out 0.6s;
+}
+
+@keyframes speakPulse {
+  0%, 100% {
+    transform: scale(1.02);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes rippleOut {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+/* 5. Error */
+.core_error {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coreOrb,
+  .aura,
+  .ring {
+    animation: none !important;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { ChevronRight, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
 import styles from "./MessageList.module.css";
@@ -45,83 +45,59 @@ export function MessageList({
       {messages.length === 0 ? (
         <div className={styles.welcomeWorkspace}>
           <div className={styles.welcomeIntro}>
-            <span className={styles.clinicalContextTag}>Verified Clinical Knowledge Base</span>
+            <div className={styles.welcomeBadge}>
+              <span className={styles.pulseTeal} />
+              <span>Verified Clinical Knowledge</span>
+            </div>
             <h2 className={styles.welcomeTitle}>
-              {emptyPromptText || "Breast Cancer Information Assistant"}
+              {emptyPromptText || "What breast cancer questions can I help with?"}
             </h2>
             <p className={styles.welcomeDesc}>
-              Sahayak provides verified guidance on clinical symptoms, screening guidelines,
-              staging, and diagnosis queries in Gujarati, Hindi, and English.
+              Sahayak is an offline clinical assistant providing verified guidance on symptoms,
+              screening guidelines, diagnosis, and staging queries in Gujarati, Hindi, and English.
             </p>
           </div>
 
-          <div className={styles.suggestedSection}>
-            <span className={styles.suggestedLabel}>Common clinical inquiries</span>
-            <div className={styles.suggestedList}>
-              <button
-                type="button"
-                className={styles.suggestedRow}
-                onClick={() =>
-                  onSelectPrompt?.("What are the most common early signs of breast cancer?")
-                }
-              >
-                <div className={styles.rowContent}>
-                  <span className={styles.rowText}>
-                    What are the most common early signs of breast cancer?
-                  </span>
-                  <span className={styles.rowTopic}>Early Detection & Symptoms</span>
-                </div>
-                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
-              </button>
+          <div className={styles.suggestedGrid}>
+            <button
+              type="button"
+              className={styles.suggestedCard}
+              onClick={() =>
+                onSelectPrompt?.("What are the most common early signs of breast cancer?")
+              }
+            >
+              <span className={styles.cardPrompt}>What are early signs of breast cancer?</span>
+            </button>
 
-              <button
-                type="button"
-                className={styles.suggestedRow}
-                onClick={() =>
-                  onSelectPrompt?.("How often should women get a mammogram screening?")
-                }
-              >
-                <div className={styles.rowContent}>
-                  <span className={styles.rowText}>
-                    How often should women get a mammogram screening?
-                  </span>
-                  <span className={styles.rowTopic}>Screening & Mammography</span>
-                </div>
-                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
-              </button>
+            <button
+              type="button"
+              className={styles.suggestedCard}
+              onClick={() =>
+                onSelectPrompt?.("How often should women get a mammogram screening?")
+              }
+            >
+              <span className={styles.cardPrompt}>How often should women get a mammogram?</span>
+            </button>
 
-              <button
-                type="button"
-                className={styles.suggestedRow}
-                onClick={() =>
-                  onSelectPrompt?.("Is every breast lump cancerous?")
-                }
-              >
-                <div className={styles.rowContent}>
-                  <span className={styles.rowText}>
-                    Is every breast lump cancerous?
-                  </span>
-                  <span className={styles.rowTopic}>Lump Assessment & Biopsy</span>
-                </div>
-                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
-              </button>
+            <button
+              type="button"
+              className={styles.suggestedCard}
+              onClick={() =>
+                onSelectPrompt?.("Is every breast lump cancerous?")
+              }
+            >
+              <span className={styles.cardPrompt}>Is every breast lump cancerous?</span>
+            </button>
 
-              <button
-                type="button"
-                className={styles.suggestedRow}
-                onClick={() =>
-                  onSelectPrompt?.("What are the standard stages of breast cancer?")
-                }
-              >
-                <div className={styles.rowContent}>
-                  <span className={styles.rowText}>
-                    What are the standard stages of breast cancer?
-                  </span>
-                  <span className={styles.rowTopic}>Staging & Diagnosis</span>
-                </div>
-                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.suggestedCard}
+              onClick={() =>
+                onSelectPrompt?.("What are the standard stages of breast cancer?")
+              }
+            >
+              <span className={styles.cardPrompt}>What are the standard stages of breast cancer?</span>
+            </button>
           </div>
         </div>
       ) : (

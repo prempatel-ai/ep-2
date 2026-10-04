@@ -8,14 +8,15 @@
   flex-direction: column;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-3) var(--space-2);
+  border-radius: 20px;
+  padding: 12px 16px 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .inputBox:focus-within {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent-ring);
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
 }
 
 .textarea {
@@ -29,7 +30,7 @@
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
   max-height: 160px;
-  min-height: 44px;
+  min-height: 32px;
 }
 
 .textarea::placeholder {
@@ -44,15 +45,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 6px;
 }
 
 .metaSection {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .shortcutHint {
@@ -70,6 +70,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-left: auto;
 }
 
 .voiceTrigger {
@@ -78,32 +79,35 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-xs);
-  background-color: var(--color-surface-subtle);
+  border-radius: 50%;
+  background-color: var(--color-surface-hover);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .voiceTrigger:hover {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-accent-subtle);
   color: var(--color-accent);
-  border-color: var(--color-accent);
+  border-color: var(--color-accent-border);
+}
+
+.voiceTrigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .submitButton {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   background-color: var(--color-accent);
   color: #ffffff;
-  padding: 6px 14px;
-  border-radius: var(--radius-xs);
-  border: 1px solid transparent;
+  border: none;
   cursor: pointer;
   transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
@@ -122,10 +126,9 @@
 }
 
 .submitButton:disabled {
-  background-color: var(--color-surface-subtle);
-  color: var(--color-text-tertiary);
+  background-color: #e5e7eb;
+  color: #9ca3af;
   cursor: not-allowed;
-  border-color: var(--color-border);
 }
 
 .stopButton {
@@ -137,14 +140,14 @@
   background-color: var(--color-badge-safety-bg);
   color: var(--color-badge-safety-text);
   padding: 6px 12px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-full);
   border: 1px solid var(--color-badge-safety-border);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
 .stopButton:hover {
-  background-color: #3b171c;
+  background-color: #fee2e2;
 }
 
 .stopButton:focus-visible {

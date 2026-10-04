@@ -122,8 +122,7 @@ export function Composer({
                 className={styles.submitButton}
                 aria-label="Send clinical inquiry"
               >
-                <Send size={13} aria-hidden="true" />
-                <span>Submit Query</span>
+                <Send size={15} aria-hidden="true" />
               </button>
             )}
           </div>

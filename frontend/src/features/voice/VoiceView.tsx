@@ -8,9 +8,7 @@ import {
   initialVoiceState,
 } from "./voiceStateMachine";
 import { ArrowLeft, AlertCircle, Square } from "lucide-react";
-import { OrbBloop } from "@/components/ui/orb-bloop";
-import { BloopState } from "@/components/ui/orb-bloop-utils/types";
-import { BLOOP_PALETTES, BloopPaletteName } from "@/components/ui/orb-bloop-utils/palettes";
+import { VoicePresence } from "./VoicePresence";
 import { SourceBadge } from "@/features/chat/SourceBadge";
 import { DevPanel } from "./DevPanel";
 import styles from "./VoiceView.module.css";
@@ -38,20 +36,6 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     stateRef.current = voiceState;
   }, [voiceState]);
 
-  // Map state machine to ChatGPT-style Orb state
-  const getOrbState = (): BloopState => {
-    switch (voiceState.machineState) {
-      case "listening":
-      case "capturing":
-        return BloopState.listen;
-      case "thinking":
-        return BloopState.think;
-      case "speaking":
-        return BloopState.speak;
-      default:
-        return BloopState.idle;
-    }
-  };
 
   const handleInterrupt = useCallback(() => {
     playerRef.current?.flush();
@@ -126,7 +110,6 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     };
   }, [currentLanguage, handleInterrupt]);
 
-  const tealPalette = BLOOP_PALETTES[BloopPaletteName.teal];
 
   const getStateLabel = () => {
     switch (voiceState.machineState) {
@@ -179,20 +162,10 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         </div>
       )}
 
-      {/* Central Interactive Voice Orb Region */}
+      {/* Central Interactive Voice Presence Region */}
       <div className={styles.orbStage}>
         <div className={styles.orbWrapper}>
-          <OrbBloop
-            size={220}
-            audioMode="ambient"
-            state={getOrbState()}
-            bloopColorMain={tealPalette.main}
-            bloopColorLow={tealPalette.low}
-            bloopColorMid={tealPalette.mid}
-            bloopColorHigh={tealPalette.high}
-            watercolorStrength={0.4}
-            watercolorAnimated={false}
-          />
+          <VoicePresence state={voiceState.machineState} />
         </div>
 
         <div className={styles.statusIndicator}>

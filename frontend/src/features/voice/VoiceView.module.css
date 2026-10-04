@@ -3,11 +3,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: calc(100vh - 130px);
+  min-height: calc(100vh - 140px);
   width: 100%;
+  max-width: 760px;
   margin: 0 auto;
   position: relative;
-  padding: var(--space-3) 0 var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
 }
 
 .topBar {
@@ -15,7 +16,6 @@
   display: flex;
   justify-content: flex-start;
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-border);
 }
 
 .exitButton {
@@ -27,10 +27,11 @@
   color: var(--color-text-secondary);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xs);
-  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
   cursor: pointer;
   transition: all var(--transition-fast);
+  box-shadow: var(--shadow-subtle);
 }
 
 .exitButton:hover {
@@ -48,7 +49,7 @@
   background-color: var(--color-badge-safety-bg);
   border: 1px solid var(--color-badge-safety-border);
   color: var(--color-badge-safety-text);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
   margin-top: var(--space-3);
   width: 100%;
@@ -77,7 +78,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6) 0 var(--space-4);
+  padding: var(--space-4) 0;
+  margin: auto 0;
 }
 
 .orbWrapper {
@@ -86,6 +88,8 @@
   justify-content: center;
   position: relative;
   border-radius: 50%;
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.06) 0%, rgba(255, 255, 255, 0) 70%);
+  padding: 12px;
 }
 
 .statusIndicator {
@@ -98,42 +102,42 @@
   gap: var(--space-2);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  padding: 4px 14px;
+  padding: 6px 16px;
   border-radius: var(--radius-full);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #374151;
 }
 
 .pill_speaking {
-  background-color: var(--color-accent-subtle);
-  border-color: var(--color-accent-border);
-  color: #5eead4;
+  background-color: #f0fdfa;
+  border-color: #ccfbf1;
+  color: #0f766e;
 }
 
 .pill_capturing {
-  background-color: rgba(234, 179, 8, 0.12);
-  border-color: rgba(234, 179, 8, 0.3);
-  color: #facc15;
+  background-color: #fefce8;
+  border-color: #fef08a;
+  color: #a16207;
 }
 
 .pill_thinking {
-  background-color: var(--color-surface-subtle);
-  border-color: var(--color-border-strong);
-  color: var(--color-text-primary);
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #1f293d;
 }
 
 .headphoneTip {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   font-size: 0.6875rem;
   color: var(--color-text-tertiary);
   text-align: center;
-  max-width: 360px;
+  max-width: 380px;
 }
 
 .transcriptSection {
   width: 100%;
-  max-width: 760px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -141,18 +145,22 @@
 }
 
 .userBubble {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  background-color: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
   padding: var(--space-3) var(--space-4);
+  align-self: flex-end;
+  max-width: 85%;
 }
 
 .assistantBubble {
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
+  background-color: #f0fdfa;
+  border: 1px solid #ccfbf1;
   border-left: 3px solid var(--color-accent);
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   padding: var(--space-3) var(--space-4);
+  align-self: flex-start;
+  max-width: 90%;
 }
 
 .assistantHeader {
@@ -165,21 +173,21 @@
 .speakerTag {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--color-text-tertiary);
 }
 
 .transcriptText {
   font-size: var(--font-size-base);
-  color: var(--color-text-primary);
+  color: #18181b;
   margin: 0;
 }
 
 .assistantText {
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
-  color: var(--color-text-primary);
+  color: #0f172a;
   margin: 0;
 }
 
@@ -195,11 +203,11 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  background-color: var(--color-badge-safety-bg);
-  color: var(--color-badge-safety-text);
-  border: 1px solid var(--color-badge-safety-border);
-  padding: 6px 16px;
-  border-radius: var(--radius-xs);
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -207,11 +215,11 @@
 }
 
 .interruptButton:hover {
-  background-color: #3b171c;
+  background-color: #fee2e2;
 }
 
 .interruptButton:focus-visible {
-  outline: 2px solid var(--color-badge-safety-text);
+  outline: 2px solid #b91c1c;
   outline-offset: 2px;
 }
 
@@ -222,10 +230,10 @@
   font-size: 0.6875rem;
   font-weight: var(--font-weight-medium);
   color: var(--color-text-tertiary);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 3px 10px;
-  border-radius: var(--radius-xs);
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
 }
 
 .pulseLive {
