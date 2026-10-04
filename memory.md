@@ -9,15 +9,15 @@
 | Area | State | Evidence |
 |---|---|---|
 | Backend code | Written | `backend/src/sahayak/` |
-| Backend tests | **85 pass** (81 baseline unit tests + 4 web layer tests; 83 mentioned in docs referred to turn-id tests not present in repo) | `pytest` and `python -m unittest discover -s tests` |
+| Backend tests | **92 pass** (81 baseline unit tests + 4 web layer tests + 7 model-free Chroma retrieval tests) | `pytest` |
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
-| Model adapters (Whisper, IndicConformer, MMS, Parler, sentence-transformers, Chroma, llama.cpp client) | Written, **UNVERIFIED** against real libraries | none yet |
-| FAQ data / index | Not in repo | `backend/data/faqs.example.jsonl` shows the format |
+| Model adapters | Embedder (`SentenceTransformerEmbedder`) and FAQ Index (`ChromaFAQIndex`) **VERIFIED** on real libraries (Phase 1). Whisper, IndicConformer, MMS, Parler, llama.cpp client remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `sahayak-index`, `GET /ready` |
+| FAQ data / index | Example file indexed (`backend/data/faqs.example.jsonl` -> `backend/data/chroma`); real `faqs.jsonl` not yet provided | `sahayak-index`, `backend/data/chroma` |
 | Frontend | Not started | n/a |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 
-**Phase progress:** Phase 0 complete (see `phases.md`).
+**Phase progress:** Phase 0 and Phase 1 complete (see `phases.md`).
 
 ## 2. Decisions and why
 
@@ -52,7 +52,7 @@
 3. `IndicConformer` call: `model(waveform, lang, decoder)` and `trust_remote_code` loading (`adapters/stt_indic_conformer.py`).
 4. `MMS-TTS` (VITS) load and output sample rate (`adapters/tts_mms.py`).
 5. `Indic Parler-TTS` generate call (`adapters/tts_parler.py`).
-6. ChromaDB `PersistentClient`, `query` result shape, cosine distance → score (`adapters/faq_chroma.py`).
+6. **[VERIFIED in Phase 1]** ChromaDB `PersistentClient`, `query` result shape, cosine distance -> score (`adapters/faq_chroma.py`), and `SentenceTransformerEmbedder` (`adapters/embedder_st.py`). Model `intfloat/multilingual-e5-small` verified from cold start offline (`HF_HUB_OFFLINE=1`).
 7. Whether llama.cpp supports the chosen base model's architecture for GGUF conversion (Phase 10).
 8. All latency targets in `product.md` §8.
 9. Hindi and Gujarati text in `safety_rules.yaml` and `services/messages.py`; helpline numbers (112, 14416).
@@ -70,6 +70,7 @@
 - **One turn at a time per session**, enforced by `Session.lock`. A cancelled turn still records what was actually said.
 - **Chroma add-batch limit** is a few thousand; the indexer adds in batches of 256.
 - Python 3.11+ is required (`StrEnum`, `aclosing` behaviour relied on).
+- **Windows Chroma TemporaryDirectory cleanup:** Chroma's background `BlockingRunner` thread may hold open SQLite / HNSW file locks when a temporary directory exits. Use `ignore_cleanup_errors=True` in temp dirs during unit tests.
 
 ## 6. Open decisions
 
@@ -105,11 +106,12 @@
 | 2026-10-03 | Protocol gap found while planning the voice phase (stale frames after interruption). Fixed with client-assigned turn ids; 83 tests passing. |
 | 2026-10-03 | `product.md`, `CLAUDE.md`, `agent.md`, `memory.md`, `phases.md` written. No phase started. |
 | 2026-10-03 | **Phase 0 completed**: Real machine verification on Windows (Python 3.13.9). Verified FastAPI routes, WebSocket handler, SSE streaming, sessions, safety guard, error cases. Added `backend/scripts/smoke_http.py` and `backend/tests/test_web_layer.py`. 85 tests passing. |
+| 2026-10-04 | **Phase 1 completed**: Installed `[rag]` dependencies (`chromadb`, `sentence-transformers`, `torch`, etc.). Pre-downloaded `intfloat/multilingual-e5-small`. Verified offline loading via `HF_HUB_OFFLINE=1`. Ran `sahayak-index` on `faqs.example.jsonl` (usable: 2, duplicates: 0) and proved idempotency across multiple runs. Real `faqs.jsonl` not yet present (`faq_conflicts.txt` created empty). Added `backend/scripts/check_retrieval.py` and `backend/scripts/tune_thresholds.py`. Added `backend/eval/retrieval_probes.example.jsonl`. Added model-free integration tests in `backend/tests/test_retrieval_fake_embedder.py` (7 tests). Total tests passing: 92. |
 
-## 9. Environment & Package Versions (Phase 0)
+## 9. Environment & Package Versions
 
 - Python: 3.13.9 (64-bit Windows)
-- Packages installed in `backend/.venv` via `pip install -e ".[dev]"`:
+- Baseline & Dev Packages (`backend/.venv` via `pip install -e ".[dev]"`):
   - fastapi: 0.142.2
   - starlette: 1.7.0
   - uvicorn: 0.54.0
@@ -125,4 +127,15 @@
   - mypy: 2.4.0
   - watchfiles: 1.3.0
   - anyio: 4.15.1
+- Phase 1 RAG Packages (`pip install -e ".[rag]"`):
+  - chromadb: 1.5.9
+  - sentence-transformers: 6.1.0
+  - torch: 2.14.1
+  - transformers: 5.18.0
+  - scikit-learn: 1.9.1
+  - onnxruntime: 1.30.0
+- Offline Embedding Model:
+  - Model: `intfloat/multilingual-e5-small`
+  - HF cache snapshot: `C:\Users\ASUS\.cache\huggingface\hub\models--intfloat--multilingual-e5-small\snapshots\614241f622f53c4eeff9890bdc4f31cfecc418b3`
+  - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)
 

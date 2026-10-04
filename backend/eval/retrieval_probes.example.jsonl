@@ -1,0 +1,3 @@
+{"query": "How is a mammogram done?", "expected_question": "What is a mammogram?"}
+{"query": "Tell me what a biopsy is.", "expected_question": "What is a biopsy?"}
+{"query": "Does a mammogram use X-rays?", "expected_question": "What is a mammogram?"}
