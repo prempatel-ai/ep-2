@@ -12,7 +12,7 @@
   border-radius: 14px;
   padding: 8px 12px 6px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .inputBox:focus-within {
@@ -28,10 +28,10 @@
   background: transparent;
   font-family: inherit;
   font-size: 0.9375rem; /* 15px */
-  line-height: var(--line-height-normal);
+  line-height: 1.45;
   color: #111827;
-  max-height: 160px;
-  min-height: 28px;
+  max-height: 140px;
+  min-height: 24px;
 }
 
 .textarea::placeholder {
@@ -47,7 +47,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 4px;
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 .metaSection {
@@ -68,83 +68,109 @@
 }
 
 .actionSection {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-left: auto;
 }
 
-.voiceTrigger {
-  display: flex;
+/* STATE 1: Compact Voice Control Group [Mic] [Voice] [Chevron] */
+.voiceControlGroup {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-xs);
+  padding: 2px;
+  gap: 1px;
+  animation: fadeIn 150ms ease-out;
+}
+
+.voiceButton {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-xs);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   background-color: transparent;
-  border: 1px solid transparent;
+  border: none;
   color: #6b7280;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
-.voiceTrigger:hover {
-  background-color: #f0fdfa;
-  color: #0d9488;
-  border-color: #ccfbf1;
+.voiceButton:hover {
+  background-color: #f3f4f6;
+  color: #111827;
 }
 
-.voiceTrigger:focus-visible {
-  outline: 2px solid #0d9488;
+.voiceButton:focus-visible {
+  outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-.submitButton {
-  display: flex;
+.voiceButtonActive {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  animation: pulseMic 1.5s infinite ease-in-out;
+}
+
+.chevronButton {
+  width: 20px;
+  color: #9ca3af;
+}
+
+.chevronButton:hover {
+  color: #4b5563;
+}
+
+/* STATE 2: Send Button (Shown immediately when text is typed) */
+.sendButton {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 30px;
   height: 30px;
   border-radius: var(--radius-xs);
-  background-color: #0d9488;
+  background-color: #111827;
   color: #ffffff;
   border: none;
   cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  transition: opacity 150ms ease, background-color 120ms ease;
+  animation: fadeIn 150ms ease-out;
 }
 
-.submitButton:hover:not(:disabled) {
-  background-color: #0f766e;
+.sendButton:hover:not(:disabled) {
+  background-color: #1f2937;
 }
 
-.submitButton:focus-visible {
-  outline: 2px solid #0d9488;
-  outline-offset: 1px;
-}
-
-.submitButton:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.submitButton:disabled {
-  background-color: #f3f4f6;
-  color: #9ca3af;
+.sendButton:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
+.sendButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Stop Button (Shown while generation is in progress) */
 .stopButton {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 0.75rem;
   font-weight: var(--font-weight-medium);
-  background-color: #fef2f2;
   color: #b91c1c;
-  padding: 4px 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
   border-radius: var(--radius-xs);
-  border: 1px solid #fecaca;
+  padding: 3px 8px;
+  height: 28px;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color 120ms ease;
 }
 
 .stopButton:hover {
@@ -156,8 +182,118 @@
   outline-offset: 1px;
 }
 
+/* Lightweight Voice Options Popover Menu */
+.voiceMenu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 210px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  animation: menuFadeIn 140ms ease-out;
+}
+
+.menuHeader {
+  padding: 5px 8px 3px;
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 2px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.menuItem:hover {
+  background-color: #f9fafb;
+}
+
+.menuItem:focus-visible {
+  background-color: #f3f4f6;
+  outline: none;
+}
+
+.menuIcon {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.menuItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menuItemTitle {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: #111827;
+  line-height: 1.25;
+}
+
+.menuItemDesc {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  line-height: 1.25;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseMic {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
 @media (max-width: 640px) {
   .shortcutHint {
     display: none;
+  }
+  .voiceMenu {
+    right: 0;
+    width: 200px;
   }
 }
