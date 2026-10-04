@@ -4,7 +4,7 @@
   align-items: center;
   min-height: calc(100vh - 140px);
   width: 100%;
-  max-width: 760px;
+  max-width: 1140px;
   margin: 0 auto;
   position: relative;
   padding: var(--space-3) 0 var(--space-4);

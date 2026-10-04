@@ -8,6 +8,7 @@ import {
 } from "./conversationReducer";
 import { MessageList } from "./MessageList";
 import { Composer } from "./Composer";
+import { ContextRail } from "./ContextRail";
 import styles from "./ChatView.module.css";
 
 interface ChatViewProps {
@@ -148,14 +149,20 @@ export function ChatView({
     }
   };
 
+  const sessionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    sessionIdRef.current = state.sessionId;
+  }, [state.sessionId]);
+
   useEffect(() => {
     return () => {
       handleStop();
-      if (state.sessionId) {
-        void deleteSession(state.sessionId).catch(() => {});
+      if (sessionIdRef.current) {
+        void deleteSession(sessionIdRef.current).catch(() => {});
       }
     };
-  }, [state.sessionId]);
+  }, []);
 
   const hasMessages = state.messages.length > 0;
 
@@ -188,12 +195,24 @@ export function ChatView({
         </div>
       )}
 
-      {/* Main Conversation Stream */}
-      <div className={styles.messagesContainer}>
-        <MessageList
-          messages={state.messages}
-          onSelectPrompt={(prompt) => handleSend(prompt)}
-        />
+      {/* Main Content Workspace */}
+      <div className={styles.contentWorkspace}>
+        {/* Main Conversation Stream */}
+        <div className={styles.messagesContainer}>
+          <MessageList
+            messages={state.messages}
+            onSelectPrompt={(prompt) => handleSend(prompt)}
+          />
+        </div>
+
+        {/* Clinical Provenance and Session Rail (shown in conversation state) */}
+        {hasMessages && (
+          <ContextRail
+            latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
+            currentLanguage={currentLanguage}
+            isOnline={serverReady !== false}
+          />
+        )}
       </div>
 
       {/* Primary Interaction Composer */}

@@ -116,3 +116,9 @@
   color: var(--color-accent);
   flex-shrink: 0;
 }
+
+@media (max-width: 640px) {
+  .activeSub {
+    display: none;
+  }
+}

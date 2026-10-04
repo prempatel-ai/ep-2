@@ -1,0 +1,150 @@
+.contextRail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 300px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.contextRail::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.headerIcon {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: 0.75rem; /* 12px */
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4b5563;
+  margin: 0;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  width: fit-content;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badgeTeal {
+  background-color: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #ccfbf1;
+}
+
+.badgeTeal .statusDot {
+  background-color: #0d9488;
+}
+
+.badgeBlue {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.badgeBlue .statusDot {
+  background-color: #3b82f6;
+}
+
+.badgeAmber {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fef3c7;
+}
+
+.badgeAmber .statusDot {
+  background-color: #f59e0b;
+}
+
+.badgeNeutral {
+  background-color: #f9fafb;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.badgeNeutral .statusDot {
+  background-color: #9ca3af;
+}
+
+.metaList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.metaRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 0.6875rem; /* 11px */
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.metaValue {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: var(--font-weight-medium);
+  color: #1f2937;
+  line-height: 1.35;
+}
+
+.safetyNote {
+  font-size: 0.75rem; /* 12px */
+  color: #4b5563;
+  line-height: 1.45;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .contextRail {
+    width: 100%;
+    margin-top: var(--space-3);
+  }
+}

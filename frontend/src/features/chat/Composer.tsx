@@ -26,7 +26,7 @@ export function Composer({
 
   useEffect(() => {
     if (!isSubmitting) {
-      textareaRef.current?.focus();
+      textareaRef.current?.focus({ preventScroll: true });
     }
   }, [isSubmitting]);
 

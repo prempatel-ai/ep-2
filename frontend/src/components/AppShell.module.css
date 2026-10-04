@@ -27,10 +27,10 @@
 }
 
 .headerContent {
-  max-width: 760px;
+  max-width: 1140px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -161,23 +161,23 @@
 
 .mainContent {
   width: 100%;
-  max-width: 760px;
+  max-width: 1140px;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-6);
 }
 
 .footer {
   flex-shrink: 0;
   border-top: 1px solid #eaeaea;
   background-color: #ffffff;
-  padding: 10px var(--space-4);
+  padding: 10px var(--space-6);
 }
 
 .footerContent {
-  max-width: 760px;
+  max-width: 1140px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -206,13 +206,34 @@
 
 @media (max-width: 768px) {
   .headerContent {
-    padding: 0 var(--space-3);
+    padding: 0 var(--space-4);
     gap: var(--space-2);
   }
   .mainContent {
-    padding: 0 var(--space-2);
+    padding: 0 var(--space-4);
+  }
+  .footer {
+    padding: 10px var(--space-4);
   }
   .footerContent {
     text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .subtitle {
+    display: none;
+  }
+  .statusText {
+    display: none;
+  }
+  .statusIndicator {
+    padding: 4px;
+  }
+  .voiceModeButton span {
+    display: none;
+  }
+  .voiceModeButton {
+    padding: 6px 8px;
   }
 }

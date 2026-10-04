@@ -19,7 +19,7 @@ export function MessageList({
   const liveRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof bottomRef.current?.scrollIntoView === "function") {
+    if (messages.length > 0 && typeof bottomRef.current?.scrollIntoView === "function") {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
@@ -46,14 +46,36 @@ export function MessageList({
         <div className={styles.welcomeWorkspace}>
           <div className={styles.welcomeIntro}>
             <h2 className={styles.welcomeTitle}>
-              {emptyPromptText || "How can we help?"}
+              {emptyPromptText || "Breast cancer information, explained clearly."}
             </h2>
             <p className={styles.welcomeDesc}>
-              Sahayak provides evidence-based information on symptoms, screening, diagnosis, and treatment.
+              Sahayak provides evidence-based medical information to help patients and families understand breast health, screenings, and clinical decisions.
             </p>
-            <p className={styles.verificationNote}>
-              Based on verified medical guidelines.
-            </p>
+            <div className={styles.evidenceSection}>
+              <span className={styles.evidenceLabel}>Evidence-based information about:</span>
+              <ul className={styles.evidenceList}>
+                <li className={styles.evidenceItem}>
+                  <span className={styles.bulletDot} aria-hidden="true">•</span>
+                  <span>Symptoms</span>
+                </li>
+                <li className={styles.evidenceItem}>
+                  <span className={styles.bulletDot} aria-hidden="true">•</span>
+                  <span>Screening</span>
+                </li>
+                <li className={styles.evidenceItem}>
+                  <span className={styles.bulletDot} aria-hidden="true">•</span>
+                  <span>Diagnosis</span>
+                </li>
+                <li className={styles.evidenceItem}>
+                  <span className={styles.bulletDot} aria-hidden="true">•</span>
+                  <span>Staging</span>
+                </li>
+                <li className={styles.evidenceItem}>
+                  <span className={styles.bulletDot} aria-hidden="true">•</span>
+                  <span>Treatment</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className={styles.suggestionsContainer}>
@@ -63,7 +85,7 @@ export function MessageList({
                 type="button"
                 className={styles.questionRow}
                 onClick={() =>
-                  onSelectPrompt?.("What are the most common early signs of breast cancer?")
+                  onSelectPrompt?.("What are the early signs of breast cancer?")
                 }
               >
                 <span className={styles.questionText}>What are the early signs of breast cancer?</span>
@@ -74,7 +96,7 @@ export function MessageList({
                 type="button"
                 className={styles.questionRow}
                 onClick={() =>
-                  onSelectPrompt?.("How often should women get a mammogram screening?")
+                  onSelectPrompt?.("How often should women get a mammogram?")
                 }
               >
                 <span className={styles.questionText}>How often should women get a mammogram?</span>
