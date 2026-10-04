@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -18,6 +18,13 @@ export function AppShell({
   isOnline = true,
 }: AppShellProps) {
   const t = getTranslation(currentLanguage);
+
+  // Synchronize document root lang attribute for assistive technology and font matching
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = currentLanguage;
+    }
+  }, [currentLanguage]);
 
   return (
     <div className={styles.container}>

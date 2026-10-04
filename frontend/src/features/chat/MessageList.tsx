@@ -18,7 +18,9 @@ export function MessageList({
   const liveRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (typeof bottomRef.current?.scrollIntoView === "function") {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   const latestAssistant = [...messages].reverse().find((m) => m.role === "assistant");
@@ -54,10 +56,9 @@ export function MessageList({
 
           <div className={styles.suggestedSection}>
             <span className={styles.suggestedLabel}>Common clinical inquiries</span>
-            <div className={styles.suggestedList} role="list">
+            <div className={styles.suggestedList}>
               <button
                 type="button"
-                role="listitem"
                 className={styles.suggestedRow}
                 onClick={() =>
                   onSelectPrompt?.("What are the most common early signs of breast cancer?")
@@ -74,7 +75,6 @@ export function MessageList({
 
               <button
                 type="button"
-                role="listitem"
                 className={styles.suggestedRow}
                 onClick={() =>
                   onSelectPrompt?.("How often should women get a mammogram screening?")
@@ -91,7 +91,6 @@ export function MessageList({
 
               <button
                 type="button"
-                role="listitem"
                 className={styles.suggestedRow}
                 onClick={() =>
                   onSelectPrompt?.("Is every breast lump cancerous?")
@@ -108,7 +107,6 @@ export function MessageList({
 
               <button
                 type="button"
-                role="listitem"
                 className={styles.suggestedRow}
                 onClick={() =>
                   onSelectPrompt?.("What are the standard stages of breast cancer?")

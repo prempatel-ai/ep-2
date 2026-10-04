@@ -15,7 +15,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 4: Frontend scaffold (2026-10-04)
 - [x] Phase 5: Text chat UI (2026-10-04)
 - [x] Phase 6: Voice UI (2026-10-04)
-- [ ] Phase 7: Design and accessibility pass
+- [x] Phase 7: Design and accessibility pass (2026-10-04)
 - [ ] Phase 8: Packaging and one-command run
 - [ ] Phase 9: Evaluation and safety-review tooling
 - [ ] Phase 10: Plug in the fine-tuned model
