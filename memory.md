@@ -13,11 +13,11 @@
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
 | Model adapters | Embedder (`SentenceTransformerEmbedder`), FAQ Index (`ChromaFAQIndex`), STT (`FasterWhisperSTT`), TTS (`MMSTTS`), and LLM (`OpenAICompatibleLLM`) **VERIFIED** on real hardware (Phases 1, 2 & 3). IndicConformer and Parler remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `scripts/tts_listen.py`, `scripts/ws_smoke.py`, Ollama Sarvam 1 / Gemma 3, `GET /ready` |
 | FAQ data / index | Example file indexed (`backend/data/faqs.example.jsonl` -> `backend/data/chroma`); real `faqs.jsonl` not yet provided | `sahayak-index`, `backend/data/chroma` |
-| Frontend | Not started | n/a |
+| Frontend | Scaffold complete (Next.js 16 + TypeScript strict + AppShell + i18n + offline check) | `frontend/`, `npm run build`, `npm test`, `npm run check:offline` |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 
-**Phase progress:** Phase 0, Phase 1, Phase 2, and Phase 3 complete (see `phases.md`).
+**Phase progress:** Phase 0, Phase 1, Phase 2, Phase 3, and Phase 4 complete (see `phases.md`).
 
 ## 2. Decisions and why
 
@@ -84,7 +84,7 @@
 
 | # | Decision | Default until decided | Decide by |
 |---|---|---|---|
-| D1 | Frontend stack | React + Vite + TypeScript (strict), plain CSS with design tokens | Start of Phase 4 (**user to confirm**) |
+| D1 | Frontend stack | Next.js 16 (App Router) + TypeScript strict, plain CSS with design tokens (**decided & implemented in Phase 4**) | Decided in Phase 4 |
 | D2 | Base model for the fine-tune (Sarvam-1 2B vs Gemma 3 4B) | Builder's choice; backend is agnostic | Phase 10 |
 | D3 | Train with retrieved FAQs in the prompt, or without? | Without; set `RETRIEVAL__CONTEXT_THRESHOLD=1.0` | Before fine-tuning |
 | D4 | STT: Whisper vs IndicConformer | Whisper `small` | Phase 2 (measure on Gujarati) |
@@ -117,6 +117,7 @@
 | 2026-10-04 | **Phase 1 completed**: Installed `[rag]` dependencies (`chromadb`, `sentence-transformers`, `torch`, etc.). Pre-downloaded `intfloat/multilingual-e5-small`. Verified offline loading via `HF_HUB_OFFLINE=1`. Ran `sahayak-index` on `faqs.example.jsonl` (usable: 2, duplicates: 0) and proved idempotency across multiple runs. Real `faqs.jsonl` not yet present (`faq_conflicts.txt` created empty). Added `backend/scripts/check_retrieval.py` and `backend/scripts/tune_thresholds.py`. Added `backend/eval/retrieval_probes.example.jsonl`. Added model-free integration tests in `backend/tests/test_retrieval_fake_embedder.py` (7 tests). Total tests passing: 92. |
 | 2026-10-04 | **Phase 2 completed**: Installed `[stt-whisper]` and `[tts-mms]` (`faster-whisper 1.2.1`, `ctranslate2 4.8.2`, `av 19.0.1`). Pre-downloaded `Systran/faster-whisper-small` and Meta MMS TTS (`facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`). Added `backend/scripts/tts_listen.py` (generates Gujarati, Hindi, English WAV samples). Added `backend/scripts/ws_smoke.py` (WebSocket smoke test with audio and text turns, saves audio frames, tests interruption). Measured model load times and end-to-end voice turn latencies across 3 utterance lengths on 11th Gen Intel i5-11400H CPU. Recorded that CPU-only first audio target (≤ 4.0s) was not met (~5.5s measured). Verified server interruption handling and health recovery. All 92 tests pass. |
 | 2026-10-04 | **Phase 3 completed**: Verified model-serving contract with local OpenAI-compatible endpoint (`http://127.0.0.1:11434/v1`, Ollama) running placeholder models `gaganyatri/sarvam-2b-v0.5:latest` (Sarvam 1 2.5B) and `gemma3:4b`. Verified incremental SSE streaming on `POST /v1/chat` (first sentence arrived at 5.66s, last at 17.99s). Verified `GET /ready` returns 503 and chat returns `llm_unavailable` error event when model server is down while process stays healthy. Verified generation cancellation when stream is disconnected. Added `backend/scripts/dump_prompt.py`, `backend/scripts/run_llm_server.sh`, `backend/scripts/run_llm_server.ps1`, and `docs/finetune-handoff.md`. All 92 tests pass. |
+| 2026-10-04 | **Phase 4 completed**: Built frontend scaffold using Next.js 16 (App Router) + TypeScript (strict) + plain CSS with design tokens. Designed adhering strictly to senior product designer principles (restrained clinical palette, calm deep teal, zero AI slop, no purple/blue gradients or bubbly cards, accessible AA contrast, visible focus states). Implemented API client (`src/api/types.ts`, `src/api/http.ts`, `src/api/sse.ts`, `src/api/voiceSocket.ts`), self-hosted fonts (`Noto Sans Gujarati`, `Noto Sans Devanagari`, SIL OFL license), typed i18n (`en.ts`, `gu.ts`, `hi.ts` with explicit human translation markers), `AppShell` header/main/footer with mandatory disclaimer and 112/14416 emergency notices, offline compliance check script (`scripts/check-offline.mjs`), and unit tests. All tests passing (4 vitest), build passes (`output: "export"`), and offline check verifies 0 external network requests. |
 
 ## 9. Environment & Package Versions
 

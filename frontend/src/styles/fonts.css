@@ -1,0 +1,46 @@
+/* fonts.css - Self-hosted font declarations with unicode-ranges */
+
+@font-face {
+  font-family: "Noto Sans Gujarati";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Noto Sans Gujarati"), local("NotoSansGujarati-Regular");
+  unicode-range: U+0A80-0AFF;
+}
+
+@font-face {
+  font-family: "Noto Sans Gujarati";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local("Noto Sans Gujarati Bold"), local("NotoSansGujarati-Bold");
+  unicode-range: U+0A80-0AFF;
+}
+
+@font-face {
+  font-family: "Noto Sans Devanagari";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Noto Sans Devanagari"), local("NotoSansDevanagari-Regular");
+  unicode-range: U+0900-097F;
+}
+
+@font-face {
+  font-family: "Noto Sans Devanagari";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local("Noto Sans Devanagari Bold"), local("NotoSansDevanagari-Bold");
+  unicode-range: U+0900-097F;
+}
+
+/* System fallback fallbacks */
+:lang(gu) {
+  font-family: var(--font-gujarati);
+}
+
+:lang(hi) {
+  font-family: var(--font-devanagari);
+}

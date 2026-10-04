@@ -12,7 +12,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 1: FAQ data and retrieval (2026-10-04)
 - [x] Phase 2: Speech on real hardware (2026-10-04)
 - [x] Phase 3: Model-serving contract (placeholder model) (2026-10-04)
-- [ ] Phase 4: Frontend scaffold
+- [x] Phase 4: Frontend scaffold (2026-10-04)
 - [ ] Phase 5: Text chat UI
 - [ ] Phase 6: Voice UI
 - [ ] Phase 7: Design and accessibility pass
@@ -22,7 +22,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 
 **Skeleton complete = Phases 0 to 8.** Phases 9 and 10 turn it into something measured and real.
 
-## How to run a phase
+## How to run a phasef
 
 1. Re-read `product.md`, `memory.md`, this file's section for the phase, and `CLAUDE.md`.
 2. Create branch `phase-<n>-<slug>`.
