@@ -1,5 +1,4 @@
 import React from "react";
-import { BookOpen, Activity } from "lucide-react";
 import type { LanguageCode, AnswerSource } from "@/api/types";
 import type { ChatMessageItem } from "./conversationReducer";
 import styles from "./ContextRail.module.css";
@@ -15,129 +14,91 @@ export function ContextRail({
   currentLanguage,
   isOnline = true,
 }: ContextRailProps) {
-  const getProvenanceDetails = (source?: AnswerSource) => {
+  const getProvenanceSource = (source?: AnswerSource) => {
     switch (source) {
       case "faq":
         return {
-          title: "Verified Clinical Protocol",
-          guidelines: "ICMR & National Cancer Grid Guidelines",
-          consensus: "WHO Early Breast Health Guidelines (2024)",
-          confidence: "Direct consensus match",
-          badgeClass: styles.badgeTeal,
+          title: "Verified Clinical FAQ",
+          engine: "Rule-based guideline match",
         };
       case "model":
         return {
-          title: "Synthesized Guidance",
-          guidelines: "Offline Medical Language Core",
-          consensus: "Peer-reviewed oncology clinical corpus",
-          confidence: "Local offline inference",
-          badgeClass: styles.badgeBlue,
+          title: "Local Medical Model",
+          engine: "Offline on-device inference",
         };
       case "safety":
         return {
           title: "Clinical Safety Protocol",
-          guidelines: "Emergency Symptom Triage Filter",
-          consensus: "Acute Clinical Referral Protocol",
-          confidence: "Immediate referral standard",
-          badgeClass: styles.badgeAmber,
+          engine: "Emergency symptom triage filter",
         };
       default:
-        return {
-          title: "Clinical Reference Engine",
-          guidelines: "ICMR & WHO Consensus Guidelines",
-          consensus: "Standard breast oncology guidance",
-          confidence: "Active verification pipeline",
-          badgeClass: styles.badgeNeutral,
-        };
+        return null;
     }
   };
 
-  const provenance = getProvenanceDetails(latestMessage?.source);
+  const provenance = getProvenanceSource(latestMessage?.source);
 
   const getLanguageLabel = (code: LanguageCode) => {
     switch (code) {
       case "en":
-        return "English (en)";
+        return "English";
       case "gu":
-        return "ગુજરાતી (gu)";
+        return "ગુજરાતી (Gujarati)";
       case "hi":
-        return "हिन्दी (hi)";
+        return "हिन्दी (Hindi)";
     }
   };
 
   return (
     <aside
       className={styles.contextRail}
-      aria-label="Clinical sources, session state, and safety guidance"
+      aria-label="Clinical session and provenance context"
     >
-      {/* 1. Clinical Provenance & Evidence */}
-      <section className={styles.card} aria-labelledby="rail-provenance-title">
-        <div className={styles.cardHeader}>
-          <BookOpen size={14} className={styles.headerIcon} aria-hidden="true" />
-          <h3 id="rail-provenance-title" className={styles.cardTitle}>
-            Clinical Provenance
-          </h3>
-        </div>
-
-        <div className={styles.cardBody}>
-          <div className={`${styles.statusPill} ${provenance.badgeClass}`}>
-            <span className={styles.statusDot} aria-hidden="true" />
-            <span>{provenance.title}</span>
-          </div>
-
-          <div className={styles.metaList}>
+      <div className={styles.railContainer}>
+        {/* Section 1: Clinical Provenance (only displayed if message source is known) */}
+        {provenance && (
+          <div className={styles.section}>
+            <span className={styles.sectionHeader}>Clinical Provenance</span>
             <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Primary source</span>
-              <span className={styles.metaValue}>{provenance.guidelines}</span>
+              <span className={styles.metaLabel}>Source</span>
+              <span className={styles.metaValue}>{provenance.title}</span>
             </div>
             <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Consensus standard</span>
-              <span className={styles.metaValue}>{provenance.consensus}</span>
-            </div>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Evidence level</span>
-              <span className={styles.metaValue}>{provenance.confidence}</span>
+              <span className={styles.metaLabel}>Engine</span>
+              <span className={styles.metaValue}>{provenance.engine}</span>
             </div>
             {latestMessage?.metrics?.total_ms != null && (
               <div className={styles.metaRow}>
                 <span className={styles.metaLabel}>Response time</span>
                 <span className={styles.metaValue}>
-                  {latestMessage.metrics.total_ms.toFixed(0)} ms
+                  {Math.round(latestMessage.metrics.total_ms)} ms
                 </span>
               </div>
             )}
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* 2. Session Context & Safety Protocol */}
-      <section className={styles.card} aria-labelledby="rail-session-title">
-        <div className={styles.cardHeader}>
-          <Activity size={14} className={styles.headerIcon} aria-hidden="true" />
-          <h3 id="rail-session-title" className={styles.cardTitle}>
-            Session Context
-          </h3>
-        </div>
+        {provenance && <div className={styles.divider} />}
 
-        <div className={styles.cardBody}>
-          <div className={styles.metaList}>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Active language</span>
-              <span className={styles.metaValue}>{getLanguageLabel(currentLanguage)}</span>
-            </div>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Execution mode</span>
-              <span className={styles.metaValue}>
-                {isOnline ? "Local Core · Connected" : "Local Core · Offline"}
-              </span>
-            </div>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Clinical scope</span>
-              <span className={styles.metaValue}>Patient education · Non-diagnostic</span>
-            </div>
+        {/* Section 2: Session Context (Real session data) */}
+        <div className={styles.section}>
+          <span className={styles.sectionHeader}>Session</span>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}>Language</span>
+            <span className={styles.metaValue}>{getLanguageLabel(currentLanguage)}</span>
+          </div>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}>Mode</span>
+            <span className={styles.metaValue}>
+              {isOnline ? "Local · Connected" : "Local · Offline"}
+            </span>
+          </div>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}>Scope</span>
+            <span className={styles.metaValue}>Non-diagnostic</span>
           </div>
         </div>
-      </section>
+      </div>
     </aside>
   );
 }

@@ -136,11 +136,11 @@
   display: inline-flex;
   align-items: center;
   font-size: 0.8125rem; /* 13px */
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
   color: #6b7280;
   background: transparent;
   border: none;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: var(--radius-xs);
   cursor: pointer;
   transition: color var(--transition-fast);
@@ -171,9 +171,9 @@
 
 .footer {
   flex-shrink: 0;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid #f3f4f6;
   background-color: #ffffff;
-  padding: 10px var(--space-6);
+  padding: 8px var(--space-6);
 }
 
 .footerContent {
@@ -181,26 +181,26 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   text-align: center;
 }
 
 .disclaimerText {
-  font-size: 0.75rem;
-  color: #6b7280;
+  font-size: 0.6875rem; /* 11px */
+  color: #9ca3af;
   line-height: 1.4;
   margin: 0;
 }
 
 .emergencyText {
-  font-size: 0.75rem;
+  font-size: 0.6875rem; /* 11px */
   color: #6b7280;
   line-height: 1.4;
   margin: 0;
 }
 
 .emergencyNumber {
-  color: #b91c1c;
+  color: #991b1b;
   font-weight: var(--font-weight-medium);
 }
 

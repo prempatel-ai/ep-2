@@ -69,8 +69,6 @@
 .contentWorkspace {
   display: flex;
   width: 100%;
-  flex: 1;
-  min-height: 0;
   gap: var(--space-6);
 }
 
@@ -81,9 +79,14 @@
 }
 
 .inEmptyState .contentWorkspace {
-  flex: none;
-  overflow: visible;
   display: block;
+}
+
+.inEmptyState .mainColumn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .inEmptyState .messagesContainer {
@@ -98,21 +101,37 @@
 .inConversation {
   height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .inConversation .contentWorkspace {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding-bottom: var(--space-2);
+  align-items: stretch;
+  gap: var(--space-6);
+}
+
+.inConversation .mainColumn {
+  flex: 1;
+  min-width: 0;
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .inConversation .messagesContainer {
-  flex: 1;
-  min-width: 0;
-  max-width: 780px;
-  min-height: 0;
-  overflow: hidden;
+  flex: 0 1 auto;
+  max-height: calc(100% - 85px);
+  overflow-y: auto;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.inConversation .messagesContainer::-webkit-scrollbar {
+  display: none !important;
 }
 
 .messagesContainer {
@@ -125,10 +144,16 @@
 .composerContainer {
   flex-shrink: 0;
   width: 100%;
-  padding-top: 6px;
+  margin-top: var(--space-3);
 }
 
 @media (max-width: 1024px) {
+  .inConversation .contentWorkspace {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 768px) {
   .inConversation .contentWorkspace {
     flex-direction: column;
     overflow-y: auto;
@@ -137,9 +162,12 @@
   .inConversation .contentWorkspace::-webkit-scrollbar {
     display: none !important;
   }
-  .inConversation .messagesContainer {
+  .inConversation .mainColumn {
     max-width: 100%;
+    height: auto;
     flex: none;
-    min-height: auto;
+  }
+  .inConversation .messagesContainer {
+    max-height: none;
   }
 }

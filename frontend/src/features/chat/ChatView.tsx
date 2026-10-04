@@ -197,15 +197,27 @@ export function ChatView({
 
       {/* Main Content Workspace */}
       <div className={styles.contentWorkspace}>
-        {/* Main Conversation Stream */}
-        <div className={styles.messagesContainer}>
-          <MessageList
-            messages={state.messages}
-            onSelectPrompt={(prompt) => handleSend(prompt)}
-          />
+        {/* Main Conversation Column (70–75%) */}
+        <div className={styles.mainColumn}>
+          <div className={styles.messagesContainer}>
+            <MessageList
+              messages={state.messages}
+              onSelectPrompt={(prompt) => handleSend(prompt)}
+            />
+          </div>
+
+          <div className={styles.composerContainer}>
+            <Composer
+              isSubmitting={state.isSubmitting}
+              onSend={handleSend}
+              onStop={handleStop}
+              onSwitchToVoice={onSwitchToVoice}
+              disabled={serverReady === false}
+            />
+          </div>
         </div>
 
-        {/* Clinical Provenance and Session Rail (shown in conversation state) */}
+        {/* Quiet Context Rail (shown in conversation state, 25–30%) */}
         {hasMessages && (
           <ContextRail
             latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
@@ -213,17 +225,6 @@ export function ChatView({
             isOnline={serverReady !== false}
           />
         )}
-      </div>
-
-      {/* Primary Interaction Composer */}
-      <div className={styles.composerContainer}>
-        <Composer
-          isSubmitting={state.isSubmitting}
-          onSend={handleSend}
-          onStop={handleStop}
-          onSwitchToVoice={onSwitchToVoice}
-          disabled={serverReady === false}
-        />
       </div>
     </div>
   );
