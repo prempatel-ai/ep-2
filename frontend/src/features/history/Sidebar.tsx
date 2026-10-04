@@ -65,12 +65,21 @@ export function Sidebar({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSavedAnswersOpen, setIsSavedAnswersOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [savedAnswersCount, setSavedAnswersCount] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      return getSavedAnswers().length;
-    }
-    return 0;
-  });
+  const [savedAnswersCount, setSavedAnswersCount] = useState<number>(0);
+
+  // Synchronize saved answers count safely on mount and when storage updates
+  useEffect(() => {
+    const updateCount = () => {
+      setSavedAnswersCount(getSavedAnswers().length);
+    };
+    updateCount();
+    window.addEventListener("sahayak_saved_answers_changed", updateCount);
+    window.addEventListener("storage", updateCount);
+    return () => {
+      window.removeEventListener("sahayak_saved_answers_changed", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, [isSavedAnswersOpen]);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -271,11 +280,14 @@ export function Sidebar({
               onClick={() => setIsSavedAnswersOpen(true)}
               className={styles.navItem}
               title="View bookmarked clinical answers"
+              suppressHydrationWarning
             >
               <Bookmark size={14} className={styles.navItemIcon} aria-hidden="true" />
               <span>Saved answers</span>
               {savedAnswersCount > 0 && (
-                <span className={styles.itemBadge}>{savedAnswersCount}</span>
+                <span className={styles.itemBadge} suppressHydrationWarning>
+                  {savedAnswersCount}
+                </span>
               )}
             </button>
 

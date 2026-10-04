@@ -34,6 +34,7 @@ export function saveAnswer(answer: Omit<SavedAnswer, "savedAt"> & { savedAt?: nu
     };
     const updated = [fullAnswer, ...filtered];
     localStorage.setItem(STORAGE_KEY_SAVED_ANSWERS, JSON.stringify(updated));
+    window.dispatchEvent(new Event("sahayak_saved_answers_changed"));
   } catch {
     // Ignore storage quota errors
   }
@@ -45,6 +46,7 @@ export function removeSavedAnswer(id: string): void {
     const existing = getSavedAnswers();
     const updated = existing.filter((a) => a.id !== id);
     localStorage.setItem(STORAGE_KEY_SAVED_ANSWERS, JSON.stringify(updated));
+    window.dispatchEvent(new Event("sahayak_saved_answers_changed"));
   } catch {
     // Ignore
   }
