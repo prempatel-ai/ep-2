@@ -11,13 +11,13 @@
 | Backend code | Written | `backend/src/sahayak/` |
 | Backend tests | **92 pass** (81 baseline unit tests + 4 web layer tests + 7 model-free Chroma retrieval tests) | `pytest` |
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
-| Model adapters | Embedder (`SentenceTransformerEmbedder`) and FAQ Index (`ChromaFAQIndex`) **VERIFIED** on real libraries (Phase 1). Whisper, IndicConformer, MMS, Parler, llama.cpp client remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `sahayak-index`, `GET /ready` |
+| Model adapters | Embedder (`SentenceTransformerEmbedder`), FAQ Index (`ChromaFAQIndex`), STT (`FasterWhisperSTT`), and TTS (`MMSTTS`) **VERIFIED** on real hardware (Phases 1 & 2). IndicConformer, Parler, llama.cpp client remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `scripts/tts_listen.py`, `scripts/ws_smoke.py`, `GET /ready` |
 | FAQ data / index | Example file indexed (`backend/data/faqs.example.jsonl` -> `backend/data/chroma`); real `faqs.jsonl` not yet provided | `sahayak-index`, `backend/data/chroma` |
 | Frontend | Not started | n/a |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 
-**Phase progress:** Phase 0 and Phase 1 complete (see `phases.md`).
+**Phase progress:** Phase 0, Phase 1, and Phase 2 complete (see `phases.md`).
 
 ## 2. Decisions and why
 
@@ -47,14 +47,21 @@
 
 ## 4. Unverified items (must be confirmed on real hardware)
 
-1. **[VERIFIED in Phase 0]** Server starts; `/ready`, `/v1/config`, `/v1/chat`, `/v1/voice` behave as documented with echo model & disabled services. Real model adapters remain to be verified (Phase 2, 3).
-2. `faster-whisper` call shape, including `info.all_language_probs` fallback in `adapters/stt_whisper.py`.
+1. **[VERIFIED in Phase 0]** Server starts; `/ready`, `/v1/config`, `/v1/chat`, `/v1/voice` behave as documented with echo model & disabled services.
+2. **[VERIFIED in Phase 2]** `faster-whisper` (`FasterWhisperSTT` small, int8 CPU): model load (2.0s), transcription, language resolution verified via WebSocket.
 3. `IndicConformer` call: `model(waveform, lang, decoder)` and `trust_remote_code` loading (`adapters/stt_indic_conformer.py`).
-4. `MMS-TTS` (VITS) load and output sample rate (`adapters/tts_mms.py`).
-5. `Indic Parler-TTS` generate call (`adapters/tts_parler.py`).
+4. **[VERIFIED in Phase 2]** `MMS-TTS` (VITS, `MMSTTS`): load (29.6s for gu, hi, en) and output sample rate (16000 Hz, RTF 0.65-0.70 on CPU) verified via `scripts/tts_listen.py` and WebSocket streaming.
+5. `Indic Parler-TTS` generate call (`adapters/tts_parler.py`). Parler-TTS dependency resolution attempts to downgrade core libraries (transformers 4.46 vs 5.x) so it was deferred in favour of MMS.
 6. **[VERIFIED in Phase 1]** ChromaDB `PersistentClient`, `query` result shape, cosine distance -> score (`adapters/faq_chroma.py`), and `SentenceTransformerEmbedder` (`adapters/embedder_st.py`). Model `intfloat/multilingual-e5-small` verified from cold start offline (`HF_HUB_OFFLINE=1`).
 7. Whether llama.cpp supports the chosen base model's architecture for GGUF conversion (Phase 10).
-8. All latency targets in `product.md` §8.
+8. **[MEASURED in Phase 2]** Latency targets in `product.md` §8 (target: first audio ≤ 4.0s on CPU-only laptop):
+   - **Hardware:** 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz (6 cores, 12 logical processors), 16 GB RAM, integrated Intel UHD Graphics, CPU-only execution.
+   - **Model load times:** Whisper `small` (int8, CPU) = 2.0s; MMS-TTS (all 3 languages: gu, hi, en) = 29.6s (~9.8s/lang).
+   - **Measured voice turn latencies (echo LLM, CPU):**
+     - Short utterance (1.87s): `stt_ms` = 4146ms, `first_sentence_ms` = 4433ms, `first_audio_ms` = 5532ms, `total_ms` = 7756ms
+     - Medium utterance (4.37s): `stt_ms` = 4186ms, `first_sentence_ms` = 4471ms, `first_audio_ms` = 5633ms, `total_ms` = 8878ms
+     - Long utterance (6.59s): `stt_ms` = 4315ms, `first_sentence_ms` = 4590ms, `first_audio_ms` = 5515ms, `total_ms` = 8780ms
+   - **Target assessment:** The target (first audio ≤ 4.0s on CPU) is **NOT MET** on CPU alone (measured first audio ~5.5s, with Whisper transcription alone accounting for ~4.1s). GPU acceleration or smaller models (e.g. whisper `base` or `tiny`) will be needed to hit ≤ 4.0s.
 9. Hindi and Gujarati text in `safety_rules.yaml` and `services/messages.py`; helpline numbers (112, 14416).
 
 ## 5. Gotchas
@@ -71,6 +78,7 @@
 - **Chroma add-batch limit** is a few thousand; the indexer adds in batches of 256.
 - Python 3.11+ is required (`StrEnum`, `aclosing` behaviour relied on).
 - **Windows Chroma TemporaryDirectory cleanup:** Chroma's background `BlockingRunner` thread may hold open SQLite / HNSW file locks when a temporary directory exits. Use `ignore_cleanup_errors=True` in temp dirs during unit tests.
+- **Windows console output encoding:** On Windows, `sys.stdout` and `sys.stderr` default to `cp1252` encoding. CLI scripts printing Indic scripts (Gujarati/Hindi) must reconfigure them using `isinstance(sys.stdout, io.TextIOWrapper) and sys.stdout.reconfigure(encoding="utf-8")`.
 
 ## 6. Open decisions
 
@@ -107,6 +115,7 @@
 | 2026-10-03 | `product.md`, `CLAUDE.md`, `agent.md`, `memory.md`, `phases.md` written. No phase started. |
 | 2026-10-03 | **Phase 0 completed**: Real machine verification on Windows (Python 3.13.9). Verified FastAPI routes, WebSocket handler, SSE streaming, sessions, safety guard, error cases. Added `backend/scripts/smoke_http.py` and `backend/tests/test_web_layer.py`. 85 tests passing. |
 | 2026-10-04 | **Phase 1 completed**: Installed `[rag]` dependencies (`chromadb`, `sentence-transformers`, `torch`, etc.). Pre-downloaded `intfloat/multilingual-e5-small`. Verified offline loading via `HF_HUB_OFFLINE=1`. Ran `sahayak-index` on `faqs.example.jsonl` (usable: 2, duplicates: 0) and proved idempotency across multiple runs. Real `faqs.jsonl` not yet present (`faq_conflicts.txt` created empty). Added `backend/scripts/check_retrieval.py` and `backend/scripts/tune_thresholds.py`. Added `backend/eval/retrieval_probes.example.jsonl`. Added model-free integration tests in `backend/tests/test_retrieval_fake_embedder.py` (7 tests). Total tests passing: 92. |
+| 2026-10-04 | **Phase 2 completed**: Installed `[stt-whisper]` and `[tts-mms]` (`faster-whisper 1.2.1`, `ctranslate2 4.8.2`, `av 19.0.1`). Pre-downloaded `Systran/faster-whisper-small` and Meta MMS TTS (`facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`). Added `backend/scripts/tts_listen.py` (generates Gujarati, Hindi, English WAV samples). Added `backend/scripts/ws_smoke.py` (WebSocket smoke test with audio and text turns, saves audio frames, tests interruption). Measured model load times and end-to-end voice turn latencies across 3 utterance lengths on 11th Gen Intel i5-11400H CPU. Recorded that CPU-only first audio target (≤ 4.0s) was not met (~5.5s measured). Verified server interruption handling and health recovery. All 92 tests pass. |
 
 ## 9. Environment & Package Versions
 
@@ -134,8 +143,13 @@
   - transformers: 5.18.0
   - scikit-learn: 1.9.1
   - onnxruntime: 1.30.0
-- Offline Embedding Model:
-  - Model: `intfloat/multilingual-e5-small`
-  - HF cache snapshot: `C:\Users\ASUS\.cache\huggingface\hub\models--intfloat--multilingual-e5-small\snapshots\614241f622f53c4eeff9890bdc4f31cfecc418b3`
+- Phase 2 Speech Packages (`pip install -e ".[stt-whisper,tts-mms]"`):
+  - faster-whisper: 1.2.1
+  - ctranslate2: 4.8.2
+  - av: 19.0.1
+- Offline Models (HF Hub Cache):
+  - Embedder: `intfloat/multilingual-e5-small`
+  - STT: `Systran/faster-whisper-small`
+  - TTS: `facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`
   - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)
 

@@ -11,3 +11,6 @@ models/
 .ruff_cache/
 node_modules/
 dist/
+*.wav
+data/tts_samples/
+data/ws_smoke_out/

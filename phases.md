@@ -10,7 +10,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 
 - [x] Phase 0: Verify the backend on a real machine (2026-10-03)
 - [x] Phase 1: FAQ data and retrieval (2026-10-04)
-- [ ] Phase 2: Speech on real hardware
+- [x] Phase 2: Speech on real hardware (2026-10-04)
 - [ ] Phase 3: Model-serving contract (placeholder model)
 - [ ] Phase 4: Frontend scaffold
 - [ ] Phase 5: Text chat UI
