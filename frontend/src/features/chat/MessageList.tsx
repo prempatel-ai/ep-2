@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AlertCircle, Bookmark, Copy, Check } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
@@ -19,7 +19,6 @@ export function MessageList({
   messages,
   onSelectPrompt,
 }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -69,12 +68,6 @@ export function MessageList({
     }
   };
 
-  useEffect(() => {
-    if (messages.length > 0 && typeof bottomRef.current?.scrollIntoView === "function") {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
   return (
     <div
       className={styles.container}
@@ -123,53 +116,42 @@ export function MessageList({
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Common medical questions list */}
+          {/* RIGHT COLUMN: Scannable suggested clinical questions */}
           <div className={styles.suggestionsContainer}>
-            <span className={styles.suggestionsLabel}>Common Questions</span>
-            <div className={styles.suggestionsList} role="group" aria-label="Suggested Medical Questions">
-              <button
-                type="button"
-                className={styles.questionRow}
-                onClick={() =>
-                  onSelectPrompt?.("What are the early signs of breast cancer?")
-                }
-              >
-                <span className={styles.questionText}>What are the early signs of breast cancer?</span>
-                <span className={styles.questionArrow} aria-hidden="true">→</span>
-              </button>
-
-              <button
-                type="button"
-                className={styles.questionRow}
-                onClick={() =>
-                  onSelectPrompt?.("How often should women get a mammogram?")
-                }
-              >
-                <span className={styles.questionText}>How often should women get a mammogram?</span>
-                <span className={styles.questionArrow} aria-hidden="true">→</span>
-              </button>
-
-              <button
-                type="button"
-                className={styles.questionRow}
-                onClick={() =>
-                  onSelectPrompt?.("Is every breast lump cancerous?")
-                }
-              >
-                <span className={styles.questionText}>Is every breast lump cancerous?</span>
-                <span className={styles.questionArrow} aria-hidden="true">→</span>
-              </button>
-
-              <button
-                type="button"
-                className={styles.questionRow}
-                onClick={() =>
-                  onSelectPrompt?.("What are the standard stages of breast cancer?")
-                }
-              >
-                <span className={styles.questionText}>What are the standard stages of breast cancer?</span>
-                <span className={styles.questionArrow} aria-hidden="true">→</span>
-              </button>
+            <span className={styles.suggestionsLabel}>Common clinical topics</span>
+            <div className={styles.suggestionsList}>
+              {[
+                {
+                  id: "q1",
+                  topic: "Early signs",
+                  title: "What are early warning signs of breast cancer?",
+                },
+                {
+                  id: "q2",
+                  topic: "Screening guideline",
+                  title: "How often should women aged 40–49 get screened?",
+                },
+                {
+                  id: "q3",
+                  topic: "Diagnostic steps",
+                  title: "What is the difference between a mammogram and ultrasound?",
+                },
+                {
+                  id: "q4",
+                  topic: "When to seek care",
+                  title: "When should someone seek immediate clinical care?",
+                },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={styles.questionRow}
+                  onClick={() => onSelectPrompt?.(item.title)}
+                >
+                  <span className={styles.questionTopic}>{item.topic}</span>
+                  <span className={styles.questionTitle}>{item.title}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -181,13 +163,13 @@ export function MessageList({
             return (
               <div
                 key={message.id}
-                className={`${styles.turnBlock} ${
-                  isUser ? styles.turnUser : styles.turnAssistant
+                className={`${styles.message} ${
+                  isUser ? styles.userMessage : styles.assistantMessage
                 }`}
                 data-testid={`message-${message.role}`}
               >
                 {!isUser && (
-                  <div className={styles.turnHeader}>
+                  <div className={styles.messageHeader}>
                     <span className={styles.senderRole}>Sahayak</span>
                     {message.source && (
                       <SourceBadge source={message.source} />
@@ -198,35 +180,35 @@ export function MessageList({
                   </div>
                 )}
 
-                <div
-                  className={`${styles.turnBody} ${
-                    isUser ? styles.bodyUser : styles.bodyAssistant
-                  }`}
-                >
-                  {isUser ? (
+                {isUser ? (
+                  <div className={styles.userBubble}>
                     <p className={styles.userText}>{message.text}</p>
-                  ) : message.text ? (
-                    <ClinicalContent content={message.text} />
-                  ) : message.state === "streaming" ? (
-                    <div className={styles.processingIndicator} aria-label="Retrieving verified answer...">
-                      <span className={styles.pulseDot} />
-                      <span className={styles.pulseDot} />
-                      <span className={styles.pulseDot} />
-                      <span className={styles.loadingText}>Synthesizing clinical response...</span>
-                    </div>
-                  ) : null}
+                  </div>
+                ) : (
+                  <div className={styles.messageContent}>
+                    {message.text ? (
+                      <ClinicalContent content={message.text} />
+                    ) : message.state === "streaming" ? (
+                      <div className={styles.processingIndicator} aria-label="Retrieving verified answer...">
+                        <span className={styles.pulseDot} />
+                        <span className={styles.pulseDot} />
+                        <span className={styles.pulseDot} />
+                        <span className={styles.loadingText}>Synthesizing clinical response...</span>
+                      </div>
+                    ) : null}
 
-                  {message.state === "failed" && (
-                    <div className={styles.errorNotice} role="alert">
-                      <AlertCircle size={15} className={styles.errorIcon} aria-hidden="true" />
-                      <span>{message.error || "Unable to retrieve clinical answer."}</span>
-                    </div>
-                  )}
-                </div>
+                    {message.state === "failed" && (
+                      <div className={styles.errorNotice} role="alert">
+                        <AlertCircle size={15} className={styles.errorIcon} aria-hidden="true" />
+                        <span>{message.error || "Unable to retrieve clinical answer."}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                {/* Response Action Row (Only for assistant responses with text) */}
+                {/* Response Action Row (strictly encapsulated in assistant message) */}
                 {!isUser && message.text && message.state !== "streaming" && (
-                  <div className={styles.actionRow}>
+                  <div className={styles.messageActions}>
                     <button
                       type="button"
                       onClick={() => handleCopy(message.id, message.text || "")}
@@ -269,7 +251,6 @@ export function MessageList({
           })}
         </div>
       )}
-      <div ref={bottomRef} />
     </div>
   );
 }

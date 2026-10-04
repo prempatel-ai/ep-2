@@ -178,20 +178,20 @@
   width: 100%;
 }
 
-.turnBlock {
+.message {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
 /* User Message: Compact Conversational Bubble */
-.turnUser {
+.userMessage {
   align-items: flex-end;
-  margin-bottom: 22px; /* 20-24px rhythm to assistant response */
+  margin-bottom: 24px; /* Clean 24px rhythm to assistant response */
   width: 100%;
 }
 
-.bodyUser {
+.userBubble {
   width: fit-content;
   max-width: 680px;
   margin-left: auto;
@@ -212,22 +212,22 @@
 }
 
 /* Assistant Message: Open Reading Layout */
-.turnAssistant {
+.assistantMessage {
   align-items: flex-start;
-  margin-bottom: 36px; /* 32-40px rhythm before next turn */
+  margin-bottom: 38px; /* Clean 38px rhythm before next user turn */
   width: 100%;
 }
 
-.turnAssistant:last-child {
+.assistantMessage:last-child {
   margin-bottom: 0;
 }
 
 /* Subtle Message Header */
-.turnHeader {
+.messageHeader {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   user-select: none;
 }
 
@@ -245,11 +245,7 @@
   margin-left: 4px;
 }
 
-.turnBody {
-  width: 100%;
-}
-
-.bodyAssistant {
+.messageContent {
   width: 100%;
   max-width: 760px;
   background: transparent;
@@ -258,21 +254,21 @@
   color: #111827;
   font-size: 0.9375rem; /* 15px */
   line-height: 1.65;
-  margin-bottom: 14px; /* 12-20px rhythm before action row */
 }
 
-/* Action Row (Copy, Save) */
-.actionRow {
+/* Action Row (Copy, Save) strictly scoped under assistant message */
+.messageActions {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   max-width: 760px;
-  opacity: 0.85;
+  margin-top: 10px;
+  opacity: 0.9;
   transition: opacity 120ms ease;
 }
 
-.turnAssistant:hover .actionRow {
+.assistantMessage:hover .messageActions {
   opacity: 1;
 }
 
@@ -390,25 +386,25 @@
     padding: var(--space-4) 0;
   }
 
-  .turnUser {
+  .userMessage {
     margin-bottom: 18px;
   }
 
-  .turnAssistant {
+  .assistantMessage {
     margin-bottom: 28px;
   }
 
-  .bodyUser {
+  .userBubble {
     max-width: 85%;
   }
 
-  .actionRow {
+  .messageActions {
     opacity: 1;
   }
 }
 
 @media (max-width: 480px) {
-  .bodyUser {
+  .userBubble {
     max-width: 90%;
   }
 }

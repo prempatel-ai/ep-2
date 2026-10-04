@@ -341,7 +341,7 @@ export function Composer({
             textareaRef.current.style.height = "auto";
             textareaRef.current.style.height = `${Math.min(
               textareaRef.current.scrollHeight,
-              140,
+              180,
             )}px`;
           }
         }
@@ -414,7 +414,7 @@ export function Composer({
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(
         textareaRef.current.scrollHeight,
-        140,
+        180,
       )}px`;
     }
   };

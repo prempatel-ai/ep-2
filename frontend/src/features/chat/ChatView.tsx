@@ -43,6 +43,11 @@ export function ChatView({
   const titleRef = useRef<string>(activeConversation?.title ?? "");
   const [serverReady, setServerReady] = useState<boolean | null>(null);
   const [llmReady, setLlmReady] = useState<boolean | null>(null);
+  const [showNewResponse, setShowNewResponse] = useState<boolean>(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef<boolean>(true);
+  const prevMsgCountRef = useRef<number>(0);
+  const prevLatestLengthRef = useRef<number>(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const checkReadiness = useCallback(async () => {
@@ -127,6 +132,8 @@ export function ChatView({
       text,
       assistantId: assistantMsgId,
     });
+
+    setShowNewResponse(false);
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -225,6 +232,61 @@ export function ChatView({
     };
   }, []);
 
+  const handleScroll = () => {
+    const el = scrollAreaRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const isNear = distanceFromBottom < 80;
+    isNearBottomRef.current = isNear;
+    if (isNear) {
+      setShowNewResponse(false);
+    }
+  };
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    const el = scrollAreaRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+    setShowNewResponse(false);
+    isNearBottomRef.current = true;
+  };
+
+  // When messages change, handle scroll without interrupting if user is reading older messages
+  useEffect(() => {
+    const el = scrollAreaRef.current;
+    if (!el) return;
+
+    const currentCount = state.messages.length;
+    const latestMsg = state.messages[currentCount - 1];
+    const currentLen = latestMsg?.text?.length || 0;
+
+    const countChanged = currentCount !== prevMsgCountRef.current;
+    const lenChanged = currentLen !== prevLatestLengthRef.current;
+    prevMsgCountRef.current = currentCount;
+    prevLatestLengthRef.current = currentLen;
+
+    if (!countChanged && !lenChanged) return;
+
+    // If new user message just sent, immediately scroll to bottom
+    if (latestMsg?.role === "user") {
+      isNearBottomRef.current = true;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      return;
+    }
+
+    // If assistant is responding / streaming
+    if (isNearBottomRef.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    } else {
+      // User scrolled up to read older messages; do not aggressively yank down
+      if (latestMsg?.role === "assistant") {
+        requestAnimationFrame(() => {
+          setShowNewResponse(true);
+        });
+      }
+    }
+  }, [state.messages]);
+
   const hasMessages = state.messages.length > 0;
 
   return (
@@ -258,17 +320,37 @@ export function ChatView({
 
       {/* Main Content Workspace */}
       <div className={styles.contentWorkspace}>
-        {/* Main Conversation Column */}
-        <div className={styles.mainColumn}>
-          <div className={styles.conversationInner}>
-            <div className={styles.messagesContainer}>
+        {/* Center Conversation Column */}
+        <div className={styles.chatColumn}>
+          {/* Scrollable message viewport */}
+          <div
+            ref={scrollAreaRef}
+            className={styles.messageScrollArea}
+            onScroll={handleScroll}
+          >
+            <div className={styles.messagesInner}>
               <MessageList
                 messages={state.messages}
                 onSelectPrompt={(prompt) => handleSend(prompt)}
               />
             </div>
+          </div>
 
-            <div className={styles.composerContainer}>
+          {/* Floating "↓ New response" button if user scrolled up */}
+          {showNewResponse && (
+            <button
+              type="button"
+              className={styles.newResponseButton}
+              onClick={() => scrollToBottom("smooth")}
+              aria-label="Scroll to new response"
+            >
+              <span>↓ New response</span>
+            </button>
+          )}
+
+          {/* Sticky Composer Container */}
+          <div className={styles.composerContainer}>
+            <div className={styles.composerInner}>
               <Composer
                 isSubmitting={state.isSubmitting}
                 onSend={handleSend}

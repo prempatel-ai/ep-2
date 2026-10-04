@@ -72,65 +72,136 @@
   overflow: hidden;
 }
 
-.mainColumn {
+/* Center Chat Column: Owns conversation scroll area and sticky composer */
+.chatColumn {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  min-height: 0;
   min-width: 0;
   height: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* Independent Scroll Area: Messages scroll without moving composer */
+.messageScrollArea {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 32px 40px;
+  width: 100%;
   scrollbar-width: thin;
 }
 
-.conversationInner {
+.messagesInner {
   width: 100%;
-  max-width: 860px;
+  max-width: min(100%, 900px);
+  padding: 24px 32px 32px;
   display: flex;
   flex-direction: column;
 }
 
-.messagesContainer {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+/* Subtle Floating "↓ New response" button when user is scrolled up */
+.newResponseButton {
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: #0f766e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 120ms ease;
+  user-select: none;
+  animation: fadeIn 150ms ease-out;
 }
 
+.newResponseButton:hover {
+  background-color: #f0fdfa;
+  border-color: #99f6e4;
+  color: #0d9488;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.newResponseButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+/* Sticky Composer Container: Always accessible within center column */
 .composerContainer {
+  position: sticky;
+  bottom: 16px;
   width: 100%;
-  max-width: 860px;
-  margin-top: 36px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 32px 16px;
+  z-index: 20;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.96) 16px, #ffffff 100%);
+}
+
+.composerInner {
+  width: min(100%, 900px);
+  margin-inline: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 @media (max-width: 1199px) {
-  .mainColumn {
-    padding: 20px 24px 32px;
+  .messagesInner {
+    padding: 20px 24px 28px;
   }
 
-  .conversationInner {
-    max-width: 840px;
+  .composerContainer {
+    padding: 4px 24px 16px;
   }
 }
 
 @media (max-width: 899px) {
-  .mainColumn {
-    padding: 16px 20px 28px;
+  .messagesInner {
+    padding: 16px 20px 24px;
   }
 
-  .conversationInner {
-    max-width: 100%;
+  .composerContainer {
+    padding: 4px 20px 14px;
   }
 }
 
 @media (max-width: 700px) {
-  .mainColumn {
-    padding: 12px 14px 24px;
+  .messagesInner {
+    padding: 12px 14px 20px;
   }
 
   .composerContainer {
-    margin-top: 24px;
+    padding: 4px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .newResponseButton {
+    bottom: 76px;
   }
 }
