@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, BookOpen, Activity } from "lucide-react";
+import { BookOpen, Activity } from "lucide-react";
 import type { LanguageCode, AnswerSource } from "@/api/types";
 import type { ChatMessageItem } from "./conversationReducer";
 import styles from "./ContextRail.module.css";
@@ -110,7 +110,7 @@ export function ContextRail({
         </div>
       </section>
 
-      {/* 2. Session & Local Architecture Status */}
+      {/* 2. Session Context & Safety Protocol */}
       <section className={styles.card} aria-labelledby="rail-session-title">
         <div className={styles.cardHeader}>
           <Activity size={14} className={styles.headerIcon} aria-hidden="true" />
@@ -132,26 +132,10 @@ export function ContextRail({
               </span>
             </div>
             <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Data privacy</span>
-              <span className={styles.metaValue}>Local-first execution</span>
+              <span className={styles.metaLabel}>Clinical scope</span>
+              <span className={styles.metaValue}>Patient education · Non-diagnostic</span>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* 3. Clinical Safety Statement */}
-      <section className={styles.card} aria-labelledby="rail-safety-title">
-        <div className={styles.cardHeader}>
-          <ShieldCheck size={14} className={styles.headerIcon} aria-hidden="true" />
-          <h3 id="rail-safety-title" className={styles.cardTitle}>
-            Clinical Protocol
-          </h3>
-        </div>
-
-        <div className={styles.cardBody}>
-          <p className={styles.safetyNote}>
-            Sahayak provides evidence-based patient education and triage guidance. It does not provide definitive medical diagnoses. Always consult an oncologist or registered healthcare provider for clinical decisions.
-          </p>
         </div>
       </section>
     </aside>
