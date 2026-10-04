@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
+import { LanguageSelector } from "./LanguageSelector";
 
 interface AppShellProps {
   children?: ReactNode;
@@ -47,21 +48,12 @@ export function AppShell({
               </span>
             </div>
 
-            {/* Language Selector */}
+            {/* Language Selector Dropdown Menu */}
             <div className={styles.languageControl}>
-              <label htmlFor="language-select" className={styles.srOnly}>
-                Language
-              </label>
-              <select
-                id="language-select"
-                className={styles.languageSelect}
-                value={currentLanguage}
-                onChange={(e) => onLanguageChange?.(e.target.value as LanguageCode)}
-              >
-                <option value="gu">ગુજરાતી (Gujarati)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="en">English</option>
-              </select>
+              <LanguageSelector
+                currentLanguage={currentLanguage}
+                onLanguageChange={onLanguageChange}
+              />
             </div>
           </div>
         </div>

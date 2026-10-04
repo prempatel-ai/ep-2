@@ -1,0 +1,106 @@
+.triggerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  background-color: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-text-primary, #171717);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.triggerButton:hover {
+  border-color: var(--color-border-strong, #d4d4d4);
+  background-color: var(--color-surface-subtle, #f5f5f5);
+}
+
+.globeIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-accent, #0f766e);
+  flex-shrink: 0;
+}
+
+.activeLabel {
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.activeSub {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-tertiary, #737373);
+}
+
+.popoverMenu {
+  width: 180px;
+  padding: 0.25rem;
+  background-color: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: var(--radius-md, 6px);
+  box-shadow: var(--shadow-subtle, 0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.menuHeader {
+  padding: 0.375rem 0.5rem;
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-tertiary, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border, #e5e5e5);
+  margin-bottom: 0.25rem;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+
+.optionItem:hover {
+  background-color: var(--color-surface-subtle, #f5f5f5);
+}
+
+.optionSelected {
+  background-color: var(--color-accent-subtle, #f0fdfa);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+}
+
+.nativeText {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-primary, #171717);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.subText {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-tertiary, #737373);
+}
+
+.checkIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-accent, #0f766e);
+  flex-shrink: 0;
+}

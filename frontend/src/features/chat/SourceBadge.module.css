@@ -1,0 +1,55 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid transparent;
+  line-height: 1.2;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.text {
+  letter-spacing: 0.01em;
+}
+
+/* Safety Badge */
+.badgeSafety {
+  background-color: var(--color-badge-safety-bg, #fef2f2);
+  color: var(--color-badge-safety-text, #991b1b);
+  border-color: var(--color-badge-safety-border, #fecaca);
+}
+
+.badgeSafety .dot {
+  background-color: var(--color-badge-safety-text, #991b1b);
+}
+
+/* FAQ Badge */
+.badgeFaq {
+  background-color: var(--color-badge-faq-bg, #ecfdf5);
+  color: var(--color-badge-faq-text, #065f46);
+  border-color: var(--color-badge-faq-border, #a7f3d0);
+}
+
+.badgeFaq .dot {
+  background-color: var(--color-badge-faq-text, #065f46);
+}
+
+/* Model Badge */
+.badgeModel {
+  background-color: var(--color-badge-model-bg, #f8fafc);
+  color: var(--color-badge-model-text, #334155);
+  border-color: var(--color-badge-model-border, #e2e8f0);
+}
+
+.badgeModel .dot {
+  background-color: var(--color-badge-model-text, #334155);
+}
