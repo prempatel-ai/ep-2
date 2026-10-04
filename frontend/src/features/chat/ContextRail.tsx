@@ -32,7 +32,10 @@ export function ContextRail({
           engine: "Emergency symptom triage filter",
         };
       default:
-        return null;
+        return {
+          title: "Local Medical Model",
+          engine: "Offline on-device inference",
+        };
     }
   };
 
@@ -55,30 +58,28 @@ export function ContextRail({
       aria-label="Clinical session and provenance context"
     >
       <div className={styles.railContainer}>
-        {/* Section 1: Clinical Provenance (only displayed if message source is known) */}
-        {provenance && (
-          <div className={styles.section}>
-            <span className={styles.sectionHeader}>Clinical Provenance</span>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Source</span>
-              <span className={styles.metaValue}>{provenance.title}</span>
-            </div>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>Engine</span>
-              <span className={styles.metaValue}>{provenance.engine}</span>
-            </div>
-            {latestMessage?.metrics?.total_ms != null && (
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Response time</span>
-                <span className={styles.metaValue}>
-                  {Math.round(latestMessage.metrics.total_ms)} ms
-                </span>
-              </div>
-            )}
+        {/* Section 1: Clinical Provenance */}
+        <div className={styles.section}>
+          <span className={styles.sectionHeader}>Clinical Provenance</span>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}>Source</span>
+            <span className={styles.metaValue}>{provenance.title}</span>
           </div>
-        )}
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}>Engine</span>
+            <span className={styles.metaValue}>{provenance.engine}</span>
+          </div>
+          {latestMessage?.metrics?.total_ms != null && (
+            <div className={styles.metaRow}>
+              <span className={styles.metaLabel}>Response time</span>
+              <span className={styles.metaValue}>
+                {Math.round(latestMessage.metrics.total_ms)} ms
+              </span>
+            </div>
+          )}
+        </div>
 
-        {provenance && <div className={styles.divider} />}
+        <div className={styles.divider} />
 
         {/* Section 2: Session Context (Real session data) */}
         <div className={styles.section}>

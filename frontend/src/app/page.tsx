@@ -10,13 +10,20 @@ import type { LanguageCode } from "@/api/types";
 
 const emptySubscribe = () => () => {};
 
+const EXPLORE_TOPIC_PROMPTS = {
+  symptoms: "What are the common early symptoms and signs of breast cancer?",
+  screening: "How often should women get a mammogram, and what screening tests are recommended?",
+  diagnosis: "What do breast cancer stages and diagnostic biopsy results mean?",
+  treatment: "What are the standard treatment options for breast cancer?",
+} as const;
+
 export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("gu");
   const [activeMode, setActiveMode] = useState<"text" | "voice">("text");
 
   const isMobile = useSyncExternalStore(
     emptySubscribe,
-    () => window.innerWidth <= 768,
+    () => window.innerWidth <= 700,
     () => false,
   );
   const [sidebarOverride, setSidebarOverride] = useState<boolean | null>(null);
@@ -24,19 +31,40 @@ export default function Home() {
 
   const history = useConversationHistory(setLanguage);
 
-  const [chatSessionKey, setChatSessionKey] = useState<string>("init");
+  const [chatSessionKey, setChatSessionKey] = useState<string | null>(null);
+  const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
 
   const handleNewConversation = () => {
     setActiveMode("text");
+    setInitialPrompt(null);
     history.createNewConversation();
     setChatSessionKey(`new_${Date.now()}`);
   };
 
   const handleSelectConversation = (id: string) => {
     setActiveMode("text");
+    setInitialPrompt(null);
     history.selectConversation(id);
     setChatSessionKey(id);
   };
+
+  const handleExploreTopic = (topic: "symptoms" | "screening" | "diagnosis" | "treatment") => {
+    setActiveMode("text");
+    history.createNewConversation();
+    const prompt = EXPLORE_TOPIC_PROMPTS[topic];
+    setInitialPrompt(prompt);
+    setChatSessionKey(`explore_${topic}_${Date.now()}`);
+  };
+
+  const handleClearAllData = () => {
+    if (typeof localStorage !== "undefined") {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  const activeKey =
+    chatSessionKey ?? (history.activeConversation?.id || "empty");
 
   return (
     <AppShell
@@ -56,10 +84,14 @@ export default function Home() {
           onNewConversation={handleNewConversation}
           onRenameConversation={history.renameConversation}
           onDeleteConversation={history.deleteConversation}
+          onClearAllData={handleClearAllData}
           isOpen={isSidebarOpen}
           onToggleCollapse={() => setSidebarOverride(false)}
           onCloseMobile={() => setSidebarOverride(false)}
           isLoaded={history.isLoaded}
+          onExploreTopic={handleExploreTopic}
+          currentLanguage={language}
+          onLanguageChange={setLanguage}
         />
       }
     >
@@ -70,13 +102,14 @@ export default function Home() {
         />
       ) : (
         <ChatView
-          key={chatSessionKey}
+          key={activeKey}
           currentLanguage={language}
           onLanguageChange={setLanguage}
           onSwitchToVoice={() => setActiveMode("voice")}
           activeConversation={history.activeConversation}
           onSaveConversation={history.saveConversation}
           onNewConversation={handleNewConversation}
+          initialPrompt={initialPrompt ?? undefined}
         />
       )}
     </AppShell>

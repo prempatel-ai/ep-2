@@ -9,9 +9,19 @@ import {
   Trash2,
   Check,
   X,
+  Activity,
+  ShieldCheck,
+  FileText,
+  Pill,
+  Bookmark,
+  Settings,
 } from "lucide-react";
+import type { LanguageCode } from "@/api/types";
 import type { SavedConversation } from "./types";
 import { groupConversations } from "./storage";
+import { getSavedAnswers } from "./savedAnswersStorage";
+import { SavedAnswersModal } from "./SavedAnswersModal";
+import { SettingsModal } from "./SettingsModal";
 import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
@@ -21,10 +31,15 @@ interface SidebarProps {
   onNewConversation: () => void;
   onRenameConversation: (id: string, newTitle: string) => void;
   onDeleteConversation: (id: string) => void;
+  onClearAllData?: () => void;
   isOpen: boolean;
   onToggleCollapse: () => void;
   onCloseMobile?: () => void;
   isLoaded?: boolean;
+  onExploreTopic?: (topic: "symptoms" | "screening" | "diagnosis" | "treatment") => void;
+  currentLanguage?: LanguageCode;
+  onLanguageChange?: (lang: LanguageCode) => void;
+  isOnline?: boolean;
 }
 
 export function Sidebar({
@@ -34,15 +49,28 @@ export function Sidebar({
   onNewConversation,
   onRenameConversation,
   onDeleteConversation,
+  onClearAllData,
   isOpen,
   onToggleCollapse,
   onCloseMobile,
   isLoaded = true,
+  onExploreTopic,
+  currentLanguage = "en",
+  onLanguageChange,
+  isOnline = true,
 }: SidebarProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isSavedAnswersOpen, setIsSavedAnswersOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [savedAnswersCount, setSavedAnswersCount] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      return getSavedAnswers().length;
+    }
+    return 0;
+  });
 
   const menuRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -124,7 +152,20 @@ export function Sidebar({
     if (
       onCloseMobile &&
       typeof window !== "undefined" &&
-      window.innerWidth <= 768
+      window.innerWidth <= 700
+    ) {
+      onCloseMobile();
+    }
+  };
+
+  const handleTopicClick = (topic: "symptoms" | "screening" | "diagnosis" | "treatment") => {
+    if (onExploreTopic) {
+      onExploreTopic(topic);
+    }
+    if (
+      onCloseMobile &&
+      typeof window !== "undefined" &&
+      window.innerWidth <= 700
     ) {
       onCloseMobile();
     }
@@ -143,7 +184,7 @@ export function Sidebar({
 
       <aside
         className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : styles.sidebarClosed}`}
-        aria-label="Conversation history"
+        aria-label="Application navigation"
       >
         {/* Top Header of Sidebar */}
         <div className={styles.sidebarHeader}>
@@ -160,7 +201,12 @@ export function Sidebar({
                 <rect x="2" y="8" width="16" height="4" rx="2" fill="#0d9488" />
               </svg>
             </div>
-            <span className={styles.brandText}>SAHAYAK</span>
+            <div className={styles.brandTextGroup}>
+              <span className={styles.brandTitle}>SAHAYAK</span>
+              <span className={styles.brandSubtitle}>
+                Breast Cancer Information Assistant
+              </span>
+            </div>
           </div>
 
           <button
@@ -183,7 +229,7 @@ export function Sidebar({
               if (
                 onCloseMobile &&
                 typeof window !== "undefined" &&
-                window.innerWidth <= 768
+                window.innerWidth <= 700
               ) {
                 onCloseMobile();
               }
@@ -196,176 +242,287 @@ export function Sidebar({
           </button>
         </div>
 
-        {/* Scrollable Conversation History */}
-        <div className={styles.historyScrollArea} suppressHydrationWarning>
-          {!isLoaded || displayedConversations.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p className={styles.emptyTitle}>No conversations yet.</p>
-              <p className={styles.emptySubtitle}>
-                Start a conversation with Sahayak.
-              </p>
-            </div>
-          ) : (
-            <div className={styles.groupsContainer}>
-              {grouped.map((group) => (
-                <div key={group.label} className={styles.groupSection}>
-                  <div className={styles.groupHeading}>{group.label}</div>
-                  <div className={styles.groupList}>
-                    {group.items.map((conv) => {
-                      const isActive = conv.id === activeConversationId;
-                      const isEditing = editingId === conv.id;
-                      const isConfirming = confirmDeleteId === conv.id;
-                      const isMenuOpen = menuOpenId === conv.id;
+        {/* Scrollable Navigation & History Area */}
+        <div className={styles.navScrollArea} suppressHydrationWarning>
+          {/* SECTION 1: CONVERSATIONS */}
+          <div className={styles.navSection}>
+            <span className={styles.sectionHeader}>CONVERSATIONS</span>
 
-                      if (isEditing) {
-                        return (
-                          <div
-                            key={conv.id}
-                            className={`${styles.itemContainer} ${styles.itemEditing}`}
-                          >
-                            <input
-                              ref={editInputRef}
-                              type="text"
-                              value={editTitle}
-                              onChange={(e) => setEditTitle(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSaveRename(conv.id);
-                                if (e.key === "Escape") handleCancelRename();
-                              }}
-                              className={styles.renameInput}
-                              maxLength={60}
-                              aria-label="Rename conversation"
-                            />
-                            <div className={styles.renameActions}>
-                              <button
-                                type="button"
-                                onClick={() => handleSaveRename(conv.id)}
-                                className={styles.renameActionBtn}
-                                aria-label="Save title"
-                                title="Save"
-                              >
-                                <Check size={13} aria-hidden="true" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={handleCancelRename}
-                                className={styles.renameActionBtn}
-                                aria-label="Cancel rename"
-                                title="Cancel"
-                              >
-                                <X size={13} aria-hidden="true" />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      }
+            {/* Saved answers item */}
+            <button
+              type="button"
+              onClick={() => setIsSavedAnswersOpen(true)}
+              className={styles.navItem}
+              title="View bookmarked clinical answers"
+            >
+              <Bookmark size={14} className={styles.navItemIcon} aria-hidden="true" />
+              <span>Saved answers</span>
+              {savedAnswersCount > 0 && (
+                <span className={styles.itemBadge}>{savedAnswersCount}</span>
+              )}
+            </button>
 
-                      if (isConfirming) {
-                        return (
-                          <div
-                            key={conv.id}
-                            className={`${styles.itemContainer} ${styles.itemConfirming}`}
-                          >
-                            <span className={styles.confirmPrompt}>Delete?</span>
-                            <div className={styles.confirmActions}>
-                              <button
-                                type="button"
-                                onClick={(e) => handleConfirmDelete(conv.id, e)}
-                                className={styles.confirmDeleteBtn}
-                              >
-                                Delete
-                              </button>
-                              <button
-                                type="button"
-                                onClick={handleCancelDelete}
-                                className={styles.confirmCancelBtn}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      }
+            {/* Recent Conversations List */}
+            {!isLoaded || displayedConversations.length === 0 ? (
+              <div className={styles.emptyHistory}>
+                <span>No recent conversations</span>
+              </div>
+            ) : (
+              <div className={styles.groupsContainer}>
+                {grouped.map((group) => (
+                  <div key={group.label} className={styles.groupSection}>
+                    <div className={styles.groupHeading}>{group.label}</div>
+                    <div className={styles.groupList}>
+                      {group.items.map((conv) => {
+                        const isActive = conv.id === activeConversationId;
+                        const isEditing = editingId === conv.id;
+                        const isConfirming = confirmDeleteId === conv.id;
+                        const isMenuOpen = menuOpenId === conv.id;
 
-                      return (
-                        <div
-                          key={conv.id}
-                          className={`${styles.itemContainer} ${
-                            isActive ? styles.itemActive : ""
-                          }`}
-                          onClick={() => handleItemClick(conv.id)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") handleItemClick(conv.id);
-                          }}
-                          aria-current={isActive ? "true" : undefined}
-                        >
-                          <span className={styles.itemTitle} title={conv.title}>
-                            {conv.title}
-                          </span>
-
-                          <div className={styles.itemMenuTriggerWrapper}>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setMenuOpenId(isMenuOpen ? null : conv.id);
-                              }}
-                              className={`${styles.itemMenuTrigger} ${
-                                isMenuOpen ? styles.itemMenuTriggerActive : ""
-                              }`}
-                              aria-label="Conversation options"
-                              title="More options"
+                        if (isEditing) {
+                          return (
+                            <div
+                              key={conv.id}
+                              className={`${styles.itemContainer} ${styles.itemEditing}`}
                             >
-                              <MoreHorizontal size={14} aria-hidden="true" />
-                            </button>
-
-                            {/* Dropdown menu for item */}
-                            {isMenuOpen && (
-                              <div
-                                ref={menuRef}
-                                className={styles.contextMenu}
-                                role="menu"
-                              >
+                              <input
+                                ref={editInputRef}
+                                type="text"
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleSaveRename(conv.id);
+                                  if (e.key === "Escape") handleCancelRename();
+                                }}
+                                className={styles.renameInput}
+                                maxLength={60}
+                                aria-label="Rename conversation"
+                              />
+                              <div className={styles.renameActions}>
                                 <button
                                   type="button"
-                                  role="menuitem"
-                                  className={styles.contextMenuItem}
-                                  onClick={(e) => handleStartRename(conv, e)}
+                                  onClick={() => handleSaveRename(conv.id)}
+                                  className={styles.renameActionBtn}
+                                  aria-label="Save title"
+                                  title="Save"
                                 >
-                                  <Pencil size={13} aria-hidden="true" />
-                                  <span>Rename</span>
+                                  <Check size={13} aria-hidden="true" />
                                 </button>
                                 <button
                                   type="button"
-                                  role="menuitem"
-                                  className={`${styles.contextMenuItem} ${styles.contextMenuItemDanger}`}
-                                  onClick={(e) => handleStartDelete(conv.id, e)}
+                                  onClick={handleCancelRename}
+                                  className={styles.renameActionBtn}
+                                  aria-label="Cancel rename"
+                                  title="Cancel"
                                 >
-                                  <Trash2 size={13} aria-hidden="true" />
-                                  <span>Delete</span>
+                                  <X size={13} aria-hidden="true" />
                                 </button>
                               </div>
-                            )}
+                            </div>
+                          );
+                        }
+
+                        if (isConfirming) {
+                          return (
+                            <div
+                              key={conv.id}
+                              className={`${styles.itemContainer} ${styles.itemConfirming}`}
+                            >
+                              <span className={styles.confirmPrompt}>Delete?</span>
+                              <div className={styles.confirmActions}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleConfirmDelete(conv.id, e)}
+                                  className={styles.confirmDeleteBtn}
+                                >
+                                  Delete
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={handleCancelDelete}
+                                  className={styles.confirmCancelBtn}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div
+                            key={conv.id}
+                            className={`${styles.itemContainer} ${
+                              isActive ? styles.itemActive : ""
+                            }`}
+                            onClick={() => handleItemClick(conv.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleItemClick(conv.id);
+                            }}
+                            aria-current={isActive ? "true" : undefined}
+                          >
+                            <span className={styles.itemTitle} title={conv.title}>
+                              {conv.title}
+                            </span>
+
+                            <div className={styles.itemMenuTriggerWrapper}>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMenuOpenId(isMenuOpen ? null : conv.id);
+                                }}
+                                className={`${styles.itemMenuTrigger} ${
+                                  isMenuOpen ? styles.itemMenuTriggerActive : ""
+                                }`}
+                                aria-label="Conversation options"
+                                title="More options"
+                              >
+                                <MoreHorizontal size={14} aria-hidden="true" />
+                              </button>
+
+                              {/* Dropdown menu for item */}
+                              {isMenuOpen && (
+                                <div
+                                  ref={menuRef}
+                                  className={styles.contextMenu}
+                                  role="menu"
+                                >
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={styles.contextMenuItem}
+                                    onClick={(e) => handleStartRename(conv, e)}
+                                  >
+                                    <Pencil size={13} aria-hidden="true" />
+                                    <span>Rename</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={`${styles.contextMenuItem} ${styles.contextMenuItemDanger}`}
+                                    onClick={(e) => handleStartDelete(conv.id, e)}
+                                  >
+                                    <Trash2 size={13} aria-hidden="true" />
+                                    <span>Delete</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 2: EXPLORE */}
+          <div className={styles.navSection}>
+            <span className={styles.sectionHeader}>EXPLORE</span>
+            <nav className={styles.exploreNav}>
+              <button
+                type="button"
+                onClick={() => handleTopicClick("symptoms")}
+                className={styles.navItem}
+                title="Questions about breast cancer symptoms"
+              >
+                <Activity size={14} className={styles.navItemIcon} aria-hidden="true" />
+                <span>Symptoms</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTopicClick("screening")}
+                className={styles.navItem}
+                title="Mammogram and screening guidelines"
+              >
+                <ShieldCheck size={14} className={styles.navItemIcon} aria-hidden="true" />
+                <span>Screening</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTopicClick("diagnosis")}
+                className={styles.navItem}
+                title="Diagnostic tests and staging terminology"
+              >
+                <FileText size={14} className={styles.navItemIcon} aria-hidden="true" />
+                <span>Diagnosis</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTopicClick("treatment")}
+                className={styles.navItem}
+                title="Standard breast cancer treatment options"
+              >
+                <Pill size={14} className={styles.navItemIcon} aria-hidden="true" />
+                <span>Treatment</span>
+              </button>
+            </nav>
+          </div>
         </div>
 
-        {/* Data Safety Notice Footer */}
+        {/* BOTTOM: Local/Offline Status & Settings */}
         <div className={styles.sidebarFooter}>
-          <span className={styles.privacyNote}>
-            Conversations are stored locally on this device.
-          </span>
+          <div className={styles.statusBlock}>
+            <div className={styles.statusRow}>
+              <span
+                className={isOnline ? styles.statusDotOnline : styles.statusDotOffline}
+                aria-hidden="true"
+              />
+              <span className={styles.statusLabel}>
+                {isOnline ? "Local · Connected" : "Local · Offline"}
+              </span>
+            </div>
+            <span className={styles.privacyNote}>
+              Conversations stored on this device
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className={styles.settingsButton}
+            aria-label="Open settings"
+          >
+            <Settings size={14} aria-hidden="true" />
+            <span>Settings</span>
+          </button>
         </div>
       </aside>
+
+      {/* Modals */}
+      <SavedAnswersModal
+        isOpen={isSavedAnswersOpen}
+        onClose={() => {
+          setIsSavedAnswersOpen(false);
+          if (typeof window !== "undefined") {
+            setSavedAnswersCount(getSavedAnswers().length);
+          }
+        }}
+      />
+
+      {onLanguageChange && (
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          currentLanguage={currentLanguage}
+          onLanguageChange={onLanguageChange}
+          conversationsCount={displayedConversations.length}
+          onClearAllData={() => {
+            if (onClearAllData) {
+              onClearAllData();
+            } else {
+              localStorage.clear();
+              window.location.reload();
+            }
+          }}
+          isOnline={isOnline}
+        />
+      )}
     </>
   );
 }

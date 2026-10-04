@@ -1,7 +1,12 @@
-import React, { useRef, useEffect } from "react";
-import { AlertCircle } from "lucide-react";
+import React, { useRef, useEffect, useState } from "react";
+import { AlertCircle, Bookmark } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
+import {
+  saveAnswer,
+  removeSavedAnswer,
+  isAnswerSaved,
+} from "@/features/history/savedAnswersStorage";
 import styles from "./MessageList.module.css";
 
 interface MessageListProps {
@@ -17,6 +22,43 @@ export function MessageList({
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const liveRegionRef = useRef<HTMLDivElement>(null);
+  const [savedIds, setSavedIds] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    const set = new Set<string>();
+    messages.forEach((m) => {
+      if (m.role === "assistant" && isAnswerSaved(m.id)) {
+        set.add(m.id);
+      }
+    });
+    return set;
+  });
+
+  const handleToggleSave = (message: ChatMessageItem, index: number) => {
+    const isCurrentlySaved = savedIds.has(message.id);
+    if (isCurrentlySaved) {
+      removeSavedAnswer(message.id);
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(message.id);
+        return next;
+      });
+    } else {
+      const prevUser = [...messages.slice(0, index)]
+        .reverse()
+        .find((m) => m.role === "user");
+      saveAnswer({
+        id: message.id,
+        question: prevUser?.text || "Clinical inquiry",
+        text: message.text || "",
+        source: message.source,
+      });
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        next.add(message.id);
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     if (messages.length > 0 && typeof bottomRef.current?.scrollIntoView === "function") {
@@ -129,8 +171,9 @@ export function MessageList({
         </div>
       ) : (
         <div className={styles.conversationStream}>
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             const isUser = message.role === "user";
+            const isSaved = savedIds.has(message.id);
             return (
               <div
                 key={message.id}
@@ -148,6 +191,23 @@ export function MessageList({
                   )}
                   {message.state === "stopped" && (
                     <span className={styles.stoppedTag}>Generation stopped</span>
+                  )}
+                  {!isUser && message.text && (
+                    <button
+                      type="button"
+                      onClick={() => handleToggleSave(message, index)}
+                      className={`${styles.bookmarkBtn} ${
+                        isSaved ? styles.bookmarkBtnActive : ""
+                      }`}
+                      title={isSaved ? "Remove from saved answers" : "Save answer"}
+                      aria-label={isSaved ? "Remove from saved answers" : "Save answer"}
+                    >
+                      <Bookmark
+                        size={13}
+                        fill={isSaved ? "#0d9488" : "none"}
+                        aria-hidden="true"
+                      />
+                    </button>
                   )}
                 </div>
 

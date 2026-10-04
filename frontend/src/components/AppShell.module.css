@@ -20,12 +20,19 @@
   -ms-overflow-style: none !important;
 }
 
+.container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 .leftGroup {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
   flex: 1;
+  padding: 0 32px;
 }
 
 .sidebarToggleButton {
@@ -54,7 +61,7 @@
   outline-offset: 1px;
 }
 
-/* Hide header toggle on desktop when sidebar is already open (sidebar has its own collapse button) */
+/* Hide header toggle on desktop when sidebar is already open */
 .sidebarToggleWhenOpen {
   display: none !important;
 }
@@ -67,7 +74,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 480px;
+  max-width: 640px;
 }
 
 .srOnly {
@@ -82,13 +89,7 @@
   border: 0;
 }
 
-.container::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* Navbar: Exactly 56px height, crisp bottom border #eaeaea, no shadow */
+/* Navbar: Exactly 56px height, crisp bottom border #eaeaea */
 .header {
   height: 56px;
   flex-shrink: 0;
@@ -100,22 +101,25 @@
 }
 
 .headerContent {
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  padding: 0;
 }
 
-/* RIGHT: Cohesive System Status & Actions */
+/* RIGHT: Cohesive System Status & Actions (aligned with right Context Rail) */
 .headerRightGroup {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  width: 280px;
+  padding: 0 20px;
+  border-left: 1px solid #f3f4f6;
+  height: 100%;
+  justify-content: flex-end;
 }
 
 /* 1. Connected Status: quiet, inline, no pill */
@@ -193,52 +197,10 @@
   color: #0d9488;
 }
 
-/* 4. New Conversation: Secondary Action */
-.newChatButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 10px;
-  font-size: 0.8125rem; /* 13px */
-  font-weight: 500;
-  color: #4b5563;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-
-.newChatButton:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-  color: #111827;
-}
-
-.newChatButton:focus-visible {
-  outline: 2px solid #0d9488;
-  outline-offset: 1px;
-}
-
-.newChatIcon {
-  width: 14px;
-  height: 14px;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
-.newChatButton:hover .newChatIcon {
-  color: #374151;
-}
-
 /* Main Conversation Canvas */
 .main {
   flex: 1;
   display: flex;
-  justify-content: center;
   width: 100%;
   min-height: 0;
   overflow: hidden;
@@ -246,12 +208,11 @@
 
 .mainContent {
   width: 100%;
-  max-width: 1180px;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 0 var(--space-6);
+  padding: 0;
 }
 
 /* Footer Safety Disclaimer */
@@ -259,11 +220,11 @@
   flex-shrink: 0;
   border-top: 1px solid #f3f4f6;
   background-color: #ffffff;
-  padding: 8px var(--space-6);
+  padding: 6px var(--space-4);
 }
 
 .footerContent {
-  max-width: 1180px;
+  max-width: 940px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -274,14 +235,14 @@
 .disclaimerText {
   font-size: 0.6875rem; /* 11px */
   color: #9ca3af;
-  line-height: 1.4;
+  line-height: 1.35;
   margin: 0;
 }
 
 .emergencyText {
   font-size: 0.6875rem; /* 11px */
   color: #6b7280;
-  line-height: 1.4;
+  line-height: 1.35;
   margin: 0;
 }
 
@@ -290,57 +251,83 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* Tablet (<= 768px) */
-@media (max-width: 768px) {
-  .sidebarToggleWhenOpen {
-    display: inline-flex !important;
+/* Medium Desktop / Laptop (900px - 1199px) */
+@media (max-width: 1199px) {
+  .leftGroup {
+    padding: 0 24px;
   }
-  .headerContent {
-    padding: 0 var(--space-4);
-    gap: var(--space-2);
-  }
+
   .headerRightGroup {
-    gap: 6px;
-  }
-  .mainContent {
-    padding: 0 var(--space-4);
-  }
-  .footer {
-    padding: 8px var(--space-4);
-  }
-  .footerContent {
-    text-align: left;
+    width: 240px;
+    padding: 0 16px;
   }
 }
 
-/* Mobile (<= 640px): strictly prevent multi-row wrapping */
-@media (max-width: 640px) {
+/* Tablet / Compact (< 900px): Provenance rail hides */
+@media (max-width: 899px) {
+  .leftGroup {
+    padding: 0 16px;
+  }
+
+  .headerRightGroup {
+    width: auto;
+    border-left: none;
+    padding: 0 16px;
+  }
+}
+
+/* Mobile (<= 700px): strictly prevent multi-row wrapping */
+@media (max-width: 700px) {
+  .sidebarToggleWhenOpen {
+    display: inline-flex !important;
+  }
+
   .header {
     height: 56px;
   }
+
   .headerContent {
     padding: 0 12px;
     gap: 8px;
     flex-wrap: nowrap;
   }
+
+  .leftGroup {
+    padding: 0;
+    gap: 8px;
+  }
+
   .conversationTitle {
-    max-width: 130px;
+    max-width: 140px;
     font-size: 0.8125rem;
   }
+
   .headerRightGroup {
+    padding: 0;
     gap: 6px;
     flex-wrap: nowrap;
   }
+
   .statusText {
     display: none;
   }
+
   .statusIndicator {
     padding: 0 2px;
     margin-right: 0;
   }
+
   .voiceButton {
     height: 32px;
     padding: 0 8px;
     gap: 4px;
+  }
+
+  .footer {
+    padding: 6px 12px;
+  }
+
+  .footerContent {
+    text-align: left;
   }
 }

@@ -23,6 +23,7 @@ interface ChatViewProps {
   onSwitchToVoice?: () => void;
   activeConversation?: SavedConversation | null;
   onSaveConversation?: (conv: SavedConversation) => void;
+  initialPrompt?: string;
 }
 
 export function ChatView({
@@ -30,6 +31,7 @@ export function ChatView({
   onSwitchToVoice,
   activeConversation,
   onSaveConversation,
+  initialPrompt,
 }: ChatViewProps) {
   const [state, dispatch] = useReducer(conversationReducer, {
     ...initialConversationState,
@@ -194,6 +196,20 @@ export function ChatView({
     }
   };
 
+  const handleSendRef = useRef(handleSend);
+  useEffect(() => {
+    handleSendRef.current = handleSend;
+  });
+
+  useEffect(() => {
+    if (initialPrompt && state.messages.length === 0) {
+      const timer = setTimeout(() => {
+        void handleSendRef.current(initialPrompt);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [initialPrompt, state.messages.length]);
+
   const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -242,34 +258,34 @@ export function ChatView({
 
       {/* Main Content Workspace */}
       <div className={styles.contentWorkspace}>
-        {/* Main Conversation Column (70–75%) */}
+        {/* Main Conversation Column */}
         <div className={styles.mainColumn}>
-          <div className={styles.messagesContainer}>
-            <MessageList
-              messages={state.messages}
-              onSelectPrompt={(prompt) => handleSend(prompt)}
-            />
-          </div>
+          <div className={styles.conversationInner}>
+            <div className={styles.messagesContainer}>
+              <MessageList
+                messages={state.messages}
+                onSelectPrompt={(prompt) => handleSend(prompt)}
+              />
+            </div>
 
-          <div className={styles.composerContainer}>
-            <Composer
-              isSubmitting={state.isSubmitting}
-              onSend={handleSend}
-              onStop={handleStop}
-              onSwitchToVoice={onSwitchToVoice}
-              disabled={serverReady === false}
-            />
+            <div className={styles.composerContainer}>
+              <Composer
+                isSubmitting={state.isSubmitting}
+                onSend={handleSend}
+                onStop={handleStop}
+                onSwitchToVoice={onSwitchToVoice}
+                disabled={serverReady === false}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Quiet Context Rail (shown in conversation state, 25–30%) */}
-        {hasMessages && (
-          <ContextRail
-            latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
-            currentLanguage={currentLanguage}
-            isOnline={serverReady !== false}
-          />
-        )}
+        {/* Quiet Context Rail */}
+        <ContextRail
+          latestMessage={[...state.messages].reverse().find((m) => m.role === "assistant")}
+          currentLanguage={currentLanguage}
+          isOnline={serverReady !== false}
+        />
       </div>
     </div>
   );
