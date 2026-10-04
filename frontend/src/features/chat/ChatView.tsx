@@ -1,4 +1,5 @@
 import React, { useReducer, useState, useRef, useEffect, useCallback } from "react";
+import { AlertCircle, Mic, RotateCcw } from "lucide-react";
 import type { LanguageCode, AnswerSource } from "@/api/types";
 import { chat, deleteSession, getReady } from "@/api/http";
 import {
@@ -165,7 +166,10 @@ export function ChatView({
       {/* Systematic Status / Offline Banners */}
       {state.error && (
         <div className={styles.warningBanner} role="alert">
-          <span className={styles.bannerText}>{state.error}</span>
+          <div className={styles.warningMain}>
+            <AlertCircle size={15} className={styles.alertIcon} aria-hidden="true" />
+            <span className={styles.bannerText}>{state.error}</span>
+          </div>
           <button
             type="button"
             className={styles.retryButton}
@@ -200,7 +204,7 @@ export function ChatView({
               className={styles.voiceButton}
               aria-label="Switch to interactive voice mode"
             >
-              <span className={styles.controlIcon} aria-hidden="true">🎙</span>
+              <Mic size={13} className={styles.controlIcon} aria-hidden="true" />
               <span>Voice Mode</span>
             </button>
           )}
@@ -211,7 +215,7 @@ export function ChatView({
             className={styles.newChatButton}
             aria-label="Clear chat session and start new conversation"
           >
-            <span className={styles.controlIcon} aria-hidden="true">↺</span>
+            <RotateCcw size={13} className={styles.controlIcon} aria-hidden="true" />
             <span>New conversation</span>
           </button>
         </div>

@@ -94,6 +94,9 @@
 }
 
 .submitButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   background-color: var(--color-accent);
@@ -107,6 +110,11 @@
 
 .submitButton:hover:not(:disabled) {
   background-color: var(--color-accent-hover);
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .submitButton:active:not(:disabled) {
@@ -139,11 +147,9 @@
   background-color: #3b171c;
 }
 
-.stopIcon {
-  width: 7px;
-  height: 7px;
-  background-color: var(--color-badge-safety-text);
-  border-radius: 1px;
+.stopButton:focus-visible {
+  outline: 2px solid var(--color-badge-safety-text);
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {

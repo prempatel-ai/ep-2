@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { AlertTriangle } from "lucide-react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -32,9 +33,21 @@ export function AppShell({
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brand}>
-            <span className={styles.brandSymbol} aria-hidden="true">
-              +
-            </span>
+            <div className={styles.brandSymbol} aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </div>
             <div className={styles.brandInfo}>
               <div className={styles.brandTitleRow}>
                 <h1 className={styles.title}>{t.app.title}</h1>
@@ -84,7 +97,7 @@ export function AppShell({
             {t.disclaimer.notice}
           </p>
           <div className={styles.emergencyTag}>
-            <span className={styles.emergencyIcon}>!</span>
+            <AlertTriangle size={12} className={styles.emergencyIcon} aria-hidden="true" />
             <span>{t.disclaimer.emergency}</span>
           </div>
         </div>

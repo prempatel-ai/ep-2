@@ -19,6 +19,9 @@
 }
 
 .exitButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
@@ -36,6 +39,11 @@
   background-color: var(--color-surface-hover);
 }
 
+.exitButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .errorAlert {
   background-color: var(--color-badge-safety-bg);
   border: 1px solid var(--color-badge-safety-border);
@@ -47,8 +55,19 @@
   font-size: var(--font-size-xs);
 }
 
+.errorAlertRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alertIcon {
+  flex-shrink: 0;
+  color: var(--color-badge-safety-text);
+}
+
 .errorHint {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 0.6875rem;
   opacity: 0.9;
 }
@@ -89,13 +108,13 @@
 .pill_speaking {
   background-color: var(--color-accent-subtle);
   border-color: var(--color-accent-border);
-  color: var(--color-accent);
+  color: #5eead4;
 }
 
 .pill_capturing {
-  background-color: #2e2608;
-  border-color: #715809;
-  color: #fbbf24;
+  background-color: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.3);
+  color: #facc15;
 }
 
 .pill_thinking {
@@ -118,7 +137,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  min-height: 120px;
   padding: var(--space-2) 0;
 }
 
@@ -146,7 +164,9 @@
 
 .speakerTag {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-tertiary);
 }
 
@@ -190,11 +210,9 @@
   background-color: #3b171c;
 }
 
-.stopIcon {
-  width: 7px;
-  height: 7px;
-  background-color: var(--color-badge-safety-text);
-  border-radius: 1px;
+.interruptButton:focus-visible {
+  outline: 2px solid var(--color-badge-safety-text);
+  outline-offset: 2px;
 }
 
 .liveVoiceTag {

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, type FormEvent, type KeyboardEvent } from "react";
+import { Mic, Send, Square } from "lucide-react";
 import styles from "./Composer.module.css";
 
 interface ComposerProps {
@@ -100,7 +101,7 @@ export function Composer({
                 aria-label="Switch to voice input"
                 title="Voice mode"
               >
-                <span>🎙</span>
+                <Mic size={15} aria-hidden="true" />
               </button>
             )}
 
@@ -111,7 +112,7 @@ export function Composer({
                 className={styles.stopButton}
                 aria-label="Stop current response generation"
               >
-                <span className={styles.stopIcon} aria-hidden="true" />
+                <Square size={11} fill="currentColor" aria-hidden="true" />
                 <span>Stop</span>
               </button>
             ) : (
@@ -121,6 +122,7 @@ export function Composer({
                 className={styles.submitButton}
                 aria-label="Send clinical inquiry"
               >
+                <Send size={13} aria-hidden="true" />
                 <span>Submit Query</span>
               </button>
             )}

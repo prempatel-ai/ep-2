@@ -7,6 +7,7 @@ import {
   voiceMachineReducer,
   initialVoiceState,
 } from "./voiceStateMachine";
+import { ArrowLeft, AlertCircle, Square } from "lucide-react";
 import { OrbBloop } from "@/components/ui/orb-bloop";
 import { BloopState } from "@/components/ui/orb-bloop-utils/types";
 import { BLOOP_PALETTES, BloopPaletteName } from "@/components/ui/orb-bloop-utils/palettes";
@@ -161,13 +162,17 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
           className={styles.exitButton}
           aria-label="Switch back to text chat"
         >
-          ← Return to Text Chat
+          <ArrowLeft size={14} aria-hidden="true" />
+          <span>Return to Text Chat</span>
         </button>
       </div>
 
       {voiceState.errorMessage && (
         <div className={styles.errorAlert} role="alert">
-          <span>⚠️ {voiceState.errorMessage}</span>
+          <div className={styles.errorAlertRow}>
+            <AlertCircle size={15} className={styles.alertIcon} aria-hidden="true" />
+            <span>{voiceState.errorMessage}</span>
+          </div>
           <p className={styles.errorHint}>
             Please check that your microphone is connected and permissions are granted.
           </p>
@@ -206,24 +211,26 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       </div>
 
       {/* Transcript and Response Card */}
-      <div className={styles.transcriptSection}>
-        {voiceState.transcript && (
-          <div className={styles.userBubble}>
-            <span className={styles.speakerTag}>You:</span>
-            <p className={styles.transcriptText}>{voiceState.transcript}</p>
-          </div>
-        )}
-
-        {latestAssistantText && (
-          <div className={styles.assistantBubble}>
-            <div className={styles.assistantHeader}>
-              <span className={styles.speakerTag}>Sahayak:</span>
-              {latestSource && <SourceBadge source={latestSource} />}
+      {(voiceState.transcript || latestAssistantText) && (
+        <div className={styles.transcriptSection}>
+          {voiceState.transcript && (
+            <div className={styles.userBubble}>
+              <span className={styles.speakerTag}>You:</span>
+              <p className={styles.transcriptText}>{voiceState.transcript}</p>
             </div>
-            <p className={styles.assistantText}>{latestAssistantText}</p>
-          </div>
-        )}
-      </div>
+          )}
+
+          {latestAssistantText && (
+            <div className={styles.assistantBubble}>
+              <div className={styles.assistantHeader}>
+                <span className={styles.speakerTag}>Sahayak:</span>
+                {latestSource && <SourceBadge source={latestSource} />}
+              </div>
+              <p className={styles.assistantText}>{latestAssistantText}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Primary Push-to-Interrupt / Stop control */}
       <div className={styles.controlsBar}>
@@ -234,7 +241,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
             onClick={handleInterrupt}
             aria-label="Interrupt assistant speech"
           >
-            <span className={styles.stopIcon} />
+            <Square size={12} fill="currentColor" aria-hidden="true" />
             <span>Interrupt / Stop Speaking</span>
           </button>
         ) : (

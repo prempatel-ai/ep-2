@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import { ChevronRight, AlertCircle } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
 import styles from "./MessageList.module.css";
@@ -70,7 +71,7 @@ export function MessageList({
                   </span>
                   <span className={styles.rowTopic}>Early Detection & Symptoms</span>
                 </div>
-                <span className={styles.rowArrow} aria-hidden="true">→</span>
+                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
               </button>
 
               <button
@@ -86,7 +87,7 @@ export function MessageList({
                   </span>
                   <span className={styles.rowTopic}>Screening & Mammography</span>
                 </div>
-                <span className={styles.rowArrow} aria-hidden="true">→</span>
+                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
               </button>
 
               <button
@@ -102,7 +103,7 @@ export function MessageList({
                   </span>
                   <span className={styles.rowTopic}>Lump Assessment & Biopsy</span>
                 </div>
-                <span className={styles.rowArrow} aria-hidden="true">→</span>
+                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
               </button>
 
               <button
@@ -118,7 +119,7 @@ export function MessageList({
                   </span>
                   <span className={styles.rowTopic}>Staging & Diagnosis</span>
                 </div>
-                <span className={styles.rowArrow} aria-hidden="true">→</span>
+                <ChevronRight className={styles.rowArrow} size={15} aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -137,7 +138,7 @@ export function MessageList({
               >
                 <div className={styles.turnHeader}>
                   <span className={styles.senderRole}>
-                    {isUser ? "Query" : "Clinical Guidance"}
+                    {isUser ? "Inquiry" : "Clinical Guidance"}
                   </span>
                   {!isUser && message.source && (
                     <SourceBadge source={message.source} />
@@ -165,7 +166,7 @@ export function MessageList({
 
                   {message.state === "failed" && (
                     <div className={styles.errorNotice} role="alert">
-                      <span className={styles.errorIcon}>⚠️</span>
+                      <AlertCircle size={15} className={styles.errorIcon} aria-hidden="true" />
                       <span>{message.error || "Unable to retrieve clinical answer."}</span>
                     </div>
                   )}

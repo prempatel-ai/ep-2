@@ -19,6 +19,17 @@
   font-size: var(--font-size-xs);
 }
 
+.warningMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alertIcon {
+  flex-shrink: 0;
+  color: var(--color-badge-safety-text);
+}
+
 .bannerText {
   font-weight: var(--font-weight-medium);
 }
@@ -114,8 +125,9 @@
 }
 
 .controlIcon {
-  font-size: 0.8125rem;
-  line-height: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .messagesContainer {
