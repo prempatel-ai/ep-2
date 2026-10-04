@@ -71,7 +71,11 @@ export function AppShell({
 
               {/* Contextual Conversation Title (Only when present) */}
               {activeConversationTitle ? (
-                <span className={styles.conversationTitle} title={activeConversationTitle}>
+                <span
+                  className={styles.conversationTitle}
+                  title={activeConversationTitle}
+                  suppressHydrationWarning
+                >
                   {activeConversationTitle}
                 </span>
               ) : null}

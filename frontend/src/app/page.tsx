@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ChatView } from "@/features/chat/ChatView";
 import { VoiceView } from "@/features/voice/VoiceView";
@@ -8,21 +8,23 @@ import { Sidebar } from "@/features/history/Sidebar";
 import { useConversationHistory } from "@/features/history/useConversationHistory";
 import type { LanguageCode } from "@/api/types";
 
+const emptySubscribe = () => () => {};
+
 export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("gu");
   const [activeMode, setActiveMode] = useState<"text" | "voice">("text");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth > 768;
-    }
-    return true;
-  });
+
+  const isMobile = useSyncExternalStore(
+    emptySubscribe,
+    () => window.innerWidth <= 768,
+    () => false,
+  );
+  const [sidebarOverride, setSidebarOverride] = useState<boolean | null>(null);
+  const isSidebarOpen = sidebarOverride !== null ? sidebarOverride : !isMobile;
 
   const history = useConversationHistory(setLanguage);
 
-  const [chatSessionKey, setChatSessionKey] = useState<string>(
-    () => history.activeConversationId || "init",
-  );
+  const [chatSessionKey, setChatSessionKey] = useState<string>("init");
 
   const handleNewConversation = () => {
     setActiveMode("text");
@@ -44,7 +46,7 @@ export default function Home() {
       onSwitchToVoice={() => setActiveMode("voice")}
       onNewConversation={handleNewConversation}
       isSidebarOpen={isSidebarOpen}
-      onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+      onToggleSidebar={() => setSidebarOverride(!isSidebarOpen)}
       activeConversationTitle={history.activeConversation?.title || null}
       sidebar={
         <Sidebar
@@ -55,8 +57,9 @@ export default function Home() {
           onRenameConversation={history.renameConversation}
           onDeleteConversation={history.deleteConversation}
           isOpen={isSidebarOpen}
-          onToggleCollapse={() => setIsSidebarOpen(false)}
-          onCloseMobile={() => setIsSidebarOpen(false)}
+          onToggleCollapse={() => setSidebarOverride(false)}
+          onCloseMobile={() => setSidebarOverride(false)}
+          isLoaded={history.isLoaded}
         />
       }
     >

@@ -57,19 +57,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: #6b7280;
   cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: all 120ms ease;
 }
 
 .collapseButton:hover {
   background-color: #f3f4f6;
+  border-color: #e5e7eb;
   color: #111827;
+}
+
+.collapseButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
 }
 
 .newChatWrapper {

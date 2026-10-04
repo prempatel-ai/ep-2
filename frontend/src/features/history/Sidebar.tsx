@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Plus,
-  PanelLeftClose,
+  ChevronLeft,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -24,6 +24,7 @@ interface SidebarProps {
   isOpen: boolean;
   onToggleCollapse: () => void;
   onCloseMobile?: () => void;
+  isLoaded?: boolean;
 }
 
 export function Sidebar({
@@ -36,6 +37,7 @@ export function Sidebar({
   isOpen,
   onToggleCollapse,
   onCloseMobile,
+  isLoaded = true,
 }: SidebarProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -45,7 +47,8 @@ export function Sidebar({
   const menuRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  const grouped = groupConversations(conversations);
+  const displayedConversations = isLoaded ? conversations : [];
+  const grouped = groupConversations(displayedConversations);
 
   // Close context menu on outside click or Escape
   useEffect(() => {
@@ -167,7 +170,7 @@ export function Sidebar({
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
           >
-            <PanelLeftClose size={16} aria-hidden="true" />
+            <ChevronLeft size={18} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
 
@@ -194,8 +197,8 @@ export function Sidebar({
         </div>
 
         {/* Scrollable Conversation History */}
-        <div className={styles.historyScrollArea}>
-          {conversations.length === 0 ? (
+        <div className={styles.historyScrollArea} suppressHydrationWarning>
+          {!isLoaded || displayedConversations.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyTitle}>No conversations yet.</p>
               <p className={styles.emptySubtitle}>

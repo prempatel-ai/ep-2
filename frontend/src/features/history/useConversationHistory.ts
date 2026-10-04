@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
 import type { LanguageCode } from "@/api/types";
 import type { SavedConversation } from "./types";
 import {
@@ -8,9 +8,17 @@ import {
   sanitizeMessagesForStorage,
 } from "./storage";
 
+const emptySubscribe = () => () => {};
+
 export function useConversationHistory(
   onLanguageChange?: (lang: LanguageCode) => void,
 ) {
+  const isLoaded = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
   const [conversations, setConversations] = useState<SavedConversation[]>(() => {
     return loadAllConversations();
   });
@@ -20,7 +28,6 @@ export function useConversationHistory(
     }
     return null;
   });
-  const isLoaded = typeof window !== "undefined";
 
   // Sync language when active conversation changes
   useEffect(() => {
@@ -33,9 +40,9 @@ export function useConversationHistory(
   }, [activeConversationId, conversations, onLanguageChange]);
 
   const activeConversation = useMemo(() => {
-    if (!activeConversationId) return null;
+    if (!isLoaded || !activeConversationId) return null;
     return conversations.find((c) => c.id === activeConversationId) || null;
-  }, [conversations, activeConversationId]);
+  }, [isLoaded, conversations, activeConversationId]);
 
   const createNewConversation = useCallback(() => {
     setActiveConversationId(null);
