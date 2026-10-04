@@ -1,0 +1,12 @@
+{
+  "description": "Golden wire contract fixtures for Sahayak voice WebSocket protocol",
+  "audio_frame": {
+    "index": 3,
+    "wav_hex": "524946462400000057415645666d7420",
+    "frame_hex": "00000003524946462400000057415645666d7420"
+  },
+  "utterance_frame": {
+    "pcm_samples_count": 8,
+    "pcm_hex": "00002000400060008000a000c000e000"
+  }
+}

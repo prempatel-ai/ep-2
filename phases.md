@@ -14,7 +14,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 3: Model-serving contract (placeholder model) (2026-10-04)
 - [x] Phase 4: Frontend scaffold (2026-10-04)
 - [x] Phase 5: Text chat UI (2026-10-04)
-- [ ] Phase 6: Voice UI
+- [x] Phase 6: Voice UI (2026-10-04)
 - [ ] Phase 7: Design and accessibility pass
 - [ ] Phase 8: Packaging and one-command run
 - [ ] Phase 9: Evaluation and safety-review tooling

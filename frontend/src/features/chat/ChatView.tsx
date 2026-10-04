@@ -13,10 +13,12 @@ interface ChatViewProps {
   currentLanguage: LanguageCode;
   onLanguageChange?: (lang: LanguageCode) => void;
   onNewConversation?: () => void;
+  onSwitchToVoice?: () => void;
 }
 
 export function ChatView({
   currentLanguage,
+  onSwitchToVoice,
 }: ChatViewProps) {
   const [state, dispatch] = useReducer(conversationReducer, initialConversationState);
   const [serverReady, setServerReady] = useState<boolean | null>(null);
@@ -185,6 +187,17 @@ export function ChatView({
       )}
 
       <div className={styles.toolbar}>
+        {onSwitchToVoice && (
+          <button
+            type="button"
+            onClick={onSwitchToVoice}
+            className={styles.voiceModeButton}
+            aria-label="Start voice conversation with interactive globe"
+          >
+            <span className={styles.micIcon} aria-hidden="true">🎙️</span>
+            <span>Voice Mode</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={handleNewConversation}

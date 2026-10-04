@@ -22,6 +22,7 @@ const ALLOWED_PATTERNS = [
   /^https:\/\/nextjs\.org\/docs\//,
   /^https:\/\/react\.dev\/errors\//,
   /^https:\/\/github\.com\/zloirock\/core-js/,
+  /^https:\/\/github\.com\/vercel-labs\/vgpu\/issues\//,
   /^https?:\/\/[^\/]+$/, // single-token test strings like https://x, https://тест
   /^https?:\/\/a[\/#?]/, // core-js URL polyfill unit test strings
 ];

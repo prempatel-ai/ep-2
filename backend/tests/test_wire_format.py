@@ -81,6 +81,18 @@ class OpenAIStreamParsingTests(unittest.TestCase):
     def test_unicode_delta(self):
         self.assertEqual(parse_stream_line(self.chunk(content="શું")), "શું")
 
+    def test_golden_contract_fixtures(self):
+        from pathlib import Path
+        contract_path = Path(__file__).resolve().parents[2] / "contract" / "voice_frames.json"
+        with open(contract_path, encoding="utf-8") as f:
+            fixture = json.load(f)
+
+        audio_fixture = fixture["audio_frame"]
+        frame_bytes = bytes.fromhex(audio_fixture["frame_hex"])
+        index, wav = decode_audio_frame(frame_bytes)
+        self.assertEqual(index, audio_fixture["index"])
+        self.assertEqual(wav.hex(), audio_fixture["wav_hex"])
+
 
 if __name__ == "__main__":
     unittest.main()
