@@ -21,7 +21,6 @@ export function MessageList({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Assistive technology politeness: update live region only when the latest message sentence changes
   const latestAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const latestSentence =
     latestAssistant?.sentences && latestAssistant.sentences.length > 0
@@ -43,15 +42,16 @@ export function MessageList({
       {messages.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyCard}>
+            <span className={styles.badgeCardHeader}>Verified Clinical Knowledge Base</span>
             <h2 className={styles.emptyTitle}>
-              {emptyPromptText || "Clinical Breast Cancer Information"}
+              {emptyPromptText || "Breast Cancer Questions & Guidance"}
             </h2>
             <p className={styles.emptyDesc}>
-              Sahayak is an offline assistant providing verified information on symptoms,
+              Sahayak is an offline clinical assistant providing verified guidance on symptoms,
               screening guidelines, diagnosis, and treatment queries.
             </p>
             <div className={styles.sampleQueries}>
-              <span className={styles.sampleQueriesLabel}>Common topics to ask:</span>
+              <span className={styles.sampleQueriesLabel}>Suggested verified topics:</span>
               <div className={styles.chipList}>
                 <button
                   type="button"
@@ -60,7 +60,8 @@ export function MessageList({
                     onSelectPrompt?.("What are the most common early signs of breast cancer?")
                   }
                 >
-                  What are the early signs?
+                  <span>What are the most common early signs of breast cancer?</span>
+                  <span className={styles.chipArrow} aria-hidden="true">→</span>
                 </button>
                 <button
                   type="button"
@@ -69,7 +70,8 @@ export function MessageList({
                     onSelectPrompt?.("How often should women get a mammogram screening?")
                   }
                 >
-                  Mammogram screening guidelines
+                  <span>How often should women get a mammogram screening?</span>
+                  <span className={styles.chipArrow} aria-hidden="true">→</span>
                 </button>
                 <button
                   type="button"
@@ -78,7 +80,8 @@ export function MessageList({
                     onSelectPrompt?.("Is every breast lump cancerous?")
                   }
                 >
-                  Are all breast lumps cancer?
+                  <span>Is every breast lump cancerous?</span>
+                  <span className={styles.chipArrow} aria-hidden="true">→</span>
                 </button>
               </div>
             </div>

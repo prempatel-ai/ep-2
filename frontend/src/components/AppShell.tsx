@@ -21,19 +21,24 @@ export function AppShell({
 
   return (
     <div className={styles.container}>
-      {/* Top Header - Restrained, clean typographic hierarchy */}
+      {/* Top Header - Production Grade, Refined Clinical Hierarchy */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brand}>
-            <div className={styles.brandTitleRow}>
-              <h1 className={styles.title}>{t.app.title}</h1>
-              <span className={styles.badgeOffline}>Offline Core</span>
+            <div className={styles.brandIcon} aria-hidden="true">
+              સ
             </div>
-            <p className={styles.subtitle}>{t.app.subtitle}</p>
+            <div className={styles.brandInfo}>
+              <div className={styles.brandTitleRow}>
+                <h1 className={styles.title}>{t.app.title}</h1>
+                <span className={styles.badgeOffline}>Offline Core</span>
+              </div>
+              <p className={styles.subtitle}>{t.app.subtitle}</p>
+            </div>
           </div>
 
           <div className={styles.headerActions}>
-            {/* Status indicator - Minimal, accessible */}
+            {/* Status indicator */}
             <div
               className={styles.statusIndicator}
               role="status"
@@ -64,11 +69,14 @@ export function AppShell({
         <div className={styles.mainContent}>{children}</div>
       </main>
 
-      {/* Footer - Mandatory clinical safety disclaimers */}
+      {/* Footer - Mandatory clinical safety disclaimers & emergency helpline pill */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p className={styles.disclaimerText}>{t.disclaimer.notice}</p>
-          <p className={styles.emergencyText}>{t.disclaimer.emergency}</p>
+          <div className={styles.emergencyPill}>
+            <span>🚨</span>
+            <span>{t.disclaimer.emergency}</span>
+          </div>
         </div>
       </footer>
     </div>
