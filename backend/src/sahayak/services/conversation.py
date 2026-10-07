@@ -80,7 +80,9 @@ class ConversationService:
 
         result = await self._retrieval.lookup(text)
 
-        if result.mode is RetrievalMode.DIRECT:
+        # Direct verbatim FAQ is only appropriate if the user requested English (since FAQs are English)
+        # or if the FAQ entry itself matches the requested language. Otherwise, pass to model to translate.
+        if result.mode is RetrievalMode.DIRECT and language == Language.ENGLISH:
             answer_text = result.hits[0].answer
             if result.hits[0].source and "Sources:" not in answer_text:
                 answer_text = f"{answer_text}\n\nSources: {result.hits[0].source}"
@@ -116,9 +118,24 @@ class ConversationService:
             logger.warning("language model returned an empty reply")
             fallback = NO_ANSWER.get(language, NO_ANSWER[Language.ENGLISH])
             yield AnswerSentence(0, fallback, AnswerSource.SAFETY)
-        elif result.mode is RetrievalMode.CONTEXT and result.hits:
+        elif result.hits:
             full_reply = " ".join(seen_sentences)
-            if "Sources:" not in full_reply and "Source:" not in full_reply:
+            # Do not cite medical sources if the response is merely a refusal or generic disclaimer
+            is_refusal = any(
+                phrase in full_reply.lower()
+                for phrase in [
+                    "માહિતી આપી શકતો નથી",
+                    "માહિતી આપી શકતી નથી",
+                    "મદદ કરી શકતો નથી",
+                    "તબીબી વ્યાવસાયિક નથી",
+                    "i cannot provide this information",
+                    "i am not a medical professional",
+                    "i am unable to provide",
+                    "जानकारी नहीं दे सकता",
+                    "चिकित्सा पेशेवर नहीं",
+                ]
+            )
+            if not is_refusal and "Sources:" not in full_reply and "Source:" not in full_reply:
                 sources = list(dict.fromkeys(h.source for h in result.hits if h.source))
                 if sources:
                     yield AnswerSentence(index, f"Sources: {', '.join(sources)}", AnswerSource.FAQ)
