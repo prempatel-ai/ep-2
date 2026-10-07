@@ -191,4 +191,5 @@ class ImageCheckService:
             summary_message=summary_text,
             referral_message=referral_text,
             educational_disclaimer=disclaimer_text,
+            observation_notes=analysis_result.observation_text,
         )

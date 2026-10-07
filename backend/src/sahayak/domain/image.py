@@ -45,6 +45,7 @@ class ImageAnalysisResult:
 
     status: ImageCheckStatus
     findings: list[str] = field(default_factory=list)
+    observation_text: str = ""
 
 
 @dataclass(frozen=True)
@@ -57,3 +58,4 @@ class ImageCheckResponse:
     summary_message: str
     referral_message: str
     educational_disclaimer: str
+    observation_notes: str = ""

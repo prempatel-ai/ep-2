@@ -28,6 +28,7 @@ class ImageCheckMessagesOut(BaseModel):
     findings_summary: str
     referral_guidance: str
     educational_disclaimer: str
+    observation_notes: str = ""
 
 
 class ImageCheckResponseOut(BaseModel):
@@ -120,5 +121,6 @@ async def analyze_image(
             findings_summary=result.summary_message,
             referral_guidance=result.referral_message,
             educational_disclaimer=result.educational_disclaimer,
+            observation_notes=result.observation_notes,
         ),
     )

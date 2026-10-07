@@ -77,13 +77,16 @@ class OllamaMedGemmaAnalyzer:
             "model": self._model,
             "messages": [
                 {
-                    "role": "user",
+                    "role": "system",
                     "content": prompt,
+                },
+                {
+                    "role": "user",
+                    "content": "Please observe and describe the visual features in this photograph.",
                     "images": [b64],
-                }
+                },
             ],
             "stream": False,
-            "format": IMAGE_CHECK_SCHEMA,
             "keep_alive": self._keep_alive,
         }
 
@@ -109,31 +112,60 @@ class OllamaMedGemmaAnalyzer:
         content_raw = data.get("message", {}).get("content", "").strip()
         if not content_raw:
             logger.warning("Local model server returned empty response content.")
-            return ImageAnalysisResult(status=ImageCheckStatus.ERROR, findings=[])
+            return ImageAnalysisResult(status=ImageCheckStatus.ERROR, findings=[], observation_text="")
 
+        # Check if the output is JSON
         try:
             parsed = json.loads(content_raw)
-        except json.JSONDecodeError as exc:
-            logger.warning("Model output was not valid JSON: %s (%s)", content_raw, exc)
-            return ImageAnalysisResult(status=ImageCheckStatus.ERROR, findings=[])
+            if isinstance(parsed, dict) and "status" in parsed:
+                raw_status = parsed.get("status")
+                try:
+                    status = ImageCheckStatus(raw_status)
+                except (ValueError, TypeError):
+                    status = ImageCheckStatus.OK
+                findings_raw = parsed.get("findings", [])
+                validated_findings = [
+                    f for f in findings_raw if isinstance(f, str) and f in ALL_ALLOWED_CATEGORIES
+                ]
+                obs_text = parsed.get("observation", parsed.get("observation_notes", content_raw))
+                return ImageAnalysisResult(
+                    status=status,
+                    findings=validated_findings,
+                    observation_text=str(obs_text),
+                )
+        except json.JSONDecodeError:
+            pass
 
-        raw_status = parsed.get("status")
-        try:
-            status = ImageCheckStatus(raw_status)
-        except (ValueError, TypeError):
-            logger.warning("Model returned unknown status: %s", raw_status)
-            return ImageAnalysisResult(status=ImageCheckStatus.ERROR, findings=[])
+        # Free-form natural clinical text response
+        lower = content_raw.lower()
+        findings: list[str] = []
+        if any(k in lower for k in ["redness", "erythema", "inflammation"]) or (" red " in lower):
+            findings.append("finding_redness")
+        if any(k in lower for k in ["thick", "edema", "swollen", "swelling"]):
+            findings.append("finding_skin_thickening")
+        if any(k in lower for k in ["dimpling", "peau d orange", "peau d'orange", "pitting", "dimple"]):
+            findings.append("finding_dimpling")
+        if any(k in lower for k in ["scaling", "scaly", "flaking", "crust"]):
+            findings.append("finding_scaling")
+        if any(k in lower for k in ["nipple", "areola"]):
+            findings.append("finding_nipple_change")
+        if any(k in lower for k in ["lump", "asymmetry", "bulge", "contour distortion"]):
+            findings.append("finding_visible_lump_or_shape_difference")
+        if any(k in lower for k in ["sore", "ulcer", "breakdown"]):
+            findings.append("finding_open_sore")
 
-        findings_raw = parsed.get("findings", [])
-        if not isinstance(findings_raw, list):
-            logger.warning("Model findings was not a list: %r", findings_raw)
-            return ImageAnalysisResult(status=ImageCheckStatus.ERROR, findings=[])
+        if any(k in lower for k in ["not a clinical", "not a breast", "not human skin", "does not depict human", "solid color"]):
+            status = ImageCheckStatus.NOT_A_BREAST_PHOTO
+        elif any(k in lower for k in ["too blurry", "too dark", "unclear for visual"]):
+            status = ImageCheckStatus.UNCLEAR_IMAGE
+        else:
+            status = ImageCheckStatus.OK
 
-        # Filter strictly by known allowed categories
-        validated_findings = [
-            f for f in findings_raw if isinstance(f, str) and f in ALL_ALLOWED_CATEGORIES
-        ]
-        return ImageAnalysisResult(status=status, findings=validated_findings)
+        return ImageAnalysisResult(
+            status=status,
+            findings=findings,
+            observation_text=content_raw,
+        )
 
     async def analyze(self, image_bytes: bytes, prompt: str) -> ImageAnalysisResult:
         """Run image analysis through single-worker thread runner."""

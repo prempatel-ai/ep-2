@@ -360,6 +360,15 @@ export function ImageCheckView({
                 {t.imageCheck.findingsHeading}
               </h3>
             </div>
+
+            {state.result.messages.observation_notes && (
+              <div className={styles.observationNotesBox}>
+                <div className={styles.observationNotesContent}>
+                  {state.result.messages.observation_notes}
+                </div>
+              </div>
+            )}
+
             <p className={styles.reportSummary}>
               {state.result.messages.findings_summary}
             </p>

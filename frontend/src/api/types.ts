@@ -53,6 +53,7 @@ export interface ImageCheckMessages {
   findings_summary: string;
   referral_guidance: string;
   educational_disclaimer: string;
+  observation_notes?: string;
 }
 
 export interface ImageCheckResponse {
