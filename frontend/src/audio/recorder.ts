@@ -78,7 +78,7 @@ export class AudioRecorder {
       positiveSpeechThreshold: options.positiveSpeechThreshold ?? storedThreshold,
       negativeSpeechThreshold: options.negativeSpeechThreshold ?? Math.max(0.1, (options.positiveSpeechThreshold ?? storedThreshold) - 0.15),
       positiveSpeechThresholdDuringPlayback: options.positiveSpeechThresholdDuringPlayback ?? 0.65,
-      preSpeechPadMs: options.preSpeechPadMs ?? 300,
+      preSpeechPadMs: options.preSpeechPadMs ?? 450,
       isPlaybackActive: options.isPlaybackActive ?? (() => false),
       baseAssetPath: options.baseAssetPath ?? "/vad/",
       onnxWASMBasePath: options.onnxWASMBasePath ?? "/vad/",

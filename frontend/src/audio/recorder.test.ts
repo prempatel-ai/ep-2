@@ -40,7 +40,7 @@ describe("AudioRecorder and Neural VAD Logic", () => {
       expect(opts.positiveSpeechThreshold).toBe(0.5);
       expect(opts.negativeSpeechThreshold).toBe(0.35);
       expect(opts.positiveSpeechThresholdDuringPlayback).toBe(0.65);
-      expect(opts.preSpeechPadMs).toBe(300);
+      expect(opts.preSpeechPadMs).toBe(450);
     });
 
     it("respects localStorage overrides for VAD settings", () => {
