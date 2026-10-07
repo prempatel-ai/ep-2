@@ -113,7 +113,8 @@
 
 .inEmptyState .messagesInner {
   margin-block: auto;
-  padding: 36px 32px 24px;
+  max-width: 680px;
+  padding: 36px 24px 24px;
 }
 
 /* Subtle Floating "↓ New response" button when user is scrolled up */

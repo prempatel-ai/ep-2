@@ -1,18 +1,5 @@
 import React, { useState } from "react";
-import {
-  AlertCircle,
-  Bookmark,
-  Copy,
-  Check,
-  ShieldCheck,
-  Activity,
-  Calendar,
-  FileText,
-  Layers,
-  Pill,
-  ArrowUpRight,
-  Sparkles,
-} from "lucide-react";
+import { AlertCircle, Bookmark, Copy, Check } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
 import { ClinicalContent } from "./ClinicalContent";
@@ -102,91 +89,36 @@ export function MessageList({
       <h2 className={styles.srOnly}>Conversation Message History</h2>
 
       {messages.length === 0 ? (
-        <div className={styles.welcomeWorkspace}>
-          {/* Hero Introductory Section */}
-          <div className={styles.welcomeHero}>
-            <div className={styles.heroBadge}>
-              <ShieldCheck size={14} className={styles.heroBadgeIcon} aria-hidden="true" />
-              <span>Evidence-based clinical guidance</span>
+        <div className={styles.emptyContainer}>
+          <div className={styles.emptyHeader}>
+            <div className={styles.brandMark} aria-hidden="true">
+              <span className={styles.brandDot} />
+              <span className={styles.brandName}>Sahayak</span>
             </div>
-
-            <h3 className={styles.welcomeTitle}>
-              Breast cancer information, explained clearly.
+            <h3 className={styles.headline}>
+              Clear, verified guidance on breast health.
             </h3>
-
-            <p className={styles.welcomeDesc}>
-              Sahayak provides verified clinical guidance to help patients, caregivers,
-              and families understand symptoms, screening schedules, and clinical decisions.
+            <p className={styles.subheadline}>
+              Ask about symptoms, screening guidelines, diagnostics, or treatments.
             </p>
-
-            {/* Quick Topic Chips */}
-            <div className={styles.topicPills} role="group" aria-label="Browse clinical topics">
-              {[
-                { label: "Symptoms", icon: Activity, query: "What are the common symptoms of breast cancer?" },
-                { label: "Screening", icon: Calendar, query: "How often should women get screened for breast cancer?" },
-                { label: "Diagnosis", icon: FileText, query: "What are the common diagnostic steps for breast cancer?" },
-                { label: "Staging", icon: Layers, query: "How is breast cancer staged?" },
-                { label: "Treatment", icon: Pill, query: "What are standard treatment approaches for breast cancer?" },
-              ].map((t) => (
-                <button
-                  key={t.label}
-                  type="button"
-                  className={styles.topicPill}
-                  onClick={() => onSelectPrompt?.(t.query)}
-                  aria-label={`Ask about ${t.label}`}
-                >
-                  <t.icon size={13} className={styles.pillIcon} aria-hidden="true" />
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Suggested Clinical Question Cards */}
-          <div className={styles.suggestionsContainer}>
-            <div className={styles.suggestionsHeader}>
-              <Sparkles size={14} className={styles.suggestionsIcon} aria-hidden="true" />
-              <span className={styles.suggestionsLabel}>Frequently Asked Clinical Questions</span>
-            </div>
-
-            <div className={styles.cardsGrid}>
-              {[
-                {
-                  id: "q1",
-                  topic: "Early signs",
-                  title: "What are early warning signs of breast cancer?",
-                },
-                {
-                  id: "q2",
-                  topic: "Screening guideline",
-                  title: "How often should women aged 40-49 get screened?",
-                },
-                {
-                  id: "q3",
-                  topic: "Diagnostic steps",
-                  title: "What is the difference between a mammogram and ultrasound?",
-                },
-                {
-                  id: "q4",
-                  topic: "When to seek care",
-                  title: "When should someone seek immediate clinical care?",
-                },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={styles.questionCard}
-                  onClick={() => onSelectPrompt?.(item.title)}
-                  aria-label={`Ask: ${item.title}`}
-                >
-                  <div className={styles.cardTopRow}>
-                    <span className={styles.cardTopicBadge}>{item.topic}</span>
-                    <ArrowUpRight size={14} className={styles.cardArrow} aria-hidden="true" />
-                  </div>
-                  <span className={styles.cardTitle}>{item.title}</span>
-                </button>
-              ))}
-            </div>
+          <div className={styles.promptList} role="group" aria-label="Suggested questions">
+            {[
+              "What are early warning signs of breast cancer?",
+              "How often should women aged 40-49 get screened?",
+              "What is the difference between a mammogram and ultrasound?",
+              "When should someone seek immediate clinical care?",
+            ].map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                className={styles.promptButton}
+                onClick={() => onSelectPrompt?.(prompt)}
+              >
+                <span>{prompt}</span>
+              </button>
+            ))}
           </div>
         </div>
       ) : (
