@@ -139,11 +139,16 @@ class ConversationService:
                     "માહિતી આપી શકતી નથી",
                     "મદદ કરી શકતો નથી",
                     "તબીબી વ્યાવસાયિક નથી",
+                    "તબીબી સલાહ આપી શકતો નથી",
+                    "તબીબી સલાહ આપી શકતી નથી",
+                    "ફક્ત સામાન્ય માહિતી આપી શકું",
                     "i cannot provide this information",
                     "i am not a medical professional",
+                    "i cannot provide medical advice",
                     "i am unable to provide",
                     "जानकारी नहीं दे सकता",
                     "चिकित्सा पेशेवर नहीं",
+                    "चिकित्सीय सलाह नहीं दे सकता",
                 ]
             )
             if not is_refusal and "Sources:" not in full_reply and "Source:" not in full_reply:
