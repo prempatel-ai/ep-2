@@ -9,6 +9,9 @@ export class AudioQueuePlayer {
   private isPlaying = false;
   private expectedIndex = 0;
   private onFinishedCallback?: () => void;
+  private underrunCount = 0;
+  private turnStarted = false;
+  private turnDone = false;
 
   constructor(onFinished?: () => void) {
     this.onFinishedCallback = onFinished;
@@ -34,6 +37,7 @@ export class AudioQueuePlayer {
 
     try {
       const decodedBuffer = await ctx.decodeAudioData(arrayBuffer);
+      this.turnStarted = true;
       this.queue.push({ index, buffer: decodedBuffer });
       this.queue.sort((a, b) => a.index - b.index);
 
@@ -48,6 +52,10 @@ export class AudioQueuePlayer {
   private playNext(): void {
     if (this.queue.length === 0) {
       this.isPlaying = false;
+      // If turn is still generating on server but queue starved, count underrun
+      if (this.turnStarted && !this.turnDone) {
+        this.underrunCount++;
+      }
       this.onFinishedCallback?.();
       return;
     }
@@ -70,6 +78,20 @@ export class AudioQueuePlayer {
   }
 
   /**
+   * Called when server signals the turn is completely finished.
+   */
+  markTurnDone(): void {
+    this.turnDone = true;
+  }
+
+  /**
+   * Returns the count of playback underruns (queue starvation while awaiting frames).
+   */
+  getUnderrunCount(): number {
+    return this.underrunCount;
+  }
+
+  /**
    * Immediately stops playback, flushes pending audio frames, and resets queue.
    */
   flush(): void {
@@ -85,6 +107,8 @@ export class AudioQueuePlayer {
     this.queue = [];
     this.isPlaying = false;
     this.expectedIndex = 0;
+    this.turnStarted = false;
+    this.turnDone = false;
   }
 
   close(): void {

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -109,6 +111,54 @@ class WebLayerTests(unittest.TestCase):
             err = ws.receive_json()
             self.assertEqual(err.get("type"), "error")
             self.assertEqual(err.get("code"), "voice_unavailable")
+
+    def test_static_serving_disabled_by_default(self) -> None:
+        with TestClient(self.app) as client:
+            resp = client.get("/")
+            # When static serving is disabled and no root route exists, 404 is returned
+            self.assertEqual(resp.status_code, 404)
+
+    def test_static_serving_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            temp_path = Path(td)
+            html_content = "<!doctype html><html><body>Sahayak App</body></html>"
+            (temp_path / "index.html").write_text(html_content, encoding="utf-8")
+            (temp_path / "style.css").write_text("body { color: teal; }", encoding="utf-8")
+
+            static_app = create_app(
+                Settings(
+                    llm=LLMSettings(backend="echo"),
+                    retrieval=RetrievalSettings(backend="disabled"),
+                    stt=STTSettings(backend="disabled"),
+                    tts=TTSSettings(backend="disabled"),
+                    static_dir=temp_path,
+                )
+            )
+
+            with TestClient(static_app) as client:
+                # 1. API routes take precedence
+                health = client.get("/health")
+                self.assertEqual(health.status_code, 200)
+                self.assertEqual(health.json().get("status"), "ok")
+
+                # 2. Root serves index.html
+                root = client.get("/")
+                self.assertEqual(root.status_code, 200)
+                self.assertIn("Sahayak App", root.text)
+
+                # 3. Static asset is served with correct type
+                css = client.get("/style.css")
+                self.assertEqual(css.status_code, 200)
+                self.assertIn("color: teal", css.text)
+
+                # 4. SPA route fallback serves index.html
+                spa = client.get("/conversation/123")
+                self.assertEqual(spa.status_code, 200)
+                self.assertIn("Sahayak App", spa.text)
+
+                # 5. Missing static asset with extension returns 404
+                missing = client.get("/missing-image.png")
+                self.assertEqual(missing.status_code, 404)
 
 
 if __name__ == "__main__":

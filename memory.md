@@ -38,12 +38,24 @@
 | Echo LLM backend | Lets the frontend be built and demoed before the real model exists. |
 | UI must work fully offline (no CDN fonts/scripts/images) | Product requirement. |
 
-## 3. Wire protocol (summary; full spec in `backend/README.md`)
+## 3. Wire protocol and stage timeline
 
-- `POST /v1/chat` → SSE: `session`, `sentence`, `done`, `error`.
+### Wire protocol summary (full spec in `backend/README.md`)
+- `POST /v1/chat` -> SSE: `session`, `sentence`, `done`, `error`.
 - `WS /v1/voice`: client sends optional `start`, binary utterances (`4-byte turn` + PCM16 16 kHz mono), `text`, `interrupt`. Server sends `ready`, `transcript`, `sentence`, binary audio (`turn`+`index`+WAV), `done`, `no_speech`, `interrupted`, `error`. Every per-turn message carries `turn`.
 - `GET /v1/config`, `GET /ready`, `GET /health`, `DELETE /v1/sessions/{id}`.
 - Frontend rule: ignore any message whose `turn` is not the current turn.
+
+### Stage timeline (Voice v2)
+1. Speech start detected (Client-side): Browser VAD energy/neural detector identifies voice onset.
+2. Speech end detected (Client-side): Hangover silence window elapses, utterance finalized.
+3. Utterance fully received (Server-side): Complete binary PCM16 audio frame received on WebSocket.
+4. STT final transcript ready (Server-side): Speech-to-text model completes transcription.
+5. Safety and retrieval decision (Server-side): Safety guard checks rules; retrieval checks FAQ similarity.
+6. First LLM sentence emitted (Server-side): Segmenter yields first complete sentence from model stream.
+7. First TTS audio produced (Server-side): Text-to-speech synthesises sentence 0 into WAV bytes.
+8. First audio frame received (Client-side): Browser receives binary audio frame for index 0.
+9. First audio started playing (Client-side): Web Audio API decodes WAV and starts playback buffer.
 
 ## 4. Unverified items (must be confirmed on real hardware)
 
@@ -94,6 +106,12 @@
 | D8 | UI language strings: who reviews Gujarati/Hindi wording | Builder + native speaker | Phase 7 |
 | D9 | Licences: Sarvam-1 terms for intended use; FAQ source licences | Check before any public release | Phase 10 |
 | D10 | Who is the clinical reviewer, and when | Unassigned | Before any real users |
+| D11 | Run Voice v2 before or after Phase 8 packaging | User elected to run Voice v2 now, after Phase 7 | Phase 11 |
+| D12 | Streaming STT engine | Faster-Whisper streaming or chunked transcription | Phase 13 |
+| D13 | Neural VAD library | Candidate: @ricky0123/vad-web with Silero VAD bundled locally; verify API and WASM offline loading | Phase 12 |
+| D14 | TTS voice per language | MMS-TTS for gu, hi, en; evaluate Indic Parler or alternative local models if needed | Phase 14 |
+| D15 | Acknowledgement phrases and reviewer | Builder supplies phrases; native speaker reviews; no medical statements | Phase 14 |
+| D16 | End-of-speech timing defaults | 800 ms silence hangover default; tune from measurement on human clips | Phase 12 |
 
 ## 7. Glossary
 
@@ -121,6 +139,7 @@
 | 2026-10-04 | **Phase 5 completed**: Text chat UI completed. Implemented chunk-boundary and multiline pure SSE stream parser (`src/api/sse.ts`), abortable `chat()` async generator and session deletion in `src/api/http.ts`, pure reducer with explicit message lifecycle states (`streaming`, `complete`, `failed`, `stopped`) in `src/features/chat/conversationReducer.ts`, accessible assistive-technology polite announcements, `SourceBadge` component (`safety`, `faq`, `model` provenance labels), `MessageList` with suggested prompt starters, `Composer` with 2000-character guard and enter-to-send, stop button, "New conversation" session clearing, and server degradation banner. Also upgraded language selector dropdown to an accessible Radix-backed dropdown menu. Verified live against the echo backend (including safety guard "Do I have breast cancer?", model streaming, and session deletion). 14 unit tests pass, typecheck passes, lint passes, static export build passes, offline scan passes. |
 | 2026-10-04 | **Phase 6 completed**: Voice UI completed. Created golden contract fixtures in `contract/voice_frames.json` with shared tests across backend (`backend/tests/test_wire_format.py`) and frontend (`src/api/voiceWire.test.ts`). Implemented pure voice session state machine (`src/features/voice/voiceStateMachine.ts`) managing `idle -> listening -> capturing -> thinking -> speaking -> listening`, barge-in turn advancement, and no-speech recovery. Built browser VAD audio recorder (`src/audio/recorder.ts`) delivering 16 kHz mono signed 16-bit PCM and sequential gapless `AudioQueuePlayer` (`src/audio/player.ts`) with immediate `flush()` on interrupt. Integrated ChatGPT-style interactive voice orb (`OrbBloop`, WebGPU WGSL shader in deep clinical teal) with audio analysis and state-reactive pulsation. Built `DevPanel` with real-time turn metrics. Verified against contract and offline check (20 unit tests pass, static export passes with 0 external network requests). |
 | 2026-10-04 | **Phase 7 completed**: Design and accessibility pass. Transformed frontend into calm, trustworthy clinical healthcare software: 1140px natural workspace layout, muted dark clinical navy/slate palette (`#0b0f19` canvas, `#111827` surface, `#1f293d` hairlines, `#0d9488` restrained clinical teal accent), no AI SaaS landing-page clichés (no purple/blue neon glows or decorative badges). Compact clinical header with subtle offline indicator, editorial assistant response cards with left border accent, lightweight interactive suggested inquiry rows, clean composer with keyboard shortcuts. Automated WCAG AA accessibility tests via `vitest-axe` with 0 violations (`Accessibility.test.tsx`), ARIA-compliant structure, polite live regions, and `document.documentElement.lang` sync. All 24 unit tests pass, TypeScript strict check passes, ESLint passes, Next.js static export passes, and offline audit passes with 0 external network requests. |
+| 2026-10-07 | **Phase 11 (Voice v2: Instrumentation & Baseline)**: Added decisions D11 to D16 under Open decisions. Defined stage timeline in memory.md and docs/voice-baseline.md (distinguishing client-side vs server-side boundaries). Added backend/scripts/voice_bench.py benchmark runner with p50/p95 calculations and structured JSON output to backend/data/bench/. Added capture jitter tracking to AudioRecorder and playback underruns tracking to AudioQueuePlayer, surfaced in DevPanel with zero application behaviour change. Human-supplied clip directory backend/eval/voice_clips/ is currently empty, so clip-dependent runs are marked UNVERIFIED with exact WAV specifications provided. 95 backend tests pass, 38 frontend tests pass, typecheck, lint, build, check:offline all pass. |
 
 ## 9. Environment & Package Versions
 

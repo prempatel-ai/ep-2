@@ -19,10 +19,18 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [ ] Phase 8: Packaging and one-command run
 - [ ] Phase 9: Evaluation and safety-review tooling
 - [ ] Phase 10: Plug in the fine-tuned model
+- [ ] Phase 11: Voice v2, instrumentation and baseline
+- [ ] Phase 12: Voice v2, better listening
+- [ ] Phase 13: Voice v2, streaming input and streaming STT
+- [ ] Phase 14: Voice v2, natural speaking
+- [ ] Phase 15: Voice v2, conversation state
+- [ ] Phase 16: Voice v2, regression harness and startup experience
 
 **Skeleton complete = Phases 0 to 8.** Phases 9 and 10 turn it into something measured and real.
+**Voice v2 = Phases 11 to 16.** An optional track that makes the voice conversation feel more human. It does not
+depend on Phases 9 or 10. Whether it runs before or after Phase 8 is the human's call (open decision D11 in `memory.md`).
 
-## How to run a phasef
+## How to run a phase
 
 1. Re-read `product.md`, `memory.md`, this file's section for the phase, and `CLAUDE.md`.
 2. Create branch `phase-<n>-<slug>`.
@@ -333,6 +341,227 @@ tooling to tune the verbatim-answer threshold.
 - `memory.md` updated, open decisions closed or carried forward with reasons.
 
 **Out of scope:** further training, new features.
+
+---
+
+# Voice v2 track (Phases 11 to 16)
+
+**Goal:** make the spoken conversation feel more like talking to a person, while staying fully local and fully
+multilingual (Gujarati, Hindi, English).
+
+**Where the ideas come from:** OpenAI's engineering post *"How we built a realtime system for responsive voice AI
+in six months"* (3 Aug 2026, about GPT-Live). We borrow **system design ideas**, not the model. The post's biggest
+gain is a full-duplex speech model with no turn detector, and we do not have an equivalent local model for
+Gujarati and Hindi. Do not claim parity with it.
+
+| Idea in the post | How it appears here |
+|---|---|
+| Stream audio continuously instead of one blob per turn | Phase 13: small PCM frames from speech start, STT runs while the user is still talking |
+| Keep the media path separate from application logic | Phases 12 and 13: capture, VAD and playback stay small and fast; retrieval, LLM and safety stay behind queues |
+| Delegation that does not block the conversation | Phase 14: fast paths (safety, verbatim FAQ) answer at once; a short spoken acknowledgement covers a slow model path |
+| Provisional vs final view of the conversation | Phase 15: live partial transcript in the UI; only final text goes into history |
+| Truncate unplayed audio on interruption | Phase 15: history records what the user actually heard |
+| Warm sessions before they are needed | Phases 14 and 16: preload models, warm the LLM prompt cache, connect early |
+| Better telemetry and realistic testing | Phases 11 and 16: per-stage timing and a repeatable clip set |
+
+**Deliberately not adopted:** WebRTC and the WARP handshake (solve distance and scale, not a localhost app), a Go
+media rewrite, and full-duplex speech-to-speech models. A time-boxed research spike on open full-duplex models is
+allowed later only if the human asks, and only after confirming Indic-language support from the model card.
+
+**Starting point (measured in Phase 2, CPU only, i5-11400H):** first audio about 5.5 s, of which Whisper
+transcription alone is about 4.1 s, because STT only starts after the user stops. The `product.md` target of 4 s
+is not met. Phase 13 attacks this directly. Do not state any improvement until it is measured.
+
+## Rules that hold in every Voice v2 phase
+
+- **Wire protocol changes need the human's approval first.** Write the proposal (message shapes, versioning, fallback
+  to the old behaviour), stop, and wait. After approval, update `api/schemas.py`, `api/serialization.py`,
+  `backend/README.md`, `frontend/src/api/types.ts` and `contract/` together. Keep the old utterance path working
+  behind a setting until the new path is verified.
+- **Test audio comes from the human.** Store clips only under a git-ignored directory (`backend/eval/voice_clips/`)
+  with a reference transcript per clip. Never record, save or log real user audio or transcripts at runtime.
+- **No Gujarati or Hindi text written by the agent.** This includes spoken acknowledgement phrases and UI strings.
+  Build the mechanism with clearly marked `EXAMPLE` English placeholders; the human supplies and a native speaker
+  reviews the real phrases.
+- **No medical content in anything new.** Acknowledgement phrases must contain no medical statements, advice or numbers.
+- **Safety path is never shortened or bypassed.** Early work on partial transcripts may prefetch or prepare, but the
+  safety guard and the answer decision run on the **final** transcript only. Never answer from a partial.
+- **Architecture rules from `CLAUDE.md` still apply:** new model or library means a new adapter behind a port chosen
+  in `container.py`; `services/` never imports adapters; heavy imports stay inside adapter methods; blocking model
+  calls go through `BlockingRunner`.
+- **Verify, do not recall.** Every library, model name, licence, flag and API used from memory must be checked
+  against installed source or official docs and recorded in `memory.md`.
+- **Report numbers honestly:** hardware beside every measurement, spread across repeated runs, and an explicit
+  "met / not met" against targets.
+
+---
+
+## Phase 11: Voice v2, instrumentation and baseline
+
+**Why:** you cannot improve what you cannot see. Build a repeatable measurement before changing anything, so every
+later phase can show a real before and after.
+
+**Needs:** Phase 7 done and speech working (Phase 2). The human supplies 5 to 10 WAV clips per language (16 kHz mono
+or convertible) with reference transcripts in `backend/eval/voice_clips/` (git-ignored), including a few with
+natural pauses inside a sentence and a few very short ones.
+
+**Tasks**
+1. Add decisions **D11 to D16** to `memory.md` → *Open decisions*: D11 run Voice v2 before or after Phase 8 (default after); D12 streaming STT engine; D13 neural VAD library; D14 TTS voice per language; D15 acknowledgement phrases and who reviews them; D16 end-of-speech timing defaults.
+2. Define the stage timeline in `memory.md`: speech end detected, utterance fully received, STT final, safety/retrieval decision, first LLM sentence, first TTS audio produced, first audio started playing in the browser. Mark which stages are server-side and which are client-side.
+3. Propose, **without implementing**, any new fields needed in `done.metrics` or client-side timing. If a wire change is needed, follow the protocol-change rule above and wait for approval.
+4. `backend/scripts/voice_bench.py`: sends each clip through `/v1/voice` the way `ws_smoke.py` does, repeats N times (default 3), and prints p50 and p95 per stage per language. Writes JSON to a git-ignored `backend/data/bench/`. Developer-eyes-only output.
+5. Frontend: measure audio-callback interval jitter in the capture path and playback underruns in `AudioQueuePlayer`; show both in the dev panel. No behaviour change.
+6. Record the baseline table (hardware, model versions, clip counts, spread across runs) in `memory.md` and in `docs/voice-baseline.md`.
+
+**Acceptance checks**
+- `voice_bench.py` runs end to end on the clip set and prints the per-language table.
+- Three consecutive runs agree within a stated spread; the spread is reported.
+- Dev panel shows jitter and underrun counts during a manual voice session.
+- Baseline recorded with hardware and an explicit comparison to the `product.md` §8 targets.
+- Tests pass; no behaviour change versus Phase 7 (state this and show the test count).
+
+**Out of scope:** any latency or quality improvement, any protocol change that was not approved.
+
+---
+
+## Phase 12: Voice v2, better listening
+
+**Why:** the current voice activity detection is a plain loudness threshold on a deprecated audio node. It cuts
+people off during pauses, reacts to noise, and cannot tell a cough or "mm" from a real interruption. Knowing when to
+speak and when to stay quiet is the single biggest part of feeling human.
+
+**Needs:** Phase 11 done. Decision **D13** (neural VAD library) made after reading the installed package's actual
+API, licence, and checking that its model and WASM files bundle locally. The earlier candidate was
+`@ricky0123/vad-web`; Silero VAD is the likely underlying model. Verify, do not assume.
+
+**Tasks**
+1. Replace `ScriptProcessorNode` with an `AudioWorklet` for capture. Keep the output contract unchanged: 16 kHz mono PCM16.
+2. Replace the RMS threshold VAD with the chosen neural VAD, bundled locally, loading with the network off.
+3. End-of-speech logic: configurable silence hangover, adaptive so that a short pause inside a sentence does not end the utterance. Defaults come from measurement on the human-supplied clips (D16), not guesses. Expose the values in settings.
+4. Barge-in guard: an interruption needs minimum speech duration and a speech probability above a threshold; very short sounds and backchannels do not interrupt. Make the thresholds configurable.
+5. Echo handling: keep `echoCancellation`, add a check that detects the assistant's own playback being picked up, and prefer no interruption in that case. Test with and without headphones.
+6. Update the voice state machine and its unit tests for the new events. Keep the pure reducer pure.
+7. Synthetic-signal tests for the recorder logic (speech, silence, short blips, speech with an internal pause).
+8. Update `frontend/docs/voice-checklist.md` with the new cases.
+
+**Acceptance checks**
+- Clips with internal pauses are sent as one utterance (show the count of sent utterances against the expected count).
+- A speaker-playback run with no user speech produces zero false interruptions over a stated duration; record it with and without headphones, or mark the missing one UNVERIFIED.
+- Real interruption still stops audio within about half a second; measure and record.
+- VAD assets load with the network off; `check:offline` passes.
+- Unit tests, `typecheck`, `lint`, `build` pass.
+
+**Out of scope:** streaming audio to the server (Phase 13), server-side changes, new UI design.
+
+---
+
+## Phase 13: Voice v2, streaming input and streaming STT
+
+**Why:** this attacks the real bottleneck. Today transcription starts only after the user stops, so about 4 s is
+spent waiting. If transcription runs while the user is still speaking, most of that work is done by the time they
+finish.
+
+**Needs:** Phase 12 done. The human's clip set with reference transcripts per language.
+
+**Tasks**
+1. **Proposal first (wire protocol change).** Write `docs/voice-streaming-proposal.md`: binary audio-chunk frames
+   (turn id, sequence number, PCM16), an end-of-speech message, server `partial_transcript` and final `transcript`
+   messages, error cases, how late or lost chunks are handled, and how the client falls back to the existing
+   one-blob utterance. **Stop and wait for approval before implementing.**
+2. After approval, update the protocol everywhere at once (see the track rules) and extend `contract/voice_frames.json` with golden examples for each new frame, tested on both sides.
+3. Add a streaming STT port in `domain/` and keep the existing STT port working. The old path stays selectable by setting.
+4. Implement a streaming adapter (D12). Candidate approach: repeated decoding of a growing audio window with a stability rule that only commits text that stayed the same across passes, using the already installed `faster-whisper`. If IndicConformer can run in chunks, evaluate it too. **Check each library's real API and capabilities before relying on it.** Record findings in `memory.md`.
+5. Speculative work on partials, strictly limited: the safety guard may be run on partials to warm its code path, and retrieval may be prefetched on a stable partial. The decision to answer is made only on the final transcript; if the final differs materially from the partial used, discard the prefetch. Never emit an answer sentence before the final transcript.
+6. Frontend: stream frames from speech start; show the partial transcript visibly provisional (for example lighter style, announced politely to assistive tech only when final); replace with the final text.
+7. Cancellation and interruption must still work mid-stream: interrupt during capture, interrupt during speaking, socket loss mid-utterance. Tests for each.
+8. Measure on the clip set per language: word error rate (and character error rate for Gujarati and Hindi) against the human reference transcripts, and the time from end of speech to final transcript, old path vs new path.
+
+**Acceptance checks**
+- Protocol approved by the human before any implementation (record the approval in `memory.md`).
+- Contract tests pass on both backend and frontend.
+- New path produces a correct final transcript on the clip set; error rates reported per language, next to the old path's.
+- End-of-speech-to-final-transcript time reported old vs new with hardware and spread. State plainly whether first audio improved and by how much, or that it did not.
+- Interruption tests pass in all three states; no stale-turn playback.
+- Switching the setting back restores the old behaviour and the old tests pass.
+- All tests, `typecheck`, `lint`, `build`, `check:offline` pass.
+
+**Out of scope:** TTS changes (Phase 14), UI polish, choosing a final STT winner without the numbers (the human decides D12).
+
+---
+
+## Phase 14: Voice v2, natural speaking
+
+**Why:** after the transcript, the voice itself decides whether it feels human: how fast the first sound arrives, how
+it sounds, and whether silence while the model thinks feels awkward.
+
+**Needs:** Phase 11 done (Phase 13 helpful). Decisions **D14** and **D15**. Real acknowledgement phrases are supplied
+by the human per language and reviewed by a native speaker.
+
+**Tasks**
+1. **TTS listening comparison.** Extend `tts_listen.py` to produce samples for every verifiable offline backend and language, using only the existing fixed strings in `services/messages.py`. Retry the Indic Parler adapter in an isolated environment, since its dependencies conflicted before (see `memory.md` item 5); report what works. Check any additional offline Indic TTS option against its model card and licence before adding it. The human listens and decides D14.
+2. **First-audio sizing.** Make the segmenter's first-chunk behaviour configurable (for example a shorter first sentence or a clause-level first split) so the first sound starts earlier. Measure, with a test that proves normal sentences are not broken mid-word, and no Indic conjunct or danda handling regresses.
+3. **Warm everything.** Preload STT, TTS and embedder at server start (not on first request), warm the LLM prompt cache with the system prompt, and report the startup time. Verify the real flags and settings for the serving engine in use (`llama-server` or Ollama) from its own help or docs.
+4. **Spoken acknowledgement for the slow path.** Mechanism only: if the model path has not produced a first sentence within a configurable time, play one short, human-supplied acknowledgement phrase in the user's language. It must never play on the safety path or the verbatim FAQ path, and never more than once per turn. Phrases live in a separate reviewable file (like `safety_rules.yaml`), for example `resources/acknowledgements.yaml`, shipped with clearly marked `EXAMPLE` English placeholders only. If the UI needs to label it, propose the wire change (for example a new `source` value) and wait for approval.
+5. Tests with fakes for the timing logic, the never-on-safety and never-on-FAQ rules, and once-per-turn.
+
+**Acceptance checks**
+- Listening sample set delivered for every backend and language that loads; Parler outcome reported honestly.
+- `first_audio_ms` before and after, per language, with hardware and spread. Say if the `product.md` target is met or not.
+- Startup warm time reported; first real request after startup shows no model-load delay.
+- Acknowledgement tests pass; with the example file, no Gujarati or Hindi text was written by the agent.
+- All tests pass; no regression in the safety path.
+
+**Out of scope:** writing acknowledgement phrases in Gujarati or Hindi, choosing the final voice (the human decides), any change to what the model says.
+
+---
+
+## Phase 15: Voice v2, conversation state
+
+**Why:** a human conversation has a shared sense of what was actually said and heard. Today a half-spoken answer and
+a half-heard question can leave the history out of step with reality.
+
+**Needs:** Phase 13 done.
+
+**Tasks**
+1. **Provisional and final views.** Keep two views in the frontend: a speculative live view (partial transcript, text being spoken) and the authoritative record (final transcript, sentences actually delivered). Reducer-based, pure, tested.
+2. **Record what was heard.** On interruption, the client reports how far playback got (last fully played sentence index at minimum). The server stores in session history only the assistant text that was actually played, so the next answer does not refer to words the user never heard. Propose the wire change first and wait for approval. Do not claim word-level accuracy unless it is implemented and tested.
+3. **Continuation grace window.** If the user resumes speaking shortly after the end-of-speech decision and before the reply starts, merge the new speech into the same utterance instead of cancelling and restarting. The window length is configurable; its default comes from the clip tests. Cover with state-machine tests.
+4. Keep `Session.lock` guarantees: one turn at a time, cancelled turns still record correctly.
+5. Update `frontend/docs/voice-checklist.md` and `backend/README.md` for every changed behaviour.
+
+**Acceptance checks**
+- Unit tests: partial replaced by final, interruption mid-answer stores only heard sentences, resumed speech within the window merges, resumed speech after the window starts a new turn.
+- Manual: interrupt after the first sentence, then ask "what did you just say?" in the echo backend and show the history contains only the first sentence (or mark UNVERIFIED with the exact steps).
+- Contract fixtures updated and passing on both sides.
+- All tests, `typecheck`, `lint`, `build`, `check:offline` pass.
+
+**Out of scope:** changing safety or FAQ behaviour, UI redesign.
+
+---
+
+## Phase 16: Voice v2, regression harness and startup experience
+
+**Why:** voice quality regresses silently. Lock in what was gained, make the first second after clicking the mic fast,
+and leave a way to check all of it again.
+
+**Needs:** Phases 11 to 15 done.
+
+**Tasks**
+1. `backend/eval/voice_regress.py`: runs the clip set through the running server and reports, per language: transcript error rates, per-stage latency (p50 and p95), false and missed interruptions where the clips cover them, and utterance-splitting correctness. JSON output plus a Markdown report in the same style as Phase 9 (tables only, no claims beyond the numbers). States the models, date, item counts and exactly which files were used.
+2. Extend `scripts/doctor.py` (Phase 8) to check: clip set present and non-empty, neural VAD assets present, streaming adapter loadable, models preloaded, acknowledgement file present and not still the `EXAMPLE` placeholders when a real language is configured.
+3. **Fast start.** Open the voice WebSocket early (as soon as the voice view is reachable), prepare the audio context on the first user gesture, and preload VAD assets, so the first utterance does not pay setup cost. Measure click-to-listening time before and after.
+4. Update `product.md` §8 latency numbers and `memory.md` with the final measured values and the hardware. Say plainly which targets are met and which are not.
+5. Run the full manual voice checklist in all three languages, headphones and speakers, and record every item (UNVERIFIED for anything not performed).
+6. Update the one-page limitations note: weak spots per language, noisy environments, echo, and anything measured as unreliable.
+
+**Acceptance checks**
+- `voice_regress.py` runs end to end and produces the JSON and the report; a deliberate regression (for example a very low silence hangover) makes the report show a visible difference.
+- `doctor.py` flags a deliberately missing VAD asset and passes when complete.
+- Click-to-listening time before and after, with hardware and spread.
+- Numbers in `product.md` and `memory.md` match the latest runs.
+- All tests, `typecheck`, `lint`, `build`, `check:offline` pass; the full app works with the network off.
+
+**Out of scope:** new features, model changes, deciding pass thresholds (the human does).
 
 ---
 

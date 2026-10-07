@@ -20,14 +20,17 @@ If these disagree with each other or with the code, **stop and report the confli
 - Do not refactor or reformat code outside the phase's files.
 - Do not add features, endpoints, settings, or dependencies the phase does not list.
 - If a task seems to need a change the phase did not anticipate, **write it down and ask**; do not improvise.
+- Phases 11 to 16 (Voice v2) are an optional track. Start one only when the human names it. Never begin Phase 11 just because Phase 7 is done.
 
 ## 3. Truthfulness (the rule most likely to be broken)
 
 - Report only what you actually ran. Quote the command and the result.
-- If you could not run something (no model, no GPU, no network), say **UNVERIFIED** and give the exact command the user should run.
-- Never fabricate: package names or versions, model IDs, CLI flags, function signatures, benchmark numbers, test results.
+- If you could not run something (no model, no GPU, no network, no microphone, no speakers, no real browser), say **UNVERIFIED** and give the exact command or manual steps the user should run.
+- Never fabricate: package names or versions, model IDs, CLI flags, function signatures, benchmark numbers, test results, latency numbers, error rates.
 - When you rely on a library's API from memory, say so and confirm against its documentation or installed source before building on it.
 - "It compiles" is not "it works". "Tests pass" is only true for the tests that exist.
+- Every measurement needs: hardware, number of runs, spread, and an explicit "met" or "not met" against the target. Do not round in our favour and do not claim an improvement you did not measure.
+- Do not claim the assistant matches any commercial voice product. Ideas borrowed from public engineering posts are ideas, not equivalence.
 
 ## 4. Do-not-touch without human sign-off
 
@@ -36,7 +39,10 @@ If these disagree with each other or with the code, **stop and report the confli
 | `backend/src/sahayak/resources/safety_rules.yaml` (patterns, replies, numbers) | Safety-critical; needs clinician and native-speaker review |
 | FAQ data (`backend/data/faqs.jsonl`) | Verified medical content; never edit, translate, or "clean" answers |
 | Medical rules in `resources/system_prompt.txt` and `services/prompting.py` layout | Must match the fine-tuning format |
-| Wire protocol (`api/schemas.py`, `api/serialization.py`) | Contract with the frontend |
+| Wire protocol (`api/schemas.py`, `api/serialization.py`, `backend/README.md`, `frontend/src/api/types.ts`, `contract/voice_frames.json`) | Contract between backend and frontend; change all together, only with approval |
+| Spoken acknowledgement phrases (for example `resources/acknowledgements.yaml`) | Human-written and native-speaker reviewed; agents may only use clearly marked `EXAMPLE` placeholders |
+| UI strings in `gu.ts` and `hi.ts` | Human-supplied translations only |
+| Order of answering: safety guard, then verbatim FAQ, then model, decided on the final transcript | Safety design; a partial transcript must never decide an answer |
 
 Adding a **test** for these is fine. Changing their behaviour is not.
 
@@ -44,7 +50,8 @@ Adding a **test** for these is fine. Changing their behaviour is not.
 
 - Prefer the standard library and what is already declared in `pyproject.toml` / `package.json`.
 - A new dependency needs: why it is needed, what was considered, licence, and that it works **offline** after install. Record it in `memory.md`.
-- Nothing may fetch from the network at runtime. No CDN links, remote fonts, analytics, or telemetry.
+- Nothing may fetch from the network at runtime. No CDN links, remote fonts, analytics, or telemetry. This includes voice models: VAD models, WASM files, audio worklets and speech models must load from local files with the network off.
+- For any model-based component (VAD, STT, TTS), also record: exact model name, where its files live, its licence, and how to pre-download it once.
 
 ## 6. Privacy and safety in code
 
@@ -52,6 +59,9 @@ Adding a **test** for these is fine. Changing their behaviour is not.
 - No analytics. No third-party scripts.
 - Do not weaken or bypass the safety guard, even for a demo or a test fixture.
 - Do not add any behaviour that gives diagnosis, dosage, or treatment advice.
+- Do not run the safety guard's decision, or any answer decision, on a partial transcript. Partials are for display and preparation only.
+- Do not add behaviour that speaks filler or acknowledgements on the safety path or the verbatim FAQ path.
+- Test audio clips are supplied by the human, stay in git-ignored `backend/eval/voice_clips/`, and are used by developer tools only. Never record, save or upload real user audio, and never generate synthetic speech to pretend it is a real person's recording.
 
 ## 7. Definition of done (every phase)
 
@@ -65,6 +75,8 @@ A phase is done only when **all** are true:
 6. The phase checkbox in `phases.md` is ticked, with the date.
 7. You have written the handoff (section 9).
 
+For voice phases, also: every item in `frontend/docs/voice-checklist.md` that you could not perform is marked UNVERIFIED with the exact manual steps, and every latency or error-rate claim is backed by a recorded run.
+
 ## 8. When to stop and ask
 
 Stop and ask the user when:
@@ -73,7 +85,9 @@ Stop and ask the user when:
 - a library or model behaves differently from what the docs or this repo assume;
 - you need a decision listed under *Open decisions*;
 - you are about to delete files, rewrite history, or change the wire protocol;
-- anything would send data off the machine.
+- anything would send data off the machine;
+- a voice change needs a new message type, a new field, or a new meaning for an existing one (write the proposal, then wait);
+- you need real Gujarati or Hindi text, test clips, or reference transcripts that the human has not supplied.
 
 Asking is cheap. A confident wrong guess in a health product is not.
 
@@ -82,11 +96,12 @@ Asking is cheap. A confident wrong guess in a health product is not.
 ```
 PHASE <n>: <name>: <DONE | BLOCKED>
 Ran:         <commands and results>
-Not run:     <anything UNVERIFIED, with the command for the user to run>
+Not run:     <anything UNVERIFIED, with the command or manual steps for the user to run>
+Measured:    <numbers with hardware, runs and spread, and met / not met against targets; "none" if no measurement>
 Changed:     <files added/modified>
 Decisions:   <anything decided, and why>
 Deviations:  <anything that differs from phases.md, and why>
-Needs human: <reviews, data, choices>
+Needs human: <reviews, data, choices, approvals, clips, phrases>
 Next phase:  <n+1> is ready to start / blocked by <x>
 ```
 
@@ -94,4 +109,6 @@ Next phase:  <n+1> is ready to start / blocked by <x>
 
 - One commit per coherent task; message states what and why. Branch per phase: `phase-<n>-<slug>`.
 - Never commit: `.env`, `data/faqs.jsonl`, `data/chroma/`, model files (`*.gguf`, weights), audio recordings, `node_modules`.
+- Also never commit: `backend/eval/voice_clips/`, `backend/data/bench/`, `backend/data/tts_samples/`, saved audio frames from smoke tests, and any file containing real transcripts.
 - Do not force-push or rewrite history.
+- Keep the working tree free of generated audio and benchmark output; check `git status` before every commit.

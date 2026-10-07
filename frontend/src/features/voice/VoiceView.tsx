@@ -23,6 +23,8 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   const [latestAssistantText, setLatestAssistantText] = useState("");
   const [latestSource, setLatestSource] = useState<"safety" | "faq" | "model" | null>(null);
   const [metrics, setMetrics] = useState<TurnMetrics | null>(null);
+  const [captureJitter, setCaptureJitter] = useState<{ avgJitterMs: number; maxJitterMs: number } | null>(null);
+  const [playbackUnderruns, setPlaybackUnderruns] = useState(0);
   const [devOpen, setDevOpen] = useState(false);
   const [voiceServerReady, setVoiceServerReady] = useState(false);
   void voiceServerReady;
@@ -59,6 +61,8 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       onSpeechEnd: (pcmData) => {
         dispatch({ type: "SPEECH_ENDED" });
         socketRef.current?.sendUtterance(pcmData);
+        const j = recorderRef.current?.getJitterMetrics();
+        if (j) setCaptureJitter({ avgJitterMs: j.avgJitterMs, maxJitterMs: j.maxJitterMs });
       },
     });
 
@@ -87,12 +91,17 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       onDone: (source, m) => {
         setMetrics(m as TurnMetrics);
         if (source) setLatestSource(source as "safety" | "faq" | "model");
+        playerRef.current?.markTurnDone();
+        setPlaybackUnderruns(playerRef.current?.getUnderrunCount() ?? 0);
+        const j = recorderRef.current?.getJitterMetrics();
+        if (j) setCaptureJitter({ avgJitterMs: j.avgJitterMs, maxJitterMs: j.maxJitterMs });
       },
       onNoSpeech: () => {
         dispatch({ type: "NO_SPEECH" });
       },
       onInterrupted: () => {
         playerRef.current?.flush();
+        setPlaybackUnderruns(playerRef.current?.getUnderrunCount() ?? 0);
         dispatch({ type: "REPLY_FINISHED" });
       },
       onError: (_code, message) => {
@@ -134,6 +143,8 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         currentTurn={voiceState.currentTurn}
         isOpen={devOpen}
         onToggle={() => setDevOpen(!devOpen)}
+        captureJitter={captureJitter}
+        playbackUnderruns={playbackUnderruns}
       />
 
       {/* Top Bar Navigation */}

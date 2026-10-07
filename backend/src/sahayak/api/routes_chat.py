@@ -52,7 +52,7 @@ async def chat(request: ChatRequest, container: ContainerDep) -> StreamingRespon
     )
 
 
-@router.delete("/sessions/{session_id}", status_code=204)
+@router.delete("/sessions/{session_id}", status_code=204, response_model=None)
 async def delete_session(
     container: ContainerDep,
     session_id: Annotated[str, Path(pattern=SESSION_ID_PATTERN)],

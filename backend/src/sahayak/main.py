@@ -12,6 +12,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException
+from starlette.responses import Response
+from starlette.staticfiles import StaticFiles
+from starlette.types import Scope
 
 from sahayak import __version__
 from sahayak.api import routes_chat, routes_meta, routes_voice
@@ -21,6 +25,21 @@ from sahayak.errors import SahayakError
 from sahayak.logging_setup import configure_logging
 
 logger = logging.getLogger(__name__)
+
+
+class SPAStaticFiles(StaticFiles):
+    """Static file server with single-page-app (SPA) fallback for HTML routes."""
+
+    async def get_response(self, path: str, scope: Scope) -> Response:
+        try:
+            response = await super().get_response(path, scope)
+            if response.status_code == 404 and "." not in path:
+                return await super().get_response("index.html", scope)
+            return response
+        except HTTPException as exc:
+            if exc.status_code == 404 and "." not in path:
+                return await super().get_response("index.html", scope)
+            raise
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -58,4 +77,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(routes_meta.router)
     app.include_router(routes_chat.router)
     app.include_router(routes_voice.router)
+
+    if settings.static_dir and settings.static_dir.is_dir():
+        app.mount(
+            "/",
+            SPAStaticFiles(directory=str(settings.static_dir), html=True),
+            name="static",
+        )
     return app

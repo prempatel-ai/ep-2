@@ -2,14 +2,28 @@ import React from "react";
 import type { TurnMetrics } from "@/api/types";
 import styles from "./DevPanel.module.css";
 
+export interface CaptureJitterInfo {
+  avgJitterMs: number;
+  maxJitterMs: number;
+}
+
 interface DevPanelProps {
   metrics: TurnMetrics | null;
   currentTurn: number;
   isOpen: boolean;
   onToggle: () => void;
+  captureJitter?: CaptureJitterInfo | null;
+  playbackUnderruns?: number;
 }
 
-export function DevPanel({ metrics, currentTurn, isOpen, onToggle }: DevPanelProps) {
+export function DevPanel({
+  metrics,
+  currentTurn,
+  isOpen,
+  onToggle,
+  captureJitter,
+  playbackUnderruns,
+}: DevPanelProps) {
   return (
     <div className={styles.container}>
       <button
@@ -54,6 +68,20 @@ export function DevPanel({ metrics, currentTurn, isOpen, onToggle }: DevPanelPro
             <span className={styles.label}>Total:</span>
             <span className={styles.value}>
               {metrics?.total_ms != null ? `${metrics.total_ms.toFixed(0)} ms` : "n/a"}
+            </span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Capture Jitter:</span>
+            <span className={styles.value}>
+              {captureJitter != null && captureJitter.maxJitterMs > 0
+                ? `${captureJitter.avgJitterMs.toFixed(1)} ms (max ${captureJitter.maxJitterMs.toFixed(1)} ms)`
+                : "0.0 ms"}
+            </span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Underruns:</span>
+            <span className={styles.value}>
+              {playbackUnderruns != null ? `${playbackUnderruns}` : "0"}
             </span>
           </div>
         </div>

@@ -14,3 +14,7 @@ dist/
 *.wav
 data/tts_samples/
 data/ws_smoke_out/
+backend/eval/voice_clips/
+eval/voice_clips/
+backend/data/bench/
+data/bench/

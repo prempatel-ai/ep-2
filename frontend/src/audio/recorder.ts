@@ -4,6 +4,12 @@
  * with echoCancellation and noiseSuppression enabled.
  */
 
+export interface CaptureJitterMetrics {
+  avgJitterMs: number;
+  maxJitterMs: number;
+  sampleCount: number;
+}
+
 export interface AudioRecorderOptions {
   sampleRate?: number;
   onSpeechStart?: () => void;
@@ -25,6 +31,11 @@ export class AudioRecorder {
   private speechStartTimer = 0;
   private bufferChunks: Float32Array[] = [];
   private options: Required<AudioRecorderOptions>;
+
+  private lastProcessTime = 0;
+  private maxJitterMs = 0;
+  private jitterSumMs = 0;
+  private jitterCount = 0;
 
   constructor(options: AudioRecorderOptions = {}) {
     this.options = {
@@ -75,10 +86,28 @@ export class AudioRecorder {
     this.bufferChunks = [];
     this.silenceTimer = 0;
     this.speechStartTimer = 0;
+    this.lastProcessTime = 0;
+    this.maxJitterMs = 0;
+    this.jitterSumMs = 0;
+    this.jitterCount = 0;
 
     this.processor.onaudioprocess = (e) => {
       if (!this.isRecording) return;
       const input = e.inputBuffer.getChannelData(0);
+
+      // Audio-callback interval jitter measurement (Phase 11)
+      const now = performance.now();
+      if (this.lastProcessTime > 0) {
+        const actualIntervalMs = now - this.lastProcessTime;
+        const expectedIntervalMs = (input.length / e.inputBuffer.sampleRate) * 1000;
+        const jitter = Math.abs(actualIntervalMs - expectedIntervalMs);
+        this.jitterSumMs += jitter;
+        this.jitterCount++;
+        if (jitter > this.maxJitterMs) {
+          this.maxJitterMs = jitter;
+        }
+      }
+      this.lastProcessTime = now;
 
       // Compute RMS energy
       let sum = 0;
@@ -189,4 +218,14 @@ export class AudioRecorder {
       this.audioCtx = null;
     }
   }
+
+  getJitterMetrics(): CaptureJitterMetrics {
+    const avg = this.jitterCount > 0 ? this.jitterSumMs / this.jitterCount : 0;
+    return {
+      avgJitterMs: avg,
+      maxJitterMs: this.maxJitterMs,
+      sampleCount: this.jitterCount,
+    };
+  }
 }
+

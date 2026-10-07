@@ -98,6 +98,7 @@ class Settings(BaseSettings):
     default_language: Language = Language.GUJARATI
     languages: list[Language] = [Language.GUJARATI, Language.HINDI, Language.ENGLISH]
     safety_rules_path: Path = RESOURCES_DIR / "safety_rules.yaml"
+    static_dir: Path | None = None
 
     llm: LLMSettings = LLMSettings()
     retrieval: RetrievalSettings = RetrievalSettings()
