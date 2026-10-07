@@ -12,6 +12,7 @@ import httpx
 from sahayak.core.blocking import BlockingRunner
 from sahayak.domain.image import (
     ALL_ALLOWED_CATEGORIES,
+    PROPOSED_FINDING_CATEGORIES,
     ImageAnalysisResult,
     ImageCheckStatus,
 )
@@ -30,7 +31,7 @@ IMAGE_CHECK_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": {
                 "type": "string",
-                "enum": sorted(ALL_ALLOWED_CATEGORIES),
+                "enum": sorted(PROPOSED_FINDING_CATEGORIES),
             },
         },
     },

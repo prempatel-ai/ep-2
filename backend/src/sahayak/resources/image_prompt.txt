@@ -1,22 +1,13 @@
-# Clinical observation prompt template for Image Check
-# Evaluates skin and breast surface features for defined observation categories.
-
-Analyze the provided photograph for observable surface skin features.
-Carefully examine the visible skin area for any of the following observation categories:
-- finding_redness (erythema, redness, inflammation, or coloration change)
-- finding_skin_thickening (skin thickening, edema, or texture change)
-- finding_dimpling (peau d'orange, surface dimples, or skin indentations)
-- finding_scaling (surface scaling, flaking, or crusting)
-- finding_nipple_change (nipple retraction, inversion, or noticeable shape change)
-- finding_visible_lump_or_shape_difference (visible contour asymmetry or visible bulge)
-- finding_open_sore (surface ulceration or skin breakdown)
-
-If the photograph shows human skin or breast area:
-- Set status to "ok" and include all observed categories in findings.
-- If no surface abnormalities or changes are visible, set status to "ok" and findings to [].
-
-If the photograph is too blurry, dark, underexposed, or distorted to examine:
-- Set status to "unclear_image" and findings to [].
-
-Only if the image clearly depicts completely non-human content (such as inanimate objects, furniture, landscapes, animals, or documents):
-- Set status to "not_a_breast_photo" and findings to [].
+Examine this clinical photograph of human skin or breast tissue.
+Describe the visible surface features: is there redness/erythema? Is there skin thickening or dimpling (peau d orange)? Is there scaling, nipple retraction, a visible lump, or an open sore?
+Select ONLY categories that are clearly observable in the image:
+finding_redness
+finding_skin_thickening
+finding_dimpling
+finding_scaling
+finding_nipple_change
+finding_visible_lump_or_shape_difference
+finding_open_sore
+Output a JSON object with:
+- status: ok if human skin/breast is visible, unclear_image if blurry or dark, not_a_breast_photo if completely non-human.
+- findings: array of only the categories observed, or [] if no surface changes are identified.
