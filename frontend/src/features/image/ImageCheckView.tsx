@@ -22,6 +22,17 @@ import {
 } from "./imageCheckReducer";
 import styles from "./ImageCheckView.module.css";
 
+const FINDING_DESCRIPTIONS: Record<string, string> = {
+  finding_redness: "Surface redness or coloration change",
+  finding_skin_thickening: "Surface skin thickening or texture change",
+  finding_dimpling: "Surface dimpling or indentation",
+  finding_scaling: "Surface scaling or flaking",
+  finding_nipple_change: "Noticeable change in nipple appearance",
+  finding_visible_lump_or_shape_difference: "Visible contour difference or shape asymmetry",
+  finding_open_sore: "Surface skin break or sore",
+  none_visible: "No visible surface skin changes identified",
+};
+
 interface ImageCheckViewProps {
   currentLanguage?: LanguageCode;
   onExit?: () => void;
@@ -353,18 +364,28 @@ export function ImageCheckView({
               {state.result.messages.findings_summary}
             </p>
 
-            {/* Structured Observation Category Tags (Neutral Styling) */}
+            {/* Structured Observation Category Findings (Neutral Styling) */}
             {state.result.findings && state.result.findings.length > 0 && (
-              <ul
-                className={styles.tagList}
-                aria-label="Observed categories"
-              >
-                {state.result.findings.map((f) => (
-                  <li key={f} className={styles.tagItem}>
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              <div className={styles.findingsBlock}>
+                <span className={styles.findingsBlockLabel}>Observed Features</span>
+                <ul
+                  className={styles.findingsList}
+                  aria-label="Observed categories"
+                >
+                  {state.result.findings.map((f) => {
+                    const label = FINDING_DESCRIPTIONS[f] || f;
+                    return (
+                      <li key={f} className={styles.findingItem}>
+                        <div className={styles.findingMain}>
+                          <span className={styles.findingIndicator} aria-hidden="true" />
+                          <span className={styles.findingDescription}>{label}</span>
+                        </div>
+                        <span className={styles.findingCode}>{f}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             )}
           </div>
 
