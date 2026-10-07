@@ -48,3 +48,24 @@ class SpeechRecognitionError(SahayakError):
 class SpeechSynthesisError(SahayakError):
     code = "tts_failed"
     http_status = 500
+
+
+class ImageCheckDisabledError(SahayakError):
+    code = "image_check_disabled"
+    http_status = 503
+
+
+class ImageAnalysisUnavailableError(SahayakError):
+    code = "image_analyzer_unavailable"
+    http_status = 503
+
+
+class InvalidImageError(SahayakError):
+    code = "invalid_image"
+    http_status = 400
+
+
+class ImagePayloadTooLargeError(SahayakError):
+    code = "image_too_large"
+    http_status = 413
+

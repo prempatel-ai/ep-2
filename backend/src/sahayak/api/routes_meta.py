@@ -40,6 +40,7 @@ async def client_config(container: ContainerDep) -> dict[str, Any]:
         ],
         "default_language": s.default_language.value,
         "voice": container.turns.voice_available,
+        "image_check": s.image_check.enabled,
         "audio": {
             "input_sample_rate": s.audio.input_sample_rate,
             "input_format": "pcm_s16le_mono",

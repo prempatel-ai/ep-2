@@ -1,0 +1,97 @@
+# Reviewed message copy for Image Check outcomes.
+# Notice: English text below contains EXAMPLE placeholders only, pending human clinical review.
+# Per Phase 19 rules: Never write Gujarati or Hindi text. Those keys are marked as placeholders
+# requiring human translation.
+
+en:
+  mandatory_referral: "Please consult a medical doctor or visit your nearest primary health centre for an in-person clinical examination."
+  educational_disclaimer: "This informational tool does not provide a diagnosis and cannot detect or rule out breast cancer."
+  could_not_check: "The automated check could not be completed at this time. If you have any concerns about your health, please visit a doctor."
+
+  outcomes:
+    ok:
+      none_visible: "No visible surface skin changes were identified in this photograph."
+      findings_noted: "One or more observable surface features were noted in the photograph."
+    unclear_image:
+      summary: "The photograph is too blurry, dark, or unclear to evaluate surface features."
+      guidance: "Please take a well-lit, in-focus photo, or see a healthcare professional directly."
+    not_a_breast_photo:
+      summary: "The submitted photo does not appear to show breast skin."
+      guidance: "Please submit a photo focused on the relevant skin area if you intended to check a visible change."
+    unavailable:
+      summary: "Image Check is currently unavailable."
+      guidance: "Please consult a healthcare professional directly if you have any questions or concerns."
+    error:
+      summary: "An error occurred while evaluating the image."
+      guidance: "Please try again later or consult a healthcare professional."
+
+  findings:
+    finding_redness: "Surface redness or coloration change"
+    finding_skin_thickening: "Surface skin thickening or texture change"
+    finding_dimpling: "Surface dimpling or indentation"
+    finding_scaling: "Surface scaling or flaking"
+    finding_nipple_change: "Noticeable change in nipple appearance"
+    finding_visible_lump_or_shape_difference: "Visible contour difference or shape asymmetry"
+    finding_open_sore: "Surface skin break or sore"
+
+gu:
+  # PLACEHOLDER: Human native-speaker translation and clinical review required (D23).
+  # The autonomous agent is strictly prohibited from authoring Gujarati medical text.
+  mandatory_referral: "[GUJARATI_TRANSLATION_REQUIRED]"
+  educational_disclaimer: "[GUJARATI_TRANSLATION_REQUIRED]"
+  could_not_check: "[GUJARATI_TRANSLATION_REQUIRED]"
+  outcomes:
+    ok:
+      none_visible: "[GUJARATI_TRANSLATION_REQUIRED]"
+      findings_noted: "[GUJARATI_TRANSLATION_REQUIRED]"
+    unclear_image:
+      summary: "[GUJARATI_TRANSLATION_REQUIRED]"
+      guidance: "[GUJARATI_TRANSLATION_REQUIRED]"
+    not_a_breast_photo:
+      summary: "[GUJARATI_TRANSLATION_REQUIRED]"
+      guidance: "[GUJARATI_TRANSLATION_REQUIRED]"
+    unavailable:
+      summary: "[GUJARATI_TRANSLATION_REQUIRED]"
+      guidance: "[GUJARATI_TRANSLATION_REQUIRED]"
+    error:
+      summary: "[GUJARATI_TRANSLATION_REQUIRED]"
+      guidance: "[GUJARATI_TRANSLATION_REQUIRED]"
+  findings:
+    finding_redness: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_skin_thickening: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_dimpling: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_scaling: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_nipple_change: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_visible_lump_or_shape_difference: "[GUJARATI_TRANSLATION_REQUIRED]"
+    finding_open_sore: "[GUJARATI_TRANSLATION_REQUIRED]"
+
+hi:
+  # PLACEHOLDER: Human native-speaker translation and clinical review required (D23).
+  # The autonomous agent is strictly prohibited from authoring Hindi medical text.
+  mandatory_referral: "[HINDI_TRANSLATION_REQUIRED]"
+  educational_disclaimer: "[HINDI_TRANSLATION_REQUIRED]"
+  could_not_check: "[HINDI_TRANSLATION_REQUIRED]"
+  outcomes:
+    ok:
+      none_visible: "[HINDI_TRANSLATION_REQUIRED]"
+      findings_noted: "[HINDI_TRANSLATION_REQUIRED]"
+    unclear_image:
+      summary: "[HINDI_TRANSLATION_REQUIRED]"
+      guidance: "[HINDI_TRANSLATION_REQUIRED]"
+    not_a_breast_photo:
+      summary: "[HINDI_TRANSLATION_REQUIRED]"
+      guidance: "[HINDI_TRANSLATION_REQUIRED]"
+    unavailable:
+      summary: "[HINDI_TRANSLATION_REQUIRED]"
+      guidance: "[HINDI_TRANSLATION_REQUIRED]"
+    error:
+      summary: "[HINDI_TRANSLATION_REQUIRED]"
+      guidance: "[HINDI_TRANSLATION_REQUIRED]"
+  findings:
+    finding_redness: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_skin_thickening: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_dimpling: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_scaling: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_nipple_change: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_visible_lump_or_shape_difference: "[HINDI_TRANSLATION_REQUIRED]"
+    finding_open_sore: "[HINDI_TRANSLATION_REQUIRED]"

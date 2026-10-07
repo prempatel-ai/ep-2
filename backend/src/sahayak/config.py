@@ -77,6 +77,19 @@ class AudioSettings(BaseModel):
     min_utterance_ms: float = Field(200.0, ge=0)
 
 
+class ImageCheckSettings(BaseModel):
+    enabled: bool = False
+    backend: Literal["ollama", "fake", "disabled"] = "ollama"
+    base_url: str = "http://127.0.0.1:11434"
+    model: str = "medgemma:4b"
+    timeout_s: float = Field(default=120.0, gt=0)
+    max_file_size_bytes: int = Field(default=10 * 1024 * 1024, ge=1024)
+    max_dimension: int = Field(default=1024, ge=256, le=4096)
+    prompt_path: Path = RESOURCES_DIR / "image_prompt.txt"
+    messages_path: Path = RESOURCES_DIR / "image_check_messages.yaml"
+    keep_alive: str = "5m"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="SAHAYAK_",
@@ -107,6 +120,7 @@ class Settings(BaseSettings):
     tts: TTSSettings = TTSSettings()
     sessions: SessionSettings = SessionSettings()
     audio: AudioSettings = AudioSettings()
+    image_check: ImageCheckSettings = ImageCheckSettings()
 
     @model_validator(mode="after")
     def _default_language_is_supported(self) -> Settings:

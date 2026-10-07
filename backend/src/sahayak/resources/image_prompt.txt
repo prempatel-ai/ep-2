@@ -1,0 +1,9 @@
+# EXAMPLE PLACEHOLDER: Model prompt for Image Check
+# This is an EXAMPLE placeholder. Real clinical prompt instructions must be human-authored
+# and reviewed by a medical professional. This placeholder contains no medical guidance.
+
+Analyze the provided image for visible skin features.
+If the image does not depict human breast skin, set status to "not_a_breast_photo".
+If the image is too blurry, dark, or distorted to examine, set status to "unclear_image".
+Otherwise, set status to "ok" and list all observed surface categories from the permitted schema.
+Do not guess or assume findings that are not clearly visible.

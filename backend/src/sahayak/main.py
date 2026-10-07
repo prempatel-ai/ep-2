@@ -18,7 +18,7 @@ from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
 
 from sahayak import __version__
-from sahayak.api import routes_chat, routes_meta, routes_voice
+from sahayak.api import routes_chat, routes_image, routes_meta, routes_voice
 from sahayak.config import Settings
 from sahayak.container import build_container
 from sahayak.errors import SahayakError
@@ -77,6 +77,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(routes_meta.router)
     app.include_router(routes_chat.router)
     app.include_router(routes_voice.router)
+    app.include_router(routes_image.router)
 
     if settings.static_dir and settings.static_dir.is_dir():
         app.mount(

@@ -27,6 +27,7 @@ stt-indic = ["transformers>=4.44", "torch>=2.2", "torchaudio>=2.2", "onnxruntime
 # Text-to-speech backends (install the one you configure).
 tts-mms = ["transformers>=4.44", "torch>=2.2"]
 tts-parler = ["transformers>=4.44", "torch>=2.2", "parler-tts"]
+image-check = ["pillow>=10.0", "python-multipart>=0.0.18"]
 dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
 
 [project.scripts]

@@ -9,17 +9,17 @@
 | Area | State | Evidence |
 |---|---|---|
 | Backend code | Written | `backend/src/sahayak/` |
-| Backend tests | **95 pass** (81 baseline unit tests + 4 web layer tests + 7 model-free Chroma retrieval tests + 3 voice wire format tests) | `pytest` |
+| Backend tests | **113 pass** (95 baseline & voice tests + 18 Image Check unit, prep, guard, and endpoint tests) | `pytest` |
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
-| Model adapters | Embedder (`SentenceTransformerEmbedder`), FAQ Index (`ChromaFAQIndex`), STT (`FasterWhisperSTT`), TTS (`MMSTTS`), and LLM (`OpenAICompatibleLLM`) **VERIFIED** on real hardware (Phases 1, 2 & 3). IndicConformer and Parler remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `scripts/tts_listen.py`, `scripts/ws_smoke.py`, Ollama Sarvam 1 / Gemma 3, `GET /ready` |
+| Model adapters | Embedder (`SentenceTransformerEmbedder`), FAQ Index (`ChromaFAQIndex`), STT (`FasterWhisperSTT`), TTS (`MMSTTS`), LLM (`OpenAICompatibleLLM`), and Image Check (`OllamaMedGemmaAnalyzer`, `FakeImageAnalyzer`) **VERIFIED** on real hardware. IndicConformer and Parler remain **UNVERIFIED**. | `tests/test_image_check.py`, `backend/scripts/image_probe.py`, `GET /ready` |
 | FAQ data / index | Example file indexed (`backend/data/faqs.example.jsonl` -> `backend/data/chroma`); real `faqs.jsonl` not yet provided | `sahayak-index`, `backend/data/chroma` |
 | Frontend | Text chat & Voice UI complete (Next.js 16 + TypeScript strict + AppShell + ChatView + VoiceView + WebGPU Orb Visualizer + VAD recorder + AudioQueuePlayer + SSE + WebSocket wire protocol) | `frontend/`, `npm run build`, `npm test` (51 pass), `npm run check:offline` |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 | Voice v2 (Phases 11 to 16) | Reported complete by the builder on 2026-10-07. Record the measured numbers and anything still UNVERIFIED in the log. | `docs/voice-baseline.md`, `voice_regress.py` report |
-| Image Check (Phases 17 to 22) | Phase 17 designed and approved; Phase 18 verified locally on Ollama medgemma:4b. Off by default. | `phases.md`, `docs/image-check-design.md`, `backend/scripts/image_probe.py` |
+| Image Check (Phases 17 to 22) | Phase 17 designed and approved; Phase 18 verified locally; Phase 19 backend port, adapter, guard, and endpoint completed. Off by default. | `phases.md`, `docs/image-check-design.md`, `backend/tests/test_image_check.py`, `contract/image_check_responses.json` |
 
-**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Phases 17 & 18 complete (2026-10-07), Phase 19 ready. Phases 8 to 10 still open.
+**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Phases 17, 18, 19 complete (2026-10-07), Phase 20 ready. Phases 8 to 10 still open.
 
 ## 2. Decisions and why
 
@@ -173,6 +173,7 @@
 | 2026-10-07 | Voice v2 (Phases 11 to 16) reported complete by the builder. Baseline and final numbers tracked in `docs/voice-baseline.md`. |
 | 2026-10-07 | Phase 17 completed and approved by builder. Image Check design document written (docs/image-check-design.md). D17 approved. Starting Phase 18. |
 | 2026-10-07 | Phase 18 completed: Verified local MedGemma 4B (medgemma:4b Q4_K_M) on Ollama. Validated multimodal image analysis, strict JSON schema output constraint, zero disk writes, and client disconnect handling. Added backend/scripts/image_probe.py. Measured schema latency avg 1.58s and peak RAM 14.8 GB on 11th Gen i5 CPU. D20 decided; D21 resource options presented. |
+| 2026-10-07 | **Phase 19 completed**: Built backend Image Check port (`ImageAnalyzer`), adapters (`OllamaMedGemmaAnalyzer` serialized via `BlockingRunner`, `FakeImageAnalyzer`), in-memory metadata stripper and resizing service (`image_prep.py`), result guard and message mapper (`image_check.py`), reviewed English copy and translation placeholders (`image_check_messages.yaml`), prompt template (`image_prompt.txt`), endpoint `POST /v1/image-check` behind `SAHAYAK_IMAGE_CHECK__ENABLED` (default false), and golden contract fixtures (`contract/image_check_responses.json`). Verified zero disk writes, 100% mandatory referral coverage across all outcomes, strict category allowlist filtering, model free text suppression, oversize/invalid format rejection, disabled flag 503 behavior, and live MedGemma inference on synthetic image. All 113 backend tests pass. |
 
 ## 9. Environment & Package Versions
 
@@ -204,6 +205,9 @@
   - faster-whisper: 1.2.1
   - ctranslate2: 4.8.2
   - av: 19.0.1
+- Phase 19 Image Check Packages (`pip install -e ".[image-check]"`):
+  - pillow: 12.3.0 (HPND-like / Historical Permission Notice and Disclaimer license)
+  - python-multipart: 0.0.32 (Apache 2.0 license)
 - Local LLM Serving (Phase 3):
   - Engine: Ollama / `llama-server` (OpenAI-compatible HTTP API at `/v1`)
   - Placeholder models verified: `gaganyatri/sarvam-2b-v0.5:latest` (Sarvam 1 2.5B), `gemma3:4b`
@@ -211,4 +215,5 @@
   - Embedder: `intfloat/multilingual-e5-small`
   - STT: `Systran/faster-whisper-small`
   - TTS: `facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`
+  - Image: `medgemma:4b` via local Ollama
   - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)

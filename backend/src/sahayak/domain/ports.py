@@ -10,6 +10,7 @@ from collections.abc import AsyncIterator, Sequence
 from typing import Protocol, runtime_checkable
 
 from sahayak.domain.audio import AudioClip
+from sahayak.domain.image import ImageAnalysisResult
 from sahayak.domain.language import Language
 from sahayak.domain.models import ChatMessage, FAQEntry, FAQHit, Transcript
 
@@ -56,3 +57,15 @@ class FAQRetriever(Protocol):
 
 class FAQIndex(FAQRetriever, Protocol):
     async def rebuild(self, entries: Sequence[FAQEntry], batch_size: int = 256) -> None: ...
+
+
+class ImageAnalyzer(Protocol):
+    """Port for multimodal image observation models."""
+
+    async def analyze(self, image_bytes: bytes, prompt: str) -> ImageAnalysisResult:
+        """Analyze an in-memory image and return structured categories."""
+        ...
+
+    async def is_ready(self) -> bool:
+        ...
+

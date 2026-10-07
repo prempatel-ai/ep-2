@@ -1,0 +1,53 @@
+{
+  "description": "Golden wire contract fixtures for Sahayak Image Check API responses",
+  "finding_present": {
+    "status": "ok",
+    "findings": [
+      "finding_redness"
+    ],
+    "referral_required": true,
+    "messages": {
+      "findings_summary": "One or more observable surface features were noted in the photograph.",
+      "referral_guidance": "Please consult a medical doctor or visit your nearest primary health centre for an in-person clinical examination.",
+      "educational_disclaimer": "This informational tool does not provide a diagnosis and cannot detect or rule out breast cancer."
+    }
+  },
+  "none_visible": {
+    "status": "ok",
+    "findings": [
+      "none_visible"
+    ],
+    "referral_required": true,
+    "messages": {
+      "findings_summary": "No visible surface skin changes were identified in this photograph.",
+      "referral_guidance": "Please consult a medical doctor or visit your nearest primary health centre for an in-person clinical examination.",
+      "educational_disclaimer": "This informational tool does not provide a diagnosis and cannot detect or rule out breast cancer."
+    }
+  },
+  "unclear_image": {
+    "status": "unclear_image",
+    "findings": [],
+    "referral_required": true,
+    "messages": {
+      "findings_summary": "The photograph is too blurry, dark, or unclear to evaluate surface features.",
+      "referral_guidance": "Please consult a medical doctor or visit your nearest primary health centre for an in-person clinical examination.",
+      "educational_disclaimer": "This informational tool does not provide a diagnosis and cannot detect or rule out breast cancer."
+    }
+  },
+  "not_a_breast_photo": {
+    "status": "not_a_breast_photo",
+    "findings": [],
+    "referral_required": true,
+    "messages": {
+      "findings_summary": "The submitted photo does not appear to show breast skin.",
+      "referral_guidance": "Please consult a medical doctor or visit your nearest primary health centre for an in-person clinical examination.",
+      "educational_disclaimer": "This informational tool does not provide a diagnosis and cannot detect or rule out breast cancer."
+    }
+  },
+  "disabled": {
+    "error": {
+      "code": "image_check_disabled",
+      "message": "Image check is currently disabled."
+    }
+  }
+}
