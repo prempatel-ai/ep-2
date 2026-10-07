@@ -2,22 +2,24 @@
 
 > Living record of **state, decisions, gotchas and open questions**. Agents read this at the start of
 > every session and update it at the end of every phase. Keep it accurate and short; delete what is stale.
-> Last updated: 2026-10-03.
+> Last updated: 2026-10-07.
 
 ## 1. Current state
 
 | Area | State | Evidence |
 |---|---|---|
 | Backend code | Written | `backend/src/sahayak/` |
-| Backend tests | **92 pass** (81 baseline unit tests + 4 web layer tests + 7 model-free Chroma retrieval tests) | `pytest` |
+| Backend tests | **95 pass** (81 baseline unit tests + 4 web layer tests + 7 model-free Chroma retrieval tests + 3 voice wire format tests) | `pytest` |
 | FastAPI routes, WebSocket handler | Verified on real hardware (Phase 0) | `backend/scripts/smoke_http.py`, `tests/test_web_layer.py` |
 | Model adapters | Embedder (`SentenceTransformerEmbedder`), FAQ Index (`ChromaFAQIndex`), STT (`FasterWhisperSTT`), TTS (`MMSTTS`), and LLM (`OpenAICompatibleLLM`) **VERIFIED** on real hardware (Phases 1, 2 & 3). IndicConformer and Parler remain **UNVERIFIED**. | `tests/test_retrieval_fake_embedder.py`, `scripts/tts_listen.py`, `scripts/ws_smoke.py`, Ollama Sarvam 1 / Gemma 3, `GET /ready` |
 | FAQ data / index | Example file indexed (`backend/data/faqs.example.jsonl` -> `backend/data/chroma`); real `faqs.jsonl` not yet provided | `sahayak-index`, `backend/data/chroma` |
-| Frontend | Text chat & Voice UI complete (Next.js 16 + TypeScript strict + AppShell + ChatView + VoiceView + WebGPU Orb Visualizer + VAD recorder + AudioQueuePlayer + SSE + WebSocket wire protocol) | `frontend/`, `npm run build`, `npm test` (20 pass), `npm run check:offline` |
+| Frontend | Text chat & Voice UI complete (Next.js 16 + TypeScript strict + AppShell + ChatView + VoiceView + WebGPU Orb Visualizer + VAD recorder + AudioQueuePlayer + SSE + WebSocket wire protocol) | `frontend/`, `npm run build`, `npm test` (51 pass), `npm run check:offline` |
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
+| Voice v2 (Phases 11 to 16) | Reported complete by the builder on 2026-10-07. Record the measured numbers and anything still UNVERIFIED in the log. | `docs/voice-baseline.md`, `voice_regress.py` report |
+| Image Check (Phases 17 to 22) | Planned. Not started. Off by default when built. Needs clinician involvement. | `phases.md`, `docs/image-check-design.md` (Phase 17) |
 
-**Phase progress:** Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, and Phase 6 complete (see `phases.md`).
+**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Image Check track (17 to 22) design in progress (Phase 17 awaiting human approval). Phases 8 to 10 still open.
 
 ## 2. Decisions and why
 
@@ -37,6 +39,12 @@
 | Safety rules in YAML, separate from code | Clinician can review them without reading Python. |
 | Echo LLM backend | Lets the frontend be built and demoed before the real model exists. |
 | UI must work fully offline (no CDN fonts/scripts/images) | Product requirement. |
+| Image Check is a separate path from chat; the photo goes directly to MedGemma 4B running locally | The builder's chosen design. Keeps everything offline and keeps image handling away from the text and voice paths. |
+| The model returns only categories from a fixed list; the user sees only fixed human-written text | A free-text answer about a breast photo could sound like a diagnosis or an all-clear. Humans write the words, the model only observes. |
+| The referral message appears in every outcome, including `none_visible`; no scores, no reassuring visuals | A photo cannot rule out breast cancer. The main harm to design against is false reassurance. |
+| Image Check is off by default until a clinician signs off | Safety. Unknown model reliability on this task. |
+| Images are held in memory only and never stored, logged or sent anywhere | Highly sensitive images. |
+| Agents never handle real breast images; humans supply and run the real evaluation | Privacy and consent. |
 
 ## 3. Wire protocol and stage timeline
 
@@ -75,6 +83,12 @@
      - Long utterance (6.59s): `stt_ms` = 4315ms, `first_sentence_ms` = 4590ms, `first_audio_ms` = 5515ms, `total_ms` = 8780ms
    - **Target assessment:** The target (first audio ≤ 4.0s on CPU) is **NOT MET** on CPU alone (measured first audio ~5.5s, with Whisper transcription alone accounting for ~4.1s). GPU acceleration or smaller models (e.g. whisper `base` or `tiny`) will be needed to hit ≤ 4.0s.
 9. Hindi and Gujarati text in `safety_rules.yaml` and `services/messages.py`; helpline numbers (112, 14416).
+10. MedGemma 4B reliability at recognising visible skin changes on ordinary phone photos, including across skin tones and lighting. **UNVERIFIED until the human-run evaluation and clinician review (Phase 21).**
+11. Whether the chosen local server can constrain output to a JSON schema with an image input (Phase 18).
+12. Whether MedGemma 4B fits in memory next to the voice stack on the CPU-only 16 GB laptop, and its per-image latency (Phase 18).
+13. That the model server and libraries write no image data to disk (Phase 18 and 19 checks).
+14. That the intended use of this feature is permitted by the Health AI Developer Foundations terms and Prohibited Use Policy (D19, human confirms).
+15. The exact model id and variant (4B instruction-tuned vs 1.5 4B), to be taken from the official model card (D20).
 
 ## 5. Gotchas
 
@@ -112,6 +126,14 @@
 | D14 | TTS voice per language | MMS-TTS for gu, hi, en; evaluate Indic Parler or alternative local models if needed | Phase 14 |
 | D15 | Acknowledgement phrases and reviewer | Builder supplies phrases; native speaker reviews; no medical statements | Phase 14 |
 | D16 | End-of-speech timing defaults | Decided in Phase 12: 800 ms silence hangover default; 250 ms min speech duration for barge-in guard; configurable in settings | Decided in Phase 12 |
+| D17 | Accept the Image Check scope change (reverses the earlier "image analysis" non-goal) | Decided by the builder on 2026-10-07 in principle; record formal approval after Phase 17 | Phase 17 |
+| D18 | The category list of visible changes | A PROPOSED starting list is in `phases.md` Phase 17; a clinician decides | Phase 17 |
+| D19 | Accept MedGemma terms and confirm the intended use is permitted | Not accepted; the human reads the terms and Prohibited Use Policy | Phase 17 to 18 |
+| D20 | Model variant: MedGemma 4B instruction-tuned vs 1.5 4B | Verify from the official model card; builder chooses | Phase 18 |
+| D21 | Resource strategy: always loaded vs loaded on demand with idle unload | Decide from Phase 18 memory numbers | Phase 18 |
+| D22 | Clinical reviewer, and the source of a consented, licensed, clinician-labelled evaluation image set | Unassigned | Before Phase 21 |
+| D23 | Who writes the English, Gujarati and Hindi message texts, and the native-speaker reviewer | Unassigned; agents use placeholders only | Before Phase 19 is enabled |
+| D24 | Default state and the conditions to enable Image Check | Off. Enable only after the clinician has reviewed the Phase 21 report and agrees in writing | Phase 21 |
 
 ## 7. Glossary
 
@@ -123,6 +145,10 @@
 - **Source:** `safety`, `faq` or `model`: where an answer sentence came from.
 - **Echo LLM:** placeholder model for development.
 - **UNVERIFIED:** written but not run against the real thing.
+- **Image Check:** optional, off-by-default feature that describes visible skin changes in an uploaded photo using a local model. Not a diagnosis.
+- **Category:** one item from the fixed list the model may return (for example a visible change, or `none_visible`, `unclear_image`, `not_a_breast_photo`).
+- **Result guard:** service code that guarantees the referral message is present and that the model's free text never reaches the user.
+- **Missed finding:** the clinician labelled a visible change but the model returned `none_visible`, `unclear_image` or a different category. Reported first in every evaluation.
 
 ## 8. Log
 
@@ -141,6 +167,8 @@
 | 2026-10-04 | **Phase 7 completed**: Design and accessibility pass. Transformed frontend into calm, trustworthy clinical healthcare software: 1140px natural workspace layout, muted dark clinical navy/slate palette (`#0b0f19` canvas, `#111827` surface, `#1f293d` hairlines, `#0d9488` restrained clinical teal accent), no AI SaaS landing-page clichés (no purple/blue neon glows or decorative badges). Compact clinical header with subtle offline indicator, editorial assistant response cards with left border accent, lightweight interactive suggested inquiry rows, clean composer with keyboard shortcuts. Automated WCAG AA accessibility tests via `vitest-axe` with 0 violations (`Accessibility.test.tsx`), ARIA-compliant structure, polite live regions, and `document.documentElement.lang` sync. All 24 unit tests pass, TypeScript strict check passes, ESLint passes, Next.js static export passes, and offline audit passes with 0 external network requests. |
 | 2026-10-07 | **Phase 11 (Voice v2: Instrumentation & Baseline)**: Added decisions D11 to D16 under Open decisions. Defined stage timeline in memory.md and docs/voice-baseline.md (distinguishing client-side vs server-side boundaries). Added backend/scripts/voice_bench.py benchmark runner with p50/p95 calculations and structured JSON output to backend/data/bench/. Added capture jitter tracking to AudioRecorder and playback underruns tracking to AudioQueuePlayer, surfaced in DevPanel with zero application behaviour change. Human-supplied clip directory backend/eval/voice_clips/ is currently empty, so clip-dependent runs are marked UNVERIFIED with exact WAV specifications provided. 95 backend tests pass, 38 frontend tests pass, typecheck, lint, build, check:offline all pass. |
 | 2026-10-07 | **Phase 12 completed (Voice v2: Better Listening)**: Upgraded capture path to AudioWorklet and neural VAD (@ricky0123/vad-web with Silero VAD v5 ONNX and WASM bundle loaded locally from /vad/). Preserved output contract: 16 kHz mono signed 16-bit PCM. Implemented pause-tolerant hangover (800ms default, D16) keeping mid-sentence pauses in a single utterance. Added barge-in guard requiring minimum speech duration (250ms default) and speech probability threshold; transient coughs, clicks, and backchannels trigger VAD misfire and do not interrupt playback. Added speaker echo suppression check (positiveSpeechThresholdDuringPlayback: 0.65) during active assistant audio. Pure voice state machine updated with VAD_MISFIRE and SPEECH_REAL_START actions. Added synthetic-signal unit tests in recorder.test.ts. Exposed configurable VAD settings in SettingsModal and DevPanel. All 95 backend tests pass, all 48 frontend tests pass, typecheck, lint, build, and check:offline (zero external network references) all pass. |
+| 2026-10-07 | Voice v2 (Phases 11 to 16) reported complete by the builder. Baseline and final numbers tracked in `docs/voice-baseline.md`. |
+| 2026-10-07 | Image Check track (Phases 17 to 22) added to `phases.md`; `product.md`, `CLAUDE.md`, `agent.md` updated. Phase 17 design document written (`docs/image-check-design.md`); awaiting human approval before proceeding. |
 
 ## 9. Environment & Package Versions
 
@@ -179,5 +207,4 @@
   - Embedder: `intfloat/multilingual-e5-small`
   - STT: `Systran/faster-whisper-small`
   - TTS: `facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`
-  - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)
-
+  - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)

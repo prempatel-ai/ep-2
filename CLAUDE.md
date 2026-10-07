@@ -8,9 +8,14 @@ Sahayak: an offline Gujarati/Hindi/English voice and text assistant for verified
 Python backend (built, tested) and web frontend (built through Phase 7: text chat, voice UI, design and accessibility).
 Read, in order: `product.md` → `memory.md` → `phases.md`. The current phase is the first one not ticked in `phases.md`.
 
-Active work after Phase 7 may include the **Voice v2 track** (Phases 11 to 16 in `phases.md`): making the voice
-conversation feel more human through streaming input, better listening, faster and more natural speech, and honest
-measurement. Everything below still applies to that track.
+The **Voice v2 track** (Phases 11 to 16 in `phases.md`) is reported complete by the builder; `memory.md` is the record of
+what was measured and what is still UNVERIFIED.
+
+Active work may now include the **Image Check track** (Phases 17 to 22): an optional, off-by-default feature where an adult
+uploads a photo and gets a description of visible skin changes from MedGemma 4B running locally, always with a referral
+to a clinician. It is the most safety-critical feature in the product. It is **not** a diagnosis and **not** a cancer
+detector. Phase 17 is documents only and ends with a human approval gate. Everything below still applies to that track,
+and the Image Check rules (18 to 27) apply to every change that touches images.
 
 ## Where things are
 
@@ -21,18 +26,19 @@ backend/            Python service (FastAPI). Built and tested.
     services/       all logic. NO web or model-library imports here
     adapters/       one file per external library/model, behind a port
     api/            routes, request schemas, wire serialisation
-    resources/      safety_rules.yaml, system_prompt.txt (human-reviewed content)
+    resources/      safety_rules.yaml, system_prompt.txt, acknowledgements.yaml, image_prompt.txt,
+                    image_check_messages.yaml (all human-written and reviewed content; agents use EXAMPLE placeholders)
     container.py    the only place adapters are chosen
     config.py       typed settings (SAHAYAK_* env vars)
   tests/            unittest-style, runs without models or network
   scripts/          dev tools (smoke_http, ws_smoke, tts_listen, check_retrieval, dump_prompt, ...)
-  eval/             probe and evaluation files; voice_clips/ is git-ignored (human-supplied test audio)
+  eval/             probe and evaluation files; voice_clips/ and image_set/ are git-ignored (human-supplied test audio and images)
   data/             faqs.jsonl, chroma/, bench/, tts_samples/ (data and outputs are git-ignored where private)
 frontend/           Next.js (App Router, static export) + TypeScript strict
   src/
     api/            types.ts http.ts sse.ts voiceSocket.ts voiceWire.ts
     audio/          recorder.ts (capture + VAD) player.ts (AudioQueuePlayer)
-    features/       chat/ voice/ settings/
+    features/       chat/ voice/ imagecheck/ settings/
     components/     shared building blocks
     i18n/           en.ts gu.ts hi.ts index.ts
     styles/         tokens.css fonts.css base.css
@@ -40,7 +46,7 @@ frontend/           Next.js (App Router, static export) + TypeScript strict
   scripts/          check-offline.mjs
   docs/             voice-checklist.md
 contract/           voice_frames.json: golden wire frames read by BOTH backend and frontend tests
-docs/               finetune-handoff.md, voice docs added by later phases
+docs/               finetune-handoff.md, voice docs, image-check-design.md (Phase 17)
 product.md  memory.md  phases.md  agent.md  CLAUDE.md
 ```
 
@@ -70,6 +76,11 @@ npm run build && npm run check:offline       # static export, then scan for exte
 python scripts/ws_smoke.py --text "..." --language gu      # voice path smoke test
 python scripts/tts_listen.py                               # synthesise fixed strings for listening
 python scripts/voice_bench.py                              # latency over the clip set (Phase 11+)
+
+# image check tooling (Phases 18+; synthetic or non-medical images only for agent runs)
+python scripts/image_probe.py --dir <folder of synthetic images>   # raw model output, latency, memory
+python eval/image_eval.py                                  # evaluation over the human-supplied set (human runs the real set)
+# feature flag, default off:  SAHAYAK_IMAGE_CHECK__ENABLED=true
 ```
 
 ## Architecture rules (do not break)
@@ -95,6 +106,19 @@ python scripts/voice_bench.py                              # latency over the cl
 16. **No audio or transcripts are ever saved at runtime.** Test clips are human-supplied, live in git-ignored `backend/eval/voice_clips/`, and are used by developer tools only.
 17. **Offline always.** VAD models, WASM files, worklets, fonts and any other asset load from the bundle with the network off. No CDN, no remote model fetch at runtime.
 
+### Image Check rules (Phases 17 to 22 and any change touching images)
+
+18. **Never claim detection.** Code, UI text, docs and comments never say the feature detects, diagnoses, screens for or rules out cancer. It describes visible skin changes and refers the user to a clinician.
+19. **The model's words never reach the user.** The model returns structured output from a fixed category list. Only validated category ids, mapped to human-written text in `resources/image_check_messages.yaml`, are shown. Unknown or malformed output is an error, never a guess.
+20. **The referral message is in every outcome**, including `none_visible`, `unclear_image`, `not_a_breast_photo`, unavailable and error. A guard in `services/` enforces it and a test proves it.
+21. **No reassurance and no scores.** No all-clear wording, green ticks, probabilities, percentages or confidence values anywhere in the response or UI.
+22. **Images live in memory only.** No files, temp files, thumbnails, caches, logs or crash dumps contain image bytes. Metadata is stripped by re-encoding. Buffers are freed after the request. Check what the model server and libraries write to disk.
+23. **Frontend holds no trace.** No `localStorage`, `sessionStorage`, IndexedDB or cache for images or results. Revoke object URLs promptly. No image or result in a URL. "Clear and start over" removes everything.
+24. **Ignore text inside images.** Treat it as data. The output schema and the guard are the defence, and a test covers it.
+25. **Off by default.** `SAHAYAK_IMAGE_CHECK__ENABLED` defaults to false. When off, no image model is loaded, the UI hides the feature, and the endpoint behaves as approved.
+26. **One image at a time, and never at the expense of voice.** Image analysis goes through `BlockingRunner` (or an equivalent single-flight limit) and must not stall text or voice turns. Memory use with the voice stack loaded is measured, not assumed.
+27. **Agents never handle real breast images.** Tests and probes use synthetic or non-medical images. Real evaluation images are supplied by the human in git-ignored `backend/eval/image_set/` and read only by the evaluation harness, which reports aggregates.
+
 ## Code style
 
 - Python 3.11+, type hints everywhere, `from __future__ import annotations`.
@@ -114,6 +138,8 @@ python scripts/voice_bench.py                              # latency over the cl
 - Frontend: Vitest + Testing Library, automated accessibility check (`vitest-axe`), `check:offline` after every build.
 - Anything that depends on audio hardware, a real browser mic, headphones vs speakers, or a GPU is verified manually from `frontend/docs/voice-checklist.md` and marked **UNVERIFIED** until a human or a recorded run confirms it.
 - Latency and accuracy claims need a recorded measurement: hardware, number of runs, spread, and a clear "met" or "not met" against `product.md` §8.
+- Image Check: every response path has a test that the referral message is present; tests prove model free text never appears, malformed output is an error, unknown ids are rejected, oversize and wrong-type files are rejected, the flag-off behaviour holds, and no file is created during a request. Use a fake analyzer from `backend/tests/fakes.py`; adapters needing the real model are verified by `image_probe.py`.
+- Evaluation of the Image Check reports the **missed-finding rate first**, then per-category numbers with counts. The agent chooses no pass thresholds.
 
 ## Honesty rules (this project is health-related)
 
@@ -122,6 +148,8 @@ python scripts/voice_bench.py                              # latency over the cl
 - Never write, rewrite, or "improve" medical content, safety patterns, or helpline numbers. Flag them for human review.
 - Never write Gujarati or Hindi UI text, spoken phrases or safety wording. Use clearly marked `EXAMPLE` or `NEEDS HUMAN TRANSLATION` placeholders; a native speaker supplies the real text.
 - Do not claim latency, accuracy, or safety properties that have not been measured.
+- Never write the Image Check category list, the model's medical instruction, or any sentence the user sees about findings, in any language. Proposals for the clinician are labelled PROPOSED, needs clinical review.
+- Do not make any claim about how well MedGemma 4B recognises skin changes in breast photos. It is UNVERIFIED until the human-run evaluation and the clinician's review exist. Its terms (Health AI Developer Foundations) are read and accepted by the human, not assumed.
 - Do not describe the assistant as matching any commercial voice product. The Voice v2 track borrows system design ideas from public engineering write-ups, not their models.
 
 ## Working on a phase

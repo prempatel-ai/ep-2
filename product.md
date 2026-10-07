@@ -8,7 +8,8 @@
 
 An offline voice and text assistant that answers **verified** breast cancer FAQs in **Gujarati, Hindi and
 English**, with a natural-sounding voice that listens well, answers quickly and can be interrupted like a person.
-It gives general information only.
+An optional, off-by-default **Image Check** describes visible skin changes in an uploaded photo and always points to a
+clinician. It gives general information only.
 
 ## 2. Problem
 
@@ -22,7 +23,7 @@ not answer.
 
 | User | Needs |
 |---|---|
-| Patient / family member | Plain-language answers, in Gujarati/Hindi/English, by voice or text. Calm tone. A conversation that does not cut them off or make them repeat themselves. |
+| Patient / family member | Plain-language answers, in Gujarati/Hindi/English, by voice or text. Calm tone. A conversation that does not cut them off or make them repeat themselves. A private way to describe a visible skin change they are worried about, with a clear push to see a doctor. |
 | Student / awareness volunteer | Quick, reliable general information. |
 | The builder (final-year engineering student) | A working, demonstrable system that runs on a laptop, with a clean codebase. |
 
@@ -35,11 +36,16 @@ not answer.
 5. Be a codebase worth showing: layered, tested, documented, honest about what is verified.
 6. Make the voice experience feel responsive and human **without** weakening safety or provenance: the system
    listens while the user is still speaking, knows when they have really finished, and never answers from half a sentence.
+7. Offer an **Image Check** that helps a person notice and describe visible skin changes **without ever acting as a
+   diagnosis**: it never says there is no cancer, always recommends seeing a clinician, and keeps the image private.
 
 ## 5. Non-goals
 
 - Diagnosis, triage, treatment or medication advice, interpreting reports or scans.
-- Image analysis (mammograms, histopathology).
+- Image analysis of mammograms, scans or histopathology.
+- Any statement that a person does or does not have cancer, including from the Image Check. The Image Check describes
+  visible skin changes only; it is not a detector, screener or classifier of disease, and it never gives all-clear
+  messages, risk scores or percentages.
 - Accounts, login, cloud sync, analytics, or storing conversations.
 - Languages beyond Gujarati, Hindi and English (for now).
 - Replacing a doctor. Every refusal points to one.
@@ -56,6 +62,10 @@ Every question takes exactly one of these paths, in this order:
 3. **Model**: otherwise the fine-tuned model answers, given related FAQs as reference when any are relevant.
 
 Each answer sentence is labelled `safety`, `faq` or `model`; the UI shows this to the user.
+
+The **Image Check** is a separate path, not part of chat. The photo goes straight to MedGemma 4B running locally; the
+model returns only categories from a fixed list; the app shows fixed, human-written text for those categories plus a
+referral message that appears in every outcome. The model's own words never reach the user.
 
 For voice, the decision between these paths is always made on the **final** transcript. Partial transcripts may be
 shown to the user and may be used to prepare work in advance, but they never decide an answer.
@@ -92,16 +102,35 @@ shown to the user and may be used to prepare work in advance, but they never dec
 | V11 | The old one-utterance voice path stays available behind a setting until the streaming path is verified. |
 | V12 | A repeatable test over a human-supplied set of recorded clips reports transcript error and per-stage latency per language. |
 
+### Image Check requirements (Phases 17 to 22)
+
+| ID | Requirement |
+|---|---|
+| I1 | The feature is **off by default** and is switched on only by a setting, after clinician sign-off (D24). When off, the UI hides it and no image model is loaded. |
+| I2 | The user must confirm they are an adult and that they understand it is not a diagnosis before they can upload a photo. |
+| I3 | The photo is analysed by MedGemma 4B running **locally**. Nothing is sent off the machine. |
+| I4 | The model's output is restricted to a fixed list of visible-change categories plus `none_visible`, `unclear_image` and `not_a_breast_photo`. Anything else is an error, never a guess. |
+| I5 | The user sees only fixed, human-written, clinician-reviewed text per category and language. The model's free text is never shown. |
+| I6 | **Every** outcome, including `none_visible`, shows the same referral message: a photo cannot rule out breast cancer; see a doctor. |
+| I7 | No reassurance in presentation: no green ticks, no all-clear wording, no scores, no percentages, no colour-only meaning. |
+| I8 | `unclear_image` and `not_a_breast_photo` give plain retake or "this is not what I can look at" guidance from reviewed text. |
+| I9 | If the model is unavailable or fails, the user sees a reviewed "could not check, please see a doctor if you are worried" message. |
+| I10 | Images are held in memory only, metadata is stripped, and nothing is written to disk, logs, caches or browser storage. "Clear and start over" removes everything. |
+| I11 | Instructions written inside an image are ignored. |
+| I12 | Image analysis never blocks or degrades text or voice conversations. |
+| I13 | An evaluation harness reports, first, how often a clinician-labelled finding was missed, plus per-category numbers, on a consented, licensed, clinician-labelled set supplied by the human. |
+
 ## 8. Non-functional requirements
 
 | Area | Requirement |
 |---|---|
 | Offline | No network calls at runtime from backend or frontend. No CDN fonts, scripts, images, or voice-model assets. |
-| Privacy | Conversations in memory only, expire when idle, deletable. Question and answer text never logged. Audio never saved at runtime; test clips are human-supplied and kept out of git. |
+| Privacy | Conversations in memory only, expire when idle, deletable. Question and answer text never logged. Audio never saved at runtime; test clips are human-supplied and kept out of git. **Images are never stored, logged or sent anywhere**; the model server and libraries are checked for hidden disk writes; evaluation images are human-supplied, git-ignored and never opened by agents. |
 | Latency | **Targets:** first audio ≤ 4 s on CPU-only laptop, ≤ 2 s with a GPU. **Measured in Phase 2 on an i5-11400H, CPU only: about 5.5 s, so the CPU target is NOT MET** (Whisper transcription alone about 4.1 s). Voice v2 aims to close the gap; do not claim any improvement until it is measured again. |
 | Voice quality | Interruption stops audio within about half a second. No audio gaps or overlaps between sentences. No false interruptions from the assistant's own voice in a stated test. Measured, not assumed. |
 | Accessibility | Keyboard-operable, screen-reader labels, visible focus, contrast AA, respects reduced motion, readable Gujarati and Devanagari type. |
 | Quality | Services unit-tested without models. Every phase has runnable acceptance checks. Wire formats covered by shared fixtures read by both backend and frontend tests. |
+| Image Check resources | **To be measured in Phase 18:** cold load, per-image latency and peak memory on the CPU-only 16 GB laptop with the voice stack loaded. Do not claim it fits or is fast until measured. |
 | Portability | Runs on a typical student laptop; GPU optional. |
 
 ## 9. Experience principles (frontend)
@@ -114,6 +143,8 @@ shown to the user and may be used to prepare work in advance, but they never dec
 - **Responsive without pretending.** The assistant may show provisional text and a short acknowledgement while it works,
   but it must stay clearly an assistant, and provisional text must look provisional.
 - **Never cut the person off.** Waiting a moment longer is better than interrupting someone who is still thinking.
+- **Image Check is plain and neutral.** Nothing in colour, icon or wording may suggest "you are fine". The limits and the
+  advice to see a doctor are the most prominent things on the result screen.
 
 ## 10. Content policy
 
@@ -124,6 +155,11 @@ shown to the user and may be used to prepare work in advance, but they never dec
 - Safety text and helpline numbers need clinician and native-speaker review before any real use.
 - Spoken acknowledgement phrases and UI strings in Gujarati and Hindi are written by the human and reviewed by a
   native speaker. Agents use clearly marked placeholders only. Acknowledgement phrases contain no medical statements.
+- Image Check content (the category list, the instruction given to the model, and every sentence shown for each outcome
+  in every language) is written by humans and reviewed by a clinician and a native speaker. Agents never write it and
+  never handle real breast images.
+- MedGemma is used under the Health AI Developer Foundations terms of use and its Prohibited Use Policy. The human
+  confirms the intended use is permitted (D19) before any real use.
 
 ## 11. Success measures
 
@@ -134,6 +170,9 @@ shown to the user and may be used to prepare work in advance, but they never dec
 - Voice v2: on the human-supplied clip set, per language, report transcript error rate, end-of-speech-to-final-transcript
   time, first-audio time, utterance-splitting correctness, and false and missed interruptions, each compared with the
   Phase 11 baseline on the same hardware.
+- Image Check: on a clinician-labelled set, the **missed-finding rate reported first**, per-category recall and
+  precision with counts, the rate of unclear-image results, and 100 percent presence of the referral message in every
+  response. The agent sets no pass thresholds; the clinician and the human decide whether the feature may be enabled.
 
 ## 12. Status
 
@@ -144,7 +183,8 @@ shown to the user and may be used to prepare work in advance, but they never dec
 | Frontend | **Built through Phase 7**: text chat, voice UI with browser voice activity detection and gapless playback, design and accessibility pass. 24 unit tests pass. Packaging (Phase 8) not done. |
 | FAQ data (40k) and index | Exists on the builder's side; **not yet loaded** into this repo (only the example file is indexed) |
 | Fine-tuned model | Being trained by the builder; **not part of the agent's work** until Phase 10 |
-| Voice v2 track (Phases 11 to 16) | **Planned, not started** |
+| Voice v2 track (Phases 11 to 16) | **Reported complete by the builder** (2026-10-07). Measured results and anything still unverified are recorded in `memory.md`. |
+| Image Check track (Phases 17 to 22) | **Planned, not started.** Needs clinician involvement, a human-supplied image set, accepted model terms, and a decision on the memory budget before it can be enabled. Off by default. |
 | Clinical / native-speaker review | **Not done** |
 
 ## 13. Open questions

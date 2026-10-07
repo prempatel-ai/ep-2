@@ -19,16 +19,26 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [ ] Phase 8: Packaging and one-command run
 - [ ] Phase 9: Evaluation and safety-review tooling
 - [ ] Phase 10: Plug in the fine-tuned model
-- [ ] Phase 11: Voice v2, instrumentation and baseline
-- [ ] Phase 12: Voice v2, better listening
-- [ ] Phase 13: Voice v2, streaming input and streaming STT
-- [ ] Phase 14: Voice v2, natural speaking
-- [ ] Phase 15: Voice v2, conversation state
-- [ ] Phase 16: Voice v2, regression harness and startup experience
+- [x] Phase 11: Voice v2, instrumentation and baseline (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [x] Phase 12: Voice v2, better listening (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [x] Phase 13: Voice v2, streaming input and streaming STT (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [x] Phase 14: Voice v2, natural speaking (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [x] Phase 15: Voice v2, conversation state (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [x] Phase 16: Voice v2, regression harness and startup experience (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
+- [ ] Phase 17: Image Check, scope, safety design and proposals (documents only) (awaiting human approval)
+- [ ] Phase 18: Image Check, run MedGemma 4B locally and verify it
+- [ ] Phase 19: Image Check, backend port, adapter, guard and endpoint
+- [ ] Phase 20: Image Check, frontend
+- [ ] Phase 21: Image Check, evaluation and clinical safety review
+- [ ] Phase 22: Image Check, integration, packaging and limitations
 
 **Skeleton complete = Phases 0 to 8.** Phases 9 and 10 turn it into something measured and real.
-**Voice v2 = Phases 11 to 16.** An optional track that makes the voice conversation feel more human. It does not
-depend on Phases 9 or 10. Whether it runs before or after Phase 8 is the human's call (open decision D11 in `memory.md`).
+**Voice v2 = Phases 11 to 16.** An optional track that made the voice conversation feel more human. The builder
+reports it complete; the agent should treat `memory.md` as the record of what was measured and what remains UNVERIFIED.
+**Image Check = Phases 17 to 22.** An optional, safety-critical track: upload a photo and get a description of visible
+skin changes from MedGemma 4B running locally, always with a referral to a clinician. Phase 17 is documents only and
+ends with a human approval gate. The feature stays **off by default** until a clinician signs off (D24). It does not
+depend on Phases 8 to 10, but Phase 8 packaging should be updated for it in Phase 22.
 
 ## How to run a phase
 
@@ -42,7 +52,7 @@ depend on Phases 9 or 10. Whether it runs before or after Phase 8 is the human's
 ## Rules that hold in every phase
 
 - Nothing leaves the machine at runtime. No CDN assets, no analytics, no remote fonts.
-- Never log or persist user text, transcripts, answers, or audio.
+- Never log or persist user text, transcripts, answers, audio, or images.
 - Never author or edit medical content: FAQ answers, safety patterns or replies, helpline numbers, medical wording
   in prompts or UI. Build tooling that *uses* them; leave their content to humans.
 - Example data you create must be clearly marked `EXAMPLE` and must not look like real medical guidance.
@@ -562,6 +572,307 @@ and leave a way to check all of it again.
 - All tests, `typecheck`, `lint`, `build`, `check:offline` pass; the full app works with the network off.
 
 **Out of scope:** new features, model changes, deciding pass thresholds (the human does).
+
+---
+
+# Image Check track (Phases 17 to 22)
+
+**Goal:** let an adult upload a photo of a breast skin area and get back a **description of visible skin changes**,
+produced locally by MedGemma 4B, followed by a fixed, human-reviewed message that always recommends seeing a clinician.
+It is an awareness aid. It is **not** a diagnosis, **not** a cancer detector, and it never tells anyone they are fine.
+
+**Why this track is different:** it reverses an earlier non-goal (image analysis). A wrong "nothing seen" can make
+someone delay care, so safety design, wording and evaluation come **before** any code. The human's decision to accept
+this scope is recorded in `memory.md` as D17.
+
+**What is decided (changing any of it needs the human's approval):**
+
+1. **The image goes directly to MedGemma 4B, running locally.** Nothing is sent off the machine.
+2. **The model does not write the text the user reads.** It is asked for a structured answer chosen from a fixed list
+   of visible-change categories, plus `none_visible`, `unclear_image` and `not_a_breast_photo`. The app turns each
+   category into fixed sentences written by a human in each language.
+3. **A result guard** makes sure every response, including `none_visible`, carries the same human-written referral
+   message ("a photo cannot rule out breast cancer; see a doctor") and contains no verdict wording and no scores.
+4. **No reassuring visuals.** No green ticks, no "all clear" styling, no percentage or confidence shown to users.
+5. **Adults only, opt-in, off by default.** The feature sits behind a setting that is **off** until a clinician signs off.
+6. **Images are never stored, logged or sent anywhere.** In memory only, metadata stripped, freed after the request.
+
+**What we do not yet know (all UNVERIFIED until Phases 18 and 21):** whether MedGemma 4B is reliable at recognising
+these visible changes on ordinary phone photos of breast skin in Indian users, how often it misses a real change,
+whether it follows a fixed output schema reliably with an image input, and whether it fits in memory next to the
+voice stack on a CPU-only 16 GB laptop. Do not claim any of these.
+
+## Rules that hold in every Image Check phase
+
+- **Never claim detection.** Never describe the feature as detecting, diagnosing, screening for or ruling out cancer.
+  Use: "describes visible skin changes", "general information", "see a doctor".
+- **Never author medical content.** The category list, the prompt's medical instructions, and every user-facing
+  sentence in every language are human-written and clinician or native-speaker reviewed. Agents use clearly marked
+  `EXAMPLE` placeholders only.
+- **Agents never handle real breast images.** Plumbing tests use synthetic or non-medical images (gradients, noise,
+  objects, images with neutral text). Real images are supplied by the human into git-ignored `backend/eval/image_set/`
+  and are read only by the evaluation harness, which reports aggregate numbers. Agents do not open, view, describe or
+  copy them.
+- **Never persist or log images.** No files, no temp files, no thumbnails, no caches, no crash dumps with image bytes.
+  Logs contain timings, sizes and error classes only. Verify what the model server and libraries write to disk.
+- **The model's free text never reaches the user.** Only validated category ids, mapped to reviewed text, do. Unknown or
+  malformed model output produces an error, never a guess.
+- **Ignore instructions inside images.** Text written in a photo is data. The structured output constraint and the
+  guard are the defence; test it.
+- **Safety first, then speed.** If a check fails or the model is unavailable, show a plain "could not check, please see a
+  doctor if worried" message from the reviewed file. Never leave the user with a blank or a guess.
+- **Licence and terms.** MedGemma is governed by the Health AI Developer Foundations terms of use and its Prohibited Use
+  Policy, and the Hugging Face files are gated behind acceptance. The human reads and accepts them (D19). Do not
+  redistribute weights.
+- **Wire protocol changes need approval.** The new endpoint is proposed in Phase 17 and implemented only after approval.
+- **Architecture rules from `CLAUDE.md` still apply:** a port in `domain/`, an adapter in `adapters/`, chosen in
+  `container.py`, blocking calls through `BlockingRunner`, heavy imports inside adapter methods.
+- **Report numbers honestly:** hardware beside every measurement, and report **missed findings** separately and first.
+
+---
+
+## Phase 17: Image Check, scope, safety design and proposals (documents only)
+
+**Why:** the riskiest feature in the product. Agree what it is, what it refuses to be, and what could go wrong, in
+writing, before any code exists.
+
+**Needs:** Phase 7 done. The human has decided to proceed (D17). No models, no images.
+
+**Tasks**
+1. Add decisions **D17 to D24** to `memory.md` → *Open decisions*: D17 accept the Image Check scope change; D18 the
+   category list (clinician); D19 licence and terms acceptance and permitted-use confirmation; D20 model variant
+   (MedGemma 4B instruction-tuned vs 1.5 4B); D21 resource strategy (always loaded vs loaded on demand, idle unload);
+   D22 clinical reviewer and the source of the evaluation image set; D23 who writes the Gujarati, Hindi and English
+   message texts and the native-speaker reviewer; D24 default state (off) and the conditions to switch it on.
+2. Write `docs/image-check-design.md`: purpose, explicit non-purpose, user flow, what the user sees for each outcome,
+   what is stored (nothing), and the decided design above.
+3. **Threat model** in the same document: false reassurance, false alarm, non-breast or unusable images, explicit or
+   minor-related images, instructions hidden in image text, leakage through logs, temp files, model-server caches,
+   browser caches or object URLs, memory exhaustion from large images, the feature being mistaken for a diagnosis.
+   For each: the mitigation, which phase builds it, and how it will be tested.
+4. Read the official MedGemma model card (Intended Use, limitations) and the Health AI Developer Foundations terms and
+   Prohibited Use Policy. Quote the relevant lines with links into the design document and list every open question
+   for the human. If you cannot access a page, say UNVERIFIED.
+5. Record the **proposed starting category list** below in the design document, marked clearly as *PROPOSED, needs
+   clinical review*. Do not extend or reword it yourself.
+6. **Proposal (wire change): the endpoint.** Suggested shape for the human to approve or change: `POST /v1/image-check`,
+   `multipart/form-data` with one `image` file and an optional `language`; response `status` (`ok`,
+   `unclear_image`, `not_a_breast_photo`, `unavailable`, `error`), `findings` (category ids), and `text` blocks taken from
+   the reviewed messages file; no scores; documented size and type limits; errors with stable codes; the feature flag
+   behaviour when off. Include a contract fixture plan.
+7. Write the evaluation plan: what the human must supply (consented, licensed, clinician-labelled images; counts per
+   category; the mix of skin tones and lighting that matches intended users), what will be reported (missed-finding
+   rate first), and that the agent chooses no pass thresholds.
+8. **Stop and wait** for the human's written approval of the design, the category list owner, and the API proposal.
+
+**Proposed starting category list** *(PROPOSED, needs clinical review, not authored by the agent; the clinician decides D18)*:
+redness; skin thickening or orange-peel texture; dimpling or puckering; scaling or crusting; nipple change; visible lump
+or shape difference between the sides; open sore or ulcer; plus the three non-findings `none_visible`, `unclear_image`,
+`not_a_breast_photo`.
+
+**Acceptance checks**
+- `docs/image-check-design.md` exists with every section above.
+- Every statement about MedGemma or its terms is quoted with a link or marked UNVERIFIED.
+- The human's approval of the design and the API proposal is recorded in `memory.md`.
+- No code, settings or dependencies were changed.
+
+**Out of scope:** any code, downloading models, evaluating images, writing user-facing medical text.
+
+---
+
+## Phase 18: Image Check, run MedGemma 4B locally and verify it
+
+**Why:** prove the model runs on this laptop, accepts an image, returns structured output, and writes nothing to disk,
+before building around it.
+
+**Needs:** Phase 17 approved. D19 and D20 decided. The human has accepted the model terms and obtained the files (or
+the agent has given the exact one-time download steps and the human ran them). Internet only for the one-time download.
+
+**Tasks**
+1. Confirm from the official model card the exact model id of the chosen variant and record it. Do not use an id from
+   memory.
+2. Choose and verify a local serving route that accepts an image: an OpenAI-compatible server (`llama-server` with its
+   multimodal projector, Ollama, or a small transformers-based server). Check flags and the image request format against
+   the installed server's own help or documentation. Record the exact command, the exact file names, where the files
+   live, their licence, and how to pre-download them once.
+3. Run it with the network disabled and record the result.
+4. Verify whether the server can **constrain the output to a JSON schema** together with an image input. If it cannot,
+   say so; that changes the guard design and the human decides.
+5. Add `backend/scripts/image_probe.py`: sends images from a folder (synthetic or non-medical by default) to the model
+   server and prints raw output, latency and peak memory. Developer-eyes-only. Saves nothing.
+6. On the target laptop, measure cold load time, first-request latency, steady-state latency, and peak memory **with the
+   voice stack and the text model also loaded**. Record hardware beside the numbers. Say whether it fits in 16 GB.
+   Present the D21 options with the numbers; the human decides.
+7. Check that the server writes no image data to disk (inspect its temp and cache directories before and after a run);
+   record the result or mark UNVERIFIED with the steps.
+8. Check that closing the connection stops generation.
+
+**Acceptance checks**
+- Probe run recorded: command, outputs on synthetic images, latency, memory, hardware.
+- Offline run works, or the blocker is recorded.
+- Schema-constrained output result recorded (works / does not work).
+- Disk-write check recorded.
+- Existing tests still pass; no app code changed.
+
+**Out of scope:** app endpoints, UI, accuracy claims, real breast images, choosing the final variant without the human.
+
+---
+
+## Phase 19: Image Check, backend port, adapter, guard and endpoint
+
+**Why:** the safety logic lives here. Build it so the model's words can never reach the user and no image can persist.
+
+**Needs:** Phase 18 done. The Phase 17 API proposal approved. Message texts and the category list are placeholders
+until the human supplies the real ones.
+
+**Tasks**
+1. `domain/`: an `ImageAnalyzer` port and plain result types (status, finding ids). No model or web imports.
+2. `adapters/image_medgemma.py`: talks to the verified server route from Phase 18, behind the port, chosen only in
+   `container.py`. Heavy imports inside methods. Calls go through `BlockingRunner` or an equivalent that allows only one
+   image analysis at a time.
+3. Image handling: allowed types and limits as approved; decode in memory; **strip all metadata by re-encoding**; shrink to
+   the model's working size; never write to disk; free buffers after the request. Any new dependency (for example an image
+   library) needs the usual justification, licence and offline check, recorded in `memory.md`.
+4. `resources/image_prompt.txt`: the instruction sent with the image. The medical instructions in it are human-written;
+   until supplied, ship a clearly marked `EXAMPLE` placeholder that contains no medical guidance.
+5. `services/image_check.py`: orchestrates analyze → **strict validation** (only known category ids; reject anything
+   else) → **guard** (always attach the referral text; never include model free text; never include scores) → response.
+   Malformed or empty model output returns an error status, never a guessed result.
+6. `resources/image_check_messages.yaml`: the reviewed text per language and per outcome, including the referral block
+   and the "could not check" message. Ship `EXAMPLE` English placeholders only; do not write Gujarati or Hindi.
+7. Endpoint exactly as approved, behind the setting `SAHAYAK_IMAGE_CHECK__ENABLED` (default **false**). When off it
+   behaves as approved in Phase 17. `/ready` reports the image-check state. New errors subclass `SahayakError` with stable
+   codes.
+8. Logging: timings, sizes, status and error class only. Never image bytes, never findings text.
+9. Tests with a fake analyzer: referral present in **every** status including `none_visible`; unknown ids rejected;
+   malformed output becomes an error; model text never appears in the response; oversize and wrong type rejected; flag off
+   returns the approved response; no file is created in the working or temp directory during a request; concurrent
+   requests are serialised.
+10. Contract fixtures for the new response shapes, read by backend tests (and by frontend tests in Phase 20).
+
+**Acceptance checks**
+- Full backend suite passes with the real count; new tests listed.
+- With the real model server up: a synthetic image returns a well-formed response with the referral block; with the
+  server down, the response is the reviewed "could not check" message and the rest of the server stays healthy.
+- The no-files test passes and a manual before/after directory check is recorded.
+- With the flag off, the endpoint behaves as approved and nothing loads the model.
+- `ruff`, `mypy` clean in touched files.
+
+**Out of scope:** the UI, accuracy evaluation, writing medical text or any Gujarati or Hindi text.
+
+---
+
+## Phase 20: Image Check, frontend
+
+**Why:** a calm, honest screen that makes the limits impossible to miss and leaves nothing behind on the device.
+
+**Needs:** Phase 19 done and the contract fixtures available.
+
+**Tasks**
+1. A separate "Image check" section reachable from the app shell, hidden when the backend reports the feature off.
+2. Entry screen: a plain explanation, a prominent "not a diagnosis, a photo cannot rule out breast cancer" notice, a
+   privacy statement (nothing is saved or sent anywhere), and an **adults-only confirmation** the user must tick. Use
+   the i18n structure with `NEEDS HUMAN TRANSLATION` placeholders; do not write the wording yourself.
+3. Picker: choose a file or use the phone camera. Show a preview held only in memory; revoke any object URL as soon as
+   it is no longer needed; a clear "remove photo" control.
+4. Submit with visible progress, an honest message about waiting, and a cancel control that aborts the request.
+5. Results: render only what the backend returns. Findings as text labels, then the referral block, prominently, in
+   **every** outcome. **Neutral styling for every outcome**: no green ticks, no "all clear" icons, no colour-only
+   meaning, no scores. `unclear_image` gives retake guidance from the reviewed text.
+6. Error and unavailable states from the reviewed text. No blank states.
+7. "Clear and start over" removes the image, the result and any state. No `localStorage`, `sessionStorage`,
+   IndexedDB or cache use for images or results; no image or result in a URL.
+8. Accessibility: keyboard operable, labelled controls, polite live region for the result, focus management, contrast
+   AA, reduced motion, works at 200% text, language attributes on Gujarati and Hindi text. Automated axe check passes.
+9. Tests: the state reducer or machine (pure), results rendering from the contract fixtures including that the referral
+   block is present for every status, object URL revocation, no storage API use, flag-off hiding.
+10. `frontend/docs/image-check-checklist.md`: a manual script (see checks).
+
+**Acceptance checks**
+- Unit and accessibility tests pass; counts reported. `typecheck`, `lint`, `build`, `check:offline` pass.
+- Manual checklist run and recorded with synthetic images only: consent required; preview and remove; submit; cancel;
+  each status rendered with the referral block; browser storage empty afterwards (inspect and record); network panel shows
+  only requests to the local backend. Mark anything not performed UNVERIFIED.
+- Voice and text chat unaffected (existing tests pass).
+
+**Out of scope:** reading results aloud, saving results, sharing results, any visual design that signals reassurance.
+
+---
+
+## Phase 21: Image Check, evaluation and clinical safety review
+
+**Why:** this is the only way to know whether the feature is safe to show anyone. The question that matters most is how
+often a real visible change is missed.
+
+**Needs:** Phase 19 done (Phase 20 helpful). The human supplies an image set that is consented, licensed and labelled by
+a clinician (D22) in `backend/eval/image_set/` with a manifest. The agent does not source, open or view these images.
+
+**Tasks**
+1. `backend/eval/image_eval.py`: reads the manifest (file, clinician-labelled categories, optional skin tone and lighting
+   notes), calls the running API, and writes JSON. Reports aggregates only and never copies or displays images.
+2. Metrics module with unit tests, reporting in this order: **missed-finding rate** (clinician labelled a finding, the
+   model returned `none_visible`, `unclear_image` or a different finding); per-category recall and precision; rate of
+   `unclear_image`; rate of `not_a_breast_photo` on true breast photos; breakdown by the supplied skin-tone and lighting
+   notes; counts beside every rate.
+3. Guard test run: in **every** response across the whole run, the referral block is present and no model free text
+   appears. This must be 100 percent; any exception is reported first.
+4. Adversarial pack: synthetic plumbing images made by the agent (blank, noise, non-medical objects, images with neutral
+   text that tells the model to ignore its instructions) to confirm the structured output and guard hold. Real adversarial
+   cases involving people are run by the human.
+5. Load and memory behaviour: repeated requests, large images, requests while a voice conversation is running; record
+   latency and peak memory with hardware.
+6. `eval/make_image_review_sheet.py`: a CSV for the clinician with the model's categories beside the clinician label,
+   columns for agreement and notes, identified by image id only.
+7. A Markdown report (tables only, no claims beyond the numbers) stating the model and variant, date, data source, item
+   counts per category, and exactly which files fed it.
+8. Run everything end to end on synthetic plumbing data to prove the harness works. The real run is performed by the
+   human, who gives the agent only the aggregate report to include.
+
+**Acceptance checks**
+- The harness runs end to end on synthetic data and produces the JSON, the report and the review sheet.
+- Metric unit tests pass. The guard-presence check passes at 100 percent on the run.
+- The report puts missed findings first and states the data source and counts.
+- No image file was copied, committed or logged (show `git status` and the log check).
+- The agent chose no pass or fail thresholds.
+
+**Out of scope:** deciding whether the numbers are good enough (the clinician and the human do), sourcing images,
+fine-tuning the model.
+
+**Decision gate (D24):** the feature stays **off by default** and is labelled experimental unless the clinician
+reviewer has reviewed the report and agrees in writing. Record the decision in `memory.md`.
+
+---
+
+## Phase 22: Image Check, integration, packaging and limitations
+
+**Why:** make the feature easy to run, easy to switch off, and honestly described.
+
+**Needs:** Phases 19 and 20 done (Phase 21 reported).
+
+**Tasks**
+1. Extend `scripts/doctor.py`: model files present, image model server reachable when the feature is on, the messages
+   file present and not still `EXAMPLE` placeholders when a real language is configured, the flag state.
+2. Offline preparation notes for the model: the gated download steps, where files live, environment variables that stop
+   network lookups (verify each), and the resource strategy chosen in D21 with the measured memory numbers.
+3. If D21 chose on-demand loading or idle unloading, implement it behind a setting with tests; otherwise do nothing.
+4. Update the root `README.md` and the backend `.env.example` for the feature and its default-off flag, with the
+   safety notice.
+5. Update the one-page limitations note: what the feature is and is not, known weaknesses and failure modes from Phase 21,
+   who it should not be used by, and the plain statement that it cannot rule out cancer.
+6. A short demo script that uses only non-sensitive images.
+7. Full regression: backend tests, frontend checks, the voice regression run if available, and the offline check, with
+   the Image Check flag both off and on.
+
+**Acceptance checks**
+- `doctor.py` flags a deliberately missing piece with a clear message and passes when complete.
+- The app starts and text, voice and image check all work with the network disabled after the one-time downloads
+  (image check demonstrated with synthetic images).
+- With the flag off, no image model is loaded and no image endpoint is reachable as approved.
+- All tests, typecheck, lint, build and offline checks pass; counts reported.
+- `memory.md` and `product.md` match the latest runs and decisions.
+
+**Out of scope:** new features, enabling the feature by default, any claim about clinical performance beyond the
+reviewed report.
 
 ---
 
