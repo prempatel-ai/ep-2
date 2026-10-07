@@ -11,6 +11,7 @@ import { ArrowLeft, AlertCircle, Square } from "lucide-react";
 import { VoicePresence } from "./VoicePresence";
 import { SourceBadge } from "@/features/chat/SourceBadge";
 import { DevPanel } from "./DevPanel";
+import { useTypewriter } from "@/features/chat/useTypewriter";
 import styles from "./VoiceView.module.css";
 
 interface VoiceViewProps {
@@ -32,6 +33,9 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     minSpeechMs: 250,
   });
   void voiceServerReady;
+
+  const isSpeaking = voiceState.machineState === "speaking";
+  const animatedAssistantText = useTypewriter(latestAssistantText, isSpeaking);
 
   const socketRef = useRef<VoiceSocket | null>(null);
   const recorderRef = useRef<AudioRecorder | null>(null);
@@ -319,7 +323,12 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
                 <span className={styles.speakerTag}>Sahayak</span>
                 {latestSource && <SourceBadge source={latestSource} />}
               </div>
-              <p className={styles.assistantText}>{latestAssistantText}</p>
+              <p className={styles.assistantText}>
+                {animatedAssistantText}
+                {isSpeaking && (
+                  <span className={styles.streamingCursor} aria-hidden="true" />
+                )}
+              </p>
             </div>
           )}
         </div>

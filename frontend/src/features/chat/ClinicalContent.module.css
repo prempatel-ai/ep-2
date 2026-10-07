@@ -69,3 +69,47 @@
   font-weight: 600;
   color: #111827;
 }
+
+/* ChatGPT and Claude style streaming cursor */
+.streamingCursor {
+  display: inline-block;
+  width: 6px;
+  height: 1.15em;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background-color: #0d9488;
+  border-radius: 1px;
+  animation: cursorBlink 0.8s ease-in-out infinite alternate;
+  box-shadow: 0 0 5px rgba(13, 148, 136, 0.45);
+}
+
+@keyframes cursorBlink {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Subtle fade and slide up animation for newly arriving streaming content */
+.isStreaming .paragraph:last-child,
+.isStreaming .bulletItem:last-child,
+.isStreaming .numberedItem:last-child,
+.isStreaming .subheading:last-child {
+  animation: blockFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes blockFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

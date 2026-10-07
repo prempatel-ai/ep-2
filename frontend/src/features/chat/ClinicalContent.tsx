@@ -3,6 +3,7 @@ import styles from "./ClinicalContent.module.css";
 
 interface ClinicalContentProps {
   content: string;
+  isStreaming?: boolean;
 }
 
 function parseInline(text: string): ReactNode[] {
@@ -95,18 +96,23 @@ function parseBlocks(content: string): Block[] {
   return blocks;
 }
 
-export function ClinicalContent({ content }: ClinicalContentProps) {
+export function ClinicalContent({ content, isStreaming = false }: ClinicalContentProps) {
   if (!content) return null;
 
   const blocks = parseBlocks(content);
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isStreaming ? styles.isStreaming : ""}`}>
       {blocks.map((block, blockIndex) => {
+        const isLastBlock = blockIndex === blocks.length - 1;
+
         if (block.type === "heading") {
           return (
             <h4 key={blockIndex} className={styles.subheading}>
               {parseInline(block.text)}
+              {isLastBlock && isStreaming && (
+                <span className={styles.streamingCursor} aria-hidden="true" />
+              )}
             </h4>
           );
         }
@@ -114,11 +120,17 @@ export function ClinicalContent({ content }: ClinicalContentProps) {
         if (block.type === "numbers") {
           return (
             <ol key={blockIndex} className={styles.numberedList}>
-              {block.items.map((itemText, lineIdx) => (
-                <li key={lineIdx} className={styles.numberedItem}>
-                  {parseInline(itemText)}
-                </li>
-              ))}
+              {block.items.map((itemText, lineIdx) => {
+                const isLastItem = lineIdx === block.items.length - 1;
+                return (
+                  <li key={lineIdx} className={styles.numberedItem}>
+                    {parseInline(itemText)}
+                    {isLastBlock && isLastItem && isStreaming && (
+                      <span className={styles.streamingCursor} aria-hidden="true" />
+                    )}
+                  </li>
+                );
+              })}
             </ol>
           );
         }
@@ -126,24 +138,38 @@ export function ClinicalContent({ content }: ClinicalContentProps) {
         if (block.type === "bullets") {
           return (
             <ul key={blockIndex} className={styles.bulletList}>
-              {block.items.map((itemText, lineIdx) => (
-                <li key={lineIdx} className={styles.bulletItem}>
-                  <span className={styles.bulletDot} aria-hidden="true">•</span>
-                  <span>{parseInline(itemText)}</span>
-                </li>
-              ))}
+              {block.items.map((itemText, lineIdx) => {
+                const isLastItem = lineIdx === block.items.length - 1;
+                return (
+                  <li key={lineIdx} className={styles.bulletItem}>
+                    <span className={styles.bulletDot} aria-hidden="true">•</span>
+                    <span>
+                      {parseInline(itemText)}
+                      {isLastBlock && isLastItem && isStreaming && (
+                        <span className={styles.streamingCursor} aria-hidden="true" />
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           );
         }
 
         return (
           <p key={blockIndex} className={styles.paragraph}>
-            {block.lines.map((line, lineIdx, arr) => (
-              <React.Fragment key={lineIdx}>
-                {parseInline(line)}
-                {lineIdx < arr.length - 1 && <br />}
-              </React.Fragment>
-            ))}
+            {block.lines.map((line, lineIdx, arr) => {
+              const isLastLine = lineIdx === arr.length - 1;
+              return (
+                <React.Fragment key={lineIdx}>
+                  {parseInline(line)}
+                  {isLastBlock && isLastLine && isStreaming && (
+                    <span className={styles.streamingCursor} aria-hidden="true" />
+                  )}
+                  {lineIdx < arr.length - 1 && <br />}
+                </React.Fragment>
+              );
+            })}
           </p>
         );
       })}

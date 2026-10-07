@@ -3,6 +3,7 @@ import { AlertCircle, Bookmark, Copy, Check } from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
 import { ClinicalContent } from "./ClinicalContent";
+import { useTypewriter } from "./useTypewriter";
 import {
   saveAnswer,
   removeSavedAnswer,
@@ -13,6 +14,17 @@ import styles from "./MessageList.module.css";
 interface MessageListProps {
   messages: ChatMessageItem[];
   onSelectPrompt?: (prompt: string) => void;
+}
+
+function AssistantStreamingContent({
+  text,
+  isStreaming,
+}: {
+  text: string;
+  isStreaming: boolean;
+}) {
+  const animatedText = useTypewriter(text, isStreaming);
+  return <ClinicalContent content={animatedText} isStreaming={isStreaming} />;
 }
 
 export function MessageList({
@@ -187,7 +199,10 @@ export function MessageList({
                 ) : (
                   <div className={styles.messageContent}>
                     {message.text ? (
-                      <ClinicalContent content={message.text} />
+                      <AssistantStreamingContent
+                        text={message.text}
+                        isStreaming={message.state === "streaming"}
+                      />
                     ) : message.state === "streaming" ? (
                       <div className={styles.processingIndicator} aria-label="Retrieving verified answer...">
                         <span className={styles.pulseDot} />
