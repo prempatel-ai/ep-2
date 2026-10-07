@@ -1,5 +1,18 @@
 import React, { useState } from "react";
-import { AlertCircle, Bookmark, Copy, Check } from "lucide-react";
+import {
+  AlertCircle,
+  Bookmark,
+  Copy,
+  Check,
+  ShieldCheck,
+  Activity,
+  Calendar,
+  FileText,
+  Layers,
+  Pill,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
 import type { ChatMessageItem } from "./conversationReducer";
 import { SourceBadge } from "./SourceBadge";
 import { ClinicalContent } from "./ClinicalContent";
@@ -90,48 +103,53 @@ export function MessageList({
 
       {messages.length === 0 ? (
         <div className={styles.welcomeWorkspace}>
-          {/* LEFT COLUMN: Clear introductory text */}
-          <div className={styles.welcomeIntro}>
+          {/* Hero Introductory Section */}
+          <div className={styles.welcomeHero}>
+            <div className={styles.heroBadge}>
+              <ShieldCheck size={14} className={styles.heroBadgeIcon} aria-hidden="true" />
+              <span>Evidence-based clinical guidance</span>
+            </div>
+
             <h3 className={styles.welcomeTitle}>
               Breast cancer information, explained clearly.
             </h3>
+
             <p className={styles.welcomeDesc}>
-              Sahayak provides evidence-based medical information to help
-              patients and families understand breast health, screenings, and
-              clinical decisions.
+              Sahayak provides verified clinical guidance to help patients, caregivers,
+              and families understand symptoms, screening schedules, and clinical decisions.
             </p>
 
-            <div className={styles.evidenceSection}>
-              <span className={styles.evidenceLabel}>Evidence-based information about:</span>
-              <ul className={styles.evidenceList}>
-                <li className={styles.evidenceItem}>
-                  <span className={styles.bulletDot}>•</span>
-                  <span>Symptoms</span>
-                </li>
-                <li className={styles.evidenceItem}>
-                  <span className={styles.bulletDot}>•</span>
-                  <span>Screening</span>
-                </li>
-                <li className={styles.evidenceItem}>
-                  <span className={styles.bulletDot}>•</span>
-                  <span>Diagnosis</span>
-                </li>
-                <li className={styles.evidenceItem}>
-                  <span className={styles.bulletDot}>•</span>
-                  <span>Staging</span>
-                </li>
-                <li className={styles.evidenceItem}>
-                  <span className={styles.bulletDot}>•</span>
-                  <span>Treatment</span>
-                </li>
-              </ul>
+            {/* Quick Topic Chips */}
+            <div className={styles.topicPills} role="group" aria-label="Browse clinical topics">
+              {[
+                { label: "Symptoms", icon: Activity, query: "What are the common symptoms of breast cancer?" },
+                { label: "Screening", icon: Calendar, query: "How often should women get screened for breast cancer?" },
+                { label: "Diagnosis", icon: FileText, query: "What are the common diagnostic steps for breast cancer?" },
+                { label: "Staging", icon: Layers, query: "How is breast cancer staged?" },
+                { label: "Treatment", icon: Pill, query: "What are standard treatment approaches for breast cancer?" },
+              ].map((t) => (
+                <button
+                  key={t.label}
+                  type="button"
+                  className={styles.topicPill}
+                  onClick={() => onSelectPrompt?.(t.query)}
+                  aria-label={`Ask about ${t.label}`}
+                >
+                  <t.icon size={13} className={styles.pillIcon} aria-hidden="true" />
+                  <span>{t.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Scannable suggested clinical questions */}
+          {/* Suggested Clinical Question Cards */}
           <div className={styles.suggestionsContainer}>
-            <span className={styles.suggestionsLabel}>Common clinical topics</span>
-            <div className={styles.suggestionsList}>
+            <div className={styles.suggestionsHeader}>
+              <Sparkles size={14} className={styles.suggestionsIcon} aria-hidden="true" />
+              <span className={styles.suggestionsLabel}>Frequently Asked Clinical Questions</span>
+            </div>
+
+            <div className={styles.cardsGrid}>
               {[
                 {
                   id: "q1",
@@ -141,7 +159,7 @@ export function MessageList({
                 {
                   id: "q2",
                   topic: "Screening guideline",
-                  title: "How often should women aged 40–49 get screened?",
+                  title: "How often should women aged 40-49 get screened?",
                 },
                 {
                   id: "q3",
@@ -157,11 +175,15 @@ export function MessageList({
                 <button
                   key={item.id}
                   type="button"
-                  className={styles.questionRow}
+                  className={styles.questionCard}
                   onClick={() => onSelectPrompt?.(item.title)}
+                  aria-label={`Ask: ${item.title}`}
                 >
-                  <span className={styles.questionTopic}>{item.topic}</span>
-                  <span className={styles.questionTitle}>{item.title}</span>
+                  <div className={styles.cardTopRow}>
+                    <span className={styles.cardTopicBadge}>{item.topic}</span>
+                    <ArrowUpRight size={14} className={styles.cardArrow} aria-hidden="true" />
+                  </div>
+                  <span className={styles.cardTitle}>{item.title}</span>
                 </button>
               ))}
             </div>

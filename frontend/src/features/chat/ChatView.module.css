@@ -106,6 +106,16 @@
   flex-direction: column;
 }
 
+/* Center empty state content comfortably in the viewport */
+.inEmptyState .messageScrollArea {
+  justify-content: center;
+}
+
+.inEmptyState .messagesInner {
+  margin-block: auto;
+  padding: 36px 32px 24px;
+}
+
 /* Subtle Floating "↓ New response" button when user is scrolled up */
 .newResponseButton {
   position: absolute;
