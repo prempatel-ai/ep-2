@@ -94,7 +94,15 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="SAHAYAK_",
         env_nested_delimiter="__",
-        env_file=".env",
+        env_file=(
+            Path(__file__).parents[2] / ".env"
+            if (Path(__file__).parents[2] / ".env").is_file()
+            else (
+                Path.cwd() / ".env"
+                if (Path.cwd() / ".env").is_file()
+                else (Path.cwd() / "backend" / ".env" if (Path.cwd() / "backend" / ".env").is_file() else ".env")
+            )
+        ),
         extra="ignore",
     )
 
