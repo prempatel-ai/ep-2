@@ -25,10 +25,12 @@ class SentenceSegmenter:
     waiting for a terminator that may not come.
     """
 
-    def __init__(self, max_chars: int = 200) -> None:
+    def __init__(self, max_chars: int = 200, first_chunk_early: bool = False) -> None:
         if max_chars < 20:
             raise ValueError("max_chars must be at least 20")
         self._max_chars = max_chars
+        self._first_chunk_early = first_chunk_early
+        self._emitted_first = False
         self._buffer = ""
 
     def feed(self, chunk: str) -> list[str]:
@@ -40,6 +42,8 @@ class SentenceSegmenter:
             self._buffer = self._buffer[cut:]
             if piece:
                 sentences.append(piece)
+        if sentences:
+            self._emitted_first = True
         return sentences
 
     def flush(self) -> list[str]:
@@ -60,6 +64,15 @@ class SentenceSegmenter:
                 sentences.extend(self._wrap(buf[start:i].strip()))
                 start = i = i + 1
                 continue
+            if self._first_chunk_early and not self._emitted_first and char in _CLAUSE_BREAKS:
+                end = i + 1
+                if end < n and buf[end].isspace():
+                    candidate = buf[start:i].strip()
+                    if len(candidate) >= 20:
+                        sentences.append(candidate + char)
+                        self._emitted_first = True
+                        start = i = end
+                        continue
             if char in _TERMINATORS:
                 end = i + 1
                 while end < n and (buf[end] in _TERMINATORS or buf[end] in _TRAILING_CLOSERS):

@@ -85,7 +85,7 @@ class ConversationService:
             context=result.hits if result.mode is RetrievalMode.CONTEXT else (),
         )
 
-        segmenter = SentenceSegmenter(self._max_sentence_chars)
+        segmenter = SentenceSegmenter(self._max_sentence_chars, first_chunk_early=True)
         index = 0
         async with aclosing(self._llm.stream(messages)) as fragments:
             async for fragment in fragments:

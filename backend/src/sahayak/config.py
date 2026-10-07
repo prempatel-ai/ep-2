@@ -62,6 +62,7 @@ class TTSSettings(BaseModel):
         "A female speaker delivers clear, warm and natural speech at a moderate pace, "
         "with very clear audio and no background noise."
     )
+    voice_pitch: Literal["female", "natural", "neutral", "male"] = "female"
 
 
 class SessionSettings(BaseModel):

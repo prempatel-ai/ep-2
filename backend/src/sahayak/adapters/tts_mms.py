@@ -22,9 +22,16 @@ _MODEL_IDS: Mapping[Language, str] = {
 
 
 class MMSTTS:
-    def __init__(self, *, device: str, languages: Sequence[Language]) -> None:
+    def __init__(
+        self,
+        *,
+        device: str,
+        languages: Sequence[Language],
+        voice_pitch: str = "female",
+    ) -> None:
         self._device = device
         self._languages = tuple(languages)
+        self._voice_pitch = voice_pitch
         self._runner = BlockingRunner("mms-tts")
         self._models: dict[Language, tuple[object, object]] = {}
 
@@ -57,4 +64,11 @@ class MMSTTS:
         with torch.no_grad():
             waveform = model(**inputs).waveform[0]  # type: ignore[operator]
         samples = waveform.cpu().numpy().astype(np.float32)
+
+        if self._voice_pitch == "female":
+            import scipy.signal
+            factor = 2.0 ** (3.2 / 12.0)
+            target_len = int(len(samples) / factor)
+            samples = scipy.signal.resample(samples, target_len).astype(np.float32)
+
         return AudioClip(samples, int(model.config.sampling_rate))  # type: ignore[attr-defined]

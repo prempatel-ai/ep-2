@@ -93,7 +93,11 @@ def _build_tts(settings: Settings) -> TextToSpeech | None:
         return IndicParlerTTS(device=c.device, voice_description=c.voice_description)
     from sahayak.adapters.tts_mms import MMSTTS
 
-    return MMSTTS(device=c.device, languages=settings.languages)
+    return MMSTTS(
+        device=c.device,
+        languages=settings.languages,
+        voice_pitch=c.voice_pitch,
+    )
 
 
 @dataclass(slots=True)

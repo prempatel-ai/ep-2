@@ -9,12 +9,17 @@ export class AudioQueuePlayer {
   private isPlaying = false;
   private expectedIndex = 0;
   private onFinishedCallback?: () => void;
+  private onSentenceStartCallback?: (index: number) => void;
   private underrunCount = 0;
   private turnStarted = false;
   private turnDone = false;
 
-  constructor(onFinished?: () => void) {
+  constructor(
+    onFinished?: () => void,
+    onSentenceStart?: (index: number) => void,
+  ) {
     this.onFinishedCallback = onFinished;
+    this.onSentenceStartCallback = onSentenceStart;
   }
 
   public initCtx(): AudioContext {
@@ -86,6 +91,7 @@ export class AudioQueuePlayer {
     }
 
     this.isPlaying = true;
+    this.onSentenceStartCallback?.(nextItem.index);
     const source = this.audioCtx.createBufferSource();
     source.buffer = nextItem.buffer;
     source.connect(this.audioCtx.destination);

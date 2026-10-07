@@ -59,6 +59,18 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     playerRef.current?.unlock();
   }, []);
 
+  const incomingSentencesRef = useRef<Map<number, string>>(new Map());
+  const displayedIndicesRef = useRef<Set<number>>(new Set());
+
+  const revealSentence = useCallback((idx: number) => {
+    if (displayedIndicesRef.current.has(idx)) return;
+    displayedIndicesRef.current.add(idx);
+    const text = incomingSentencesRef.current.get(idx);
+    if (text) {
+      setLatestAssistantText((prev) => (prev ? `${prev} ${text}` : text));
+    }
+  }, []);
+
   const handleInterrupt = useCallback(() => {
     playerRef.current?.flush();
     socketRef.current?.sendInterrupt();
@@ -67,9 +79,17 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
 
   useEffect(() => {
     hasStartedRef.current = false;
-    playerRef.current = new AudioQueuePlayer(() => {
-      dispatch({ type: "REPLY_FINISHED" });
-    });
+    incomingSentencesRef.current.clear();
+    displayedIndicesRef.current.clear();
+
+    playerRef.current = new AudioQueuePlayer(
+      () => {
+        dispatch({ type: "REPLY_FINISHED" });
+      },
+      (playingIndex) => {
+        revealSentence(playingIndex);
+      }
+    );
     // Attempt proactive unlock
     playerRef.current.unlock();
 
@@ -121,13 +141,15 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       onTranscript: (text) => {
         if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
         setNotice(null);
+        incomingSentencesRef.current.clear();
+        displayedIndicesRef.current.clear();
         dispatch({ type: "TRANSCRIPT_READY", text });
         setLatestAssistantText("");
         setLatestSource(null);
       },
-      onSentence: (_index, text, source) => {
+      onSentence: (index, text, source) => {
         dispatch({ type: "FIRST_SENTENCE" });
-        setLatestAssistantText((prev) => (prev ? `${prev} ${text}` : text));
+        incomingSentencesRef.current.set(index, text);
         setLatestSource(source as "safety" | "faq" | "model");
       },
       onAudio: (index, wavBytes) => {
@@ -138,6 +160,11 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         setMetrics(m as TurnMetrics);
         if (source) setLatestSource(source as "safety" | "faq" | "model");
         playerRef.current?.markTurnDone();
+        // Ensure any remaining sentences without separate audio are revealed
+        const sortedIndices = Array.from(incomingSentencesRef.current.keys()).sort((a, b) => a - b);
+        for (const idx of sortedIndices) {
+          revealSentence(idx);
+        }
         setPlaybackUnderruns(playerRef.current?.getUnderrunCount() ?? 0);
         const j = recorderRef.current?.getJitterMetrics();
         if (j) setCaptureJitter({ avgJitterMs: j.avgJitterMs, maxJitterMs: j.maxJitterMs });
