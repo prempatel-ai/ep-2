@@ -19,7 +19,7 @@
 | Voice v2 (Phases 11 to 16) | Reported complete by the builder on 2026-10-07. Record the measured numbers and anything still UNVERIFIED in the log. | `docs/voice-baseline.md`, `voice_regress.py` report |
 | Image Check (Phases 17 to 22) | Planned. Not started. Off by default when built. Needs clinician involvement. | `phases.md`, `docs/image-check-design.md` (Phase 17) |
 
-**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Image Check track (17 to 22) design in progress (Phase 17 awaiting human approval). Phases 8 to 10 still open.
+**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Phase 17 complete (approved by human on 2026-10-07), Phase 18 in progress. Phases 8 to 10 still open.
 
 ## 2. Decisions and why
 
@@ -126,7 +126,7 @@
 | D14 | TTS voice per language | MMS-TTS for gu, hi, en; evaluate Indic Parler or alternative local models if needed | Phase 14 |
 | D15 | Acknowledgement phrases and reviewer | Builder supplies phrases; native speaker reviews; no medical statements | Phase 14 |
 | D16 | End-of-speech timing defaults | Decided in Phase 12: 800 ms silence hangover default; 250 ms min speech duration for barge-in guard; configurable in settings | Decided in Phase 12 |
-| D17 | Accept the Image Check scope change (reverses the earlier "image analysis" non-goal) | Decided by the builder on 2026-10-07 in principle; record formal approval after Phase 17 | Phase 17 |
+| D17 | Accept the Image Check scope change (reverses the earlier "image analysis" non-goal) | Decided and approved by the builder on 2026-10-07 | Phase 17 |
 | D18 | The category list of visible changes | A PROPOSED starting list is in `phases.md` Phase 17; a clinician decides | Phase 17 |
 | D19 | Accept MedGemma terms and confirm the intended use is permitted | Not accepted; the human reads the terms and Prohibited Use Policy | Phase 17 to 18 |
 | D20 | Model variant: MedGemma 4B instruction-tuned vs 1.5 4B | Verify from the official model card; builder chooses | Phase 18 |
@@ -168,7 +168,7 @@
 | 2026-10-07 | **Phase 11 (Voice v2: Instrumentation & Baseline)**: Added decisions D11 to D16 under Open decisions. Defined stage timeline in memory.md and docs/voice-baseline.md (distinguishing client-side vs server-side boundaries). Added backend/scripts/voice_bench.py benchmark runner with p50/p95 calculations and structured JSON output to backend/data/bench/. Added capture jitter tracking to AudioRecorder and playback underruns tracking to AudioQueuePlayer, surfaced in DevPanel with zero application behaviour change. Human-supplied clip directory backend/eval/voice_clips/ is currently empty, so clip-dependent runs are marked UNVERIFIED with exact WAV specifications provided. 95 backend tests pass, 38 frontend tests pass, typecheck, lint, build, check:offline all pass. |
 | 2026-10-07 | **Phase 12 completed (Voice v2: Better Listening)**: Upgraded capture path to AudioWorklet and neural VAD (@ricky0123/vad-web with Silero VAD v5 ONNX and WASM bundle loaded locally from /vad/). Preserved output contract: 16 kHz mono signed 16-bit PCM. Implemented pause-tolerant hangover (800ms default, D16) keeping mid-sentence pauses in a single utterance. Added barge-in guard requiring minimum speech duration (250ms default) and speech probability threshold; transient coughs, clicks, and backchannels trigger VAD misfire and do not interrupt playback. Added speaker echo suppression check (positiveSpeechThresholdDuringPlayback: 0.65) during active assistant audio. Pure voice state machine updated with VAD_MISFIRE and SPEECH_REAL_START actions. Added synthetic-signal unit tests in recorder.test.ts. Exposed configurable VAD settings in SettingsModal and DevPanel. All 95 backend tests pass, all 48 frontend tests pass, typecheck, lint, build, and check:offline (zero external network references) all pass. |
 | 2026-10-07 | Voice v2 (Phases 11 to 16) reported complete by the builder. Baseline and final numbers tracked in `docs/voice-baseline.md`. |
-| 2026-10-07 | Image Check track (Phases 17 to 22) added to `phases.md`; `product.md`, `CLAUDE.md`, `agent.md` updated. Phase 17 design document written (`docs/image-check-design.md`); awaiting human approval before proceeding. |
+| 2026-10-07 | Phase 17 completed and approved by builder. Image Check design document written (docs/image-check-design.md). D17 approved. Starting Phase 18. |
 
 ## 9. Environment & Package Versions
 

@@ -25,7 +25,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 14: Voice v2, natural speaking (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
 - [x] Phase 15: Voice v2, conversation state (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
 - [x] Phase 16: Voice v2, regression harness and startup experience (reported complete by the builder, 2026-10-07; evidence lives in `memory.md`)
-- [ ] Phase 17: Image Check, scope, safety design and proposals (documents only) (awaiting human approval)
+- [x] Phase 17: Image Check, scope, safety design and proposals (documents only) (2026-10-07)
 - [ ] Phase 18: Image Check, run MedGemma 4B locally and verify it
 - [ ] Phase 19: Image Check, backend port, adapter, guard and endpoint
 - [ ] Phase 20: Image Check, frontend
