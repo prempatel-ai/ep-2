@@ -14,6 +14,8 @@ interface DevPanelProps {
   onToggle: () => void;
   captureJitter?: CaptureJitterInfo | null;
   playbackUnderruns?: number;
+  vadHangoverMs?: number;
+  vadMinSpeechMs?: number;
 }
 
 export function DevPanel({
@@ -23,6 +25,8 @@ export function DevPanel({
   onToggle,
   captureJitter,
   playbackUnderruns,
+  vadHangoverMs = 800,
+  vadMinSpeechMs = 250,
 }: DevPanelProps) {
   return (
     <div className={styles.container}>
@@ -83,6 +87,18 @@ export function DevPanel({
             <span className={styles.value}>
               {playbackUnderruns != null ? `${playbackUnderruns}` : "0"}
             </span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>VAD Engine:</span>
+            <span className={styles.value}>Silero v5 (Worklet)</span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>VAD Hangover:</span>
+            <span className={styles.value}>{vadHangoverMs} ms</span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Barge-in Min:</span>
+            <span className={styles.value}>{vadMinSpeechMs} ms</span>
           </div>
         </div>
       )}

@@ -85,6 +85,13 @@ export class AudioQueuePlayer {
   }
 
   /**
+   * Returns whether audio is actively playing through the speakers.
+   */
+  getPlaybackActive(): boolean {
+    return this.isPlaying;
+  }
+
+  /**
    * Returns the count of playback underruns (queue starvation while awaiting frames).
    */
   getUnderrunCount(): number {

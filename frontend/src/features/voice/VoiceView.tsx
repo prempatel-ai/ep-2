@@ -27,6 +27,10 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   const [playbackUnderruns, setPlaybackUnderruns] = useState(0);
   const [devOpen, setDevOpen] = useState(false);
   const [voiceServerReady, setVoiceServerReady] = useState(false);
+  const [vadSettings, setVadSettings] = useState<{ hangoverMs: number; minSpeechMs: number }>({
+    hangoverMs: 800,
+    minSpeechMs: 250,
+  });
   void voiceServerReady;
 
   const socketRef = useRef<VoiceSocket | null>(null);
@@ -50,13 +54,22 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       dispatch({ type: "REPLY_FINISHED" });
     });
 
-    recorderRef.current = new AudioRecorder({
+    const recorder = new AudioRecorder({
+      isPlaybackActive: () => {
+        return playerRef.current?.getPlaybackActive() ?? false;
+      },
       onSpeechStart: () => {
-        if (stateRef.current.machineState === "speaking") {
-          handleInterrupt();
-        } else {
+        if (stateRef.current.machineState === "listening") {
           dispatch({ type: "SPEECH_DETECTED" });
         }
+      },
+      onSpeechRealStart: () => {
+        if (stateRef.current.machineState === "speaking") {
+          handleInterrupt();
+        }
+      },
+      onVADMisfire: () => {
+        dispatch({ type: "VAD_MISFIRE" });
       },
       onSpeechEnd: (pcmData) => {
         dispatch({ type: "SPEECH_ENDED" });
@@ -64,6 +77,13 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         const j = recorderRef.current?.getJitterMetrics();
         if (j) setCaptureJitter({ avgJitterMs: j.avgJitterMs, maxJitterMs: j.maxJitterMs });
       },
+    });
+
+    recorderRef.current = recorder;
+    const initialOptions = recorder.getOptions();
+    setVadSettings({
+      hangoverMs: initialOptions.redemptionMs,
+      minSpeechMs: initialOptions.minSpeechMs,
     });
 
     const socket = new VoiceSocket({
@@ -145,6 +165,8 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         onToggle={() => setDevOpen(!devOpen)}
         captureJitter={captureJitter}
         playbackUnderruns={playbackUnderruns}
+        vadHangoverMs={vadSettings.hangoverMs}
+        vadMinSpeechMs={vadSettings.minSpeechMs}
       />
 
       {/* Top Bar Navigation */}

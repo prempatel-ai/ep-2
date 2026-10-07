@@ -13,11 +13,13 @@ This document records the end-to-end verification procedures for Sahayak's Phase
 | # | Check | Expected Result | Result |
 |---|---|---|---|
 | 1 | Connect to `/v1/voice` | Server emits `ready` frame; state transitions from `idle` to `listening`; Orb pulses ambiently in Sahayak deep teal | **PASS** |
-| 2 | Microphone Capture & VAD | User speaks; recorder detects speech energy above threshold and switches Orb to `listen` (capturing) | **PASS** |
-| 3 | Silence Detection & Processing | User stops speaking; recorder detects 800ms silence, downsamples to 16 kHz mono signed 16-bit PCM, and sends binary utterance; Orb enters `think` | **PASS** |
-| 4 | Streaming Response Playback | Server returns `transcript`, followed by progressive `sentence` events and binary audio frames; `AudioQueuePlayer` decodes WAV frames and plays in order; Orb pulses in `speak` mode | **PASS** |
-| 5 | Barge-In Interruption | User speaks or clicks "Interrupt" while assistant is speaking; `AudioQueuePlayer.flush()` executes immediately; client sends `{"type": "interrupt"}`; state advances to next turn cleanly | **PASS** |
-| 6 | No Speech Timeout | User stays silent after opening voice session; server returns `{"type": "no_speech"}`; UI cleanly stays in or returns to `listening` | **PASS** |
-| 7 | Latency Metrics Display | Developer panel (toggled top right) shows `stt_ms`, `first_sentence_ms`, `first_audio_ms`, and `total_ms` matching server `done.metrics` | **PASS** |
-| 8 | Headphone Advice & Safety | Notice displayed informing user that headphones help avoid speaker echo from being detected as false interruptions | **PASS** |
-| 9 | Offline Compliance | All WGSL shaders, WebGPU pipelines, and VAD audio nodes run completely offline without CDN requests (`check:offline` passed) | **PASS** |
+| 2 | Microphone Capture & VAD | User speaks; AudioWorklet neural VAD (Silero v5) detects speech probability and switches state to `capturing` | **PASS** |
+| 3 | Silence Hangover & Pause Tolerance | User speaks with natural mid-sentence pauses; pause-tolerant hangover (800ms) preserves continuity; exactly one utterance sent | **PASS** |
+| 4 | Barge-in Guard (Cough Rejection) | User coughs or makes short sound (<250ms) while assistant speaks; VAD misfire triggers and playback continues uninterrupted | **PASS** |
+| 5 | Confirmed Interruption | User speaks continuously (>250ms) while assistant speaks; `AudioQueuePlayer.flush()` executes, interrupt sent, turn advances | **PASS** |
+| 6 | Echo Handling | Assistant audio playback through speakers without headphones; echoCancellation and playback threshold prevent self-interruption | **PASS** |
+| 7 | Streaming Response Playback | Server returns `transcript`, followed by progressive `sentence` events and binary audio frames; `AudioQueuePlayer` plays in order | **PASS** |
+| 8 | No Speech Timeout | User stays silent after opening voice session; server returns `{"type": "no_speech"}`; UI cleanly recovers to `listening` | **PASS** |
+| 9 | Dev Panel Telemetry | Dev panel shows latency, capture interval jitter, playback underruns, and active VAD settings | **PASS** |
+| 10 | Settings Configuration | Settings modal allows configuring silence hangover and barge-in guard duration, persisted to localStorage | **PASS** |
+| 11 | Offline Compliance | All VAD models, worklet bundles, and WASM run completely offline from local /vad/ assets (`check:offline` passed) | **PASS** |

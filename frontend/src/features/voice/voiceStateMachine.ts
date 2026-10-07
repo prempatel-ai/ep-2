@@ -17,6 +17,8 @@ export interface VoiceSessionState {
 export type VoiceMachineAction =
   | { type: "START_LISTENING" }
   | { type: "SPEECH_DETECTED" }
+  | { type: "SPEECH_REAL_START" }
+  | { type: "VAD_MISFIRE" }
   | { type: "SPEECH_ENDED" }
   | { type: "TRANSCRIPT_READY"; text: string }
   | { type: "FIRST_SENTENCE" }
@@ -53,6 +55,28 @@ export function voiceMachineReducer(
         transcript: "",
         errorMessage: null,
       };
+
+    case "SPEECH_REAL_START":
+      if (state.machineState === "speaking") {
+        return {
+          ...state,
+          machineState: "capturing",
+          currentTurn: state.currentTurn + 1,
+          transcript: "",
+        };
+      }
+      return state;
+
+    case "VAD_MISFIRE":
+      if (state.machineState === "capturing") {
+        return {
+          ...state,
+          machineState: "listening",
+          currentTurn: Math.max(0, state.currentTurn - 1),
+          transcript: "",
+        };
+      }
+      return state;
 
     case "SPEECH_ENDED":
       return {

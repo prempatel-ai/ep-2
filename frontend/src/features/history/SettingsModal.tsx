@@ -24,6 +24,36 @@ export function SettingsModal({
   onClearAllData,
   isOnline = true,
 }: SettingsModalProps) {
+  const [hangoverMs, setHangoverMs] = React.useState<number>(() => {
+    if (typeof localStorage !== "undefined") {
+      const h = Number(localStorage.getItem("sahayak_vad_hangover_ms"));
+      if (!Number.isNaN(h) && h > 0) return h;
+    }
+    return 800;
+  });
+
+  const [minSpeechMs, setMinSpeechMs] = React.useState<number>(() => {
+    if (typeof localStorage !== "undefined") {
+      const m = Number(localStorage.getItem("sahayak_vad_min_speech_ms"));
+      if (!Number.isNaN(m) && m > 0) return m;
+    }
+    return 250;
+  });
+
+  const handleHangoverChange = (val: number) => {
+    setHangoverMs(val);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("sahayak_vad_hangover_ms", String(val));
+    }
+  };
+
+  const handleMinSpeechChange = (val: number) => {
+    setMinSpeechMs(val);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("sahayak_vad_min_speech_ms", String(val));
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -76,6 +106,49 @@ export function SettingsModal({
                 <option value="en">English</option>
                 <option value="gu">ગુજરાતી (Gujarati)</option>
                 <option value="hi">हिन्दी (Hindi)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Section 1b: Voice Activity Detection (VAD) */}
+          <div className={styles.section}>
+            <span className={styles.sectionTitle}>Voice Activity Detection (VAD)</span>
+            <div className={styles.settingRow}>
+              <div className={styles.settingLabelGroup}>
+                <span className={styles.settingLabel}>Silence Hangover</span>
+                <span className={styles.settingDescription}>
+                  Grace period before ending turn. Prevents cutting off mid-sentence pauses.
+                </span>
+              </div>
+              <select
+                value={hangoverMs}
+                onChange={(e) => handleHangoverChange(Number(e.target.value))}
+                className={styles.selectInput}
+                aria-label="Silence Hangover"
+              >
+                <option value={500}>500 ms (Fast)</option>
+                <option value={800}>800 ms (Default)</option>
+                <option value={1000}>1000 ms (Patient)</option>
+                <option value={1200}>1200 ms (Extended)</option>
+              </select>
+            </div>
+            <div className={styles.settingRow}>
+              <div className={styles.settingLabelGroup}>
+                <span className={styles.settingLabel}>Barge-in Speech Guard</span>
+                <span className={styles.settingDescription}>
+                  Minimum speech duration required before interrupting assistant playback.
+                </span>
+              </div>
+              <select
+                value={minSpeechMs}
+                onChange={(e) => handleMinSpeechChange(Number(e.target.value))}
+                className={styles.selectInput}
+                aria-label="Barge-in Speech Guard"
+              >
+                <option value={150}>150 ms (Sensitive)</option>
+                <option value={250}>250 ms (Default: rejects coughs)</option>
+                <option value={350}>350 ms (Strict)</option>
+                <option value={500}>500 ms (Very Strict)</option>
               </select>
             </div>
           </div>

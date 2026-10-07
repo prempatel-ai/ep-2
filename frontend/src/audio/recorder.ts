@@ -1,8 +1,17 @@
+import { MicVAD, type RealTimeVADOptions } from "@ricky0123/vad-web";
+
 /**
- * Audio recorder providing 16 kHz mono signed 16-bit PCM output.
- * Built-in threshold-based Voice Activity Detection (VAD) suitable for offline browser use
- * with echoCancellation and noiseSuppression enabled.
+ * Converts 16 kHz Float32Array audio samples (range -1.0 to 1.0)
+ * to 16 kHz mono signed 16-bit PCM (Int16Array).
  */
+export function float32ToPcm16(buffer: Float32Array): Int16Array {
+  const result = new Int16Array(buffer.length);
+  for (let i = 0; i < buffer.length; i++) {
+    const s = Math.max(-1, Math.min(1, buffer[i]));
+    result[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  return result;
+}
 
 export interface CaptureJitterMetrics {
   avgJitterMs: number;
@@ -13,209 +22,165 @@ export interface CaptureJitterMetrics {
 export interface AudioRecorderOptions {
   sampleRate?: number;
   onSpeechStart?: () => void;
+  onSpeechRealStart?: () => void;
+  onVADMisfire?: () => void;
   onSpeechEnd?: (pcmData: Int16Array) => void;
-  energyThreshold?: number;
-  silenceDurationMs?: number;
-  maxUtteranceMs?: number;
+  redemptionMs?: number;
+  minSpeechMs?: number;
+  positiveSpeechThreshold?: number;
+  negativeSpeechThreshold?: number;
+  positiveSpeechThresholdDuringPlayback?: number;
+  preSpeechPadMs?: number;
+  isPlaybackActive?: () => boolean;
+  baseAssetPath?: string;
+  onnxWASMBasePath?: string;
 }
 
+type VADInstance = Awaited<ReturnType<typeof MicVAD.new>>;
+
 export class AudioRecorder {
-  private stream: MediaStream | null = null;
-  private audioCtx: AudioContext | null = null;
-  private processor: ScriptProcessorNode | null = null;
-  private source: MediaStreamAudioSourceNode | null = null;
-
+  private vad: VADInstance | null = null;
   private isRecording = false;
-  private isSpeaking = false;
-  private silenceTimer = 0;
-  private speechStartTimer = 0;
-  private bufferChunks: Float32Array[] = [];
   private options: Required<AudioRecorderOptions>;
-
   private lastProcessTime = 0;
   private maxJitterMs = 0;
   private jitterSumMs = 0;
   private jitterCount = 0;
+  private lastSpeechProb = 0;
 
   constructor(options: AudioRecorderOptions = {}) {
+    // Read persisted VAD settings from localStorage if available
+    let storedHangover = 800;
+    let storedMinSpeech = 250;
+    let storedThreshold = 0.5;
+
+    if (typeof localStorage !== "undefined") {
+      const h = Number(localStorage.getItem("sahayak_vad_hangover_ms"));
+      if (!Number.isNaN(h) && h > 0) storedHangover = h;
+
+      const m = Number(localStorage.getItem("sahayak_vad_min_speech_ms"));
+      if (!Number.isNaN(m) && m > 0) storedMinSpeech = m;
+
+      const t = Number(localStorage.getItem("sahayak_vad_threshold"));
+      if (!Number.isNaN(t) && t > 0 && t <= 1) storedThreshold = t;
+    }
+
     this.options = {
       sampleRate: options.sampleRate ?? 16000,
       onSpeechStart: options.onSpeechStart ?? (() => {}),
+      onSpeechRealStart: options.onSpeechRealStart ?? (() => {}),
+      onVADMisfire: options.onVADMisfire ?? (() => {}),
       onSpeechEnd: options.onSpeechEnd ?? (() => {}),
-      energyThreshold: options.energyThreshold ?? 0.015,
-      silenceDurationMs: options.silenceDurationMs ?? 800,
-      maxUtteranceMs: options.maxUtteranceMs ?? 25000,
+      redemptionMs: options.redemptionMs ?? storedHangover,
+      minSpeechMs: options.minSpeechMs ?? storedMinSpeech,
+      positiveSpeechThreshold: options.positiveSpeechThreshold ?? storedThreshold,
+      negativeSpeechThreshold: options.negativeSpeechThreshold ?? Math.max(0.1, (options.positiveSpeechThreshold ?? storedThreshold) - 0.15),
+      positiveSpeechThresholdDuringPlayback: options.positiveSpeechThresholdDuringPlayback ?? 0.65,
+      preSpeechPadMs: options.preSpeechPadMs ?? 300,
+      isPlaybackActive: options.isPlaybackActive ?? (() => false),
+      baseAssetPath: options.baseAssetPath ?? "/vad/",
+      onnxWASMBasePath: options.onnxWASMBasePath ?? "/vad/",
     };
   }
 
   async start(): Promise<void> {
     if (this.isRecording) return;
 
+    this.lastProcessTime = 0;
+    this.maxJitterMs = 0;
+    this.jitterSumMs = 0;
+    this.jitterCount = 0;
+    this.lastSpeechProb = 0;
+
     const savedMicId =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("sahayak_selected_mic_id")
         : null;
 
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        deviceId:
-          savedMicId && savedMicId !== "default"
-            ? { exact: savedMicId }
-            : undefined,
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
+    const vadOptions: Partial<RealTimeVADOptions> = {
+      model: "v5",
+      baseAssetPath: this.options.baseAssetPath,
+      onnxWASMBasePath: this.options.onnxWASMBasePath,
+      processorType: typeof AudioWorkletNode !== "undefined" ? "AudioWorklet" : "auto",
+      positiveSpeechThreshold: this.options.positiveSpeechThreshold,
+      negativeSpeechThreshold: this.options.negativeSpeechThreshold,
+      redemptionMs: this.options.redemptionMs,
+      minSpeechMs: this.options.minSpeechMs,
+      preSpeechPadMs: this.options.preSpeechPadMs,
+      startOnLoad: true,
+      getStream: async () => {
+        return await navigator.mediaDevices.getUserMedia({
+          audio: {
+            deviceId:
+              savedMicId && savedMicId !== "default"
+                ? { exact: savedMicId }
+                : undefined,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
       },
-    });
-
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    this.audioCtx = new AudioContextClass();
-
-    this.source = this.audioCtx.createMediaStreamSource(this.stream);
-    // Buffer size 4096 gives ~85ms chunks at 48kHz
-    this.processor = this.audioCtx.createScriptProcessor(4096, 1, 1);
-
-    this.source.connect(this.processor);
-    this.processor.connect(this.audioCtx.destination);
-
-    this.isRecording = true;
-    this.isSpeaking = false;
-    this.bufferChunks = [];
-    this.silenceTimer = 0;
-    this.speechStartTimer = 0;
-    this.lastProcessTime = 0;
-    this.maxJitterMs = 0;
-    this.jitterSumMs = 0;
-    this.jitterCount = 0;
-
-    this.processor.onaudioprocess = (e) => {
-      if (!this.isRecording) return;
-      const input = e.inputBuffer.getChannelData(0);
-
-      // Audio-callback interval jitter measurement (Phase 11)
-      const now = performance.now();
-      if (this.lastProcessTime > 0) {
-        const actualIntervalMs = now - this.lastProcessTime;
-        const expectedIntervalMs = (input.length / e.inputBuffer.sampleRate) * 1000;
-        const jitter = Math.abs(actualIntervalMs - expectedIntervalMs);
-        this.jitterSumMs += jitter;
-        this.jitterCount++;
-        if (jitter > this.maxJitterMs) {
-          this.maxJitterMs = jitter;
+      onSpeechStart: () => {
+        this.options.onSpeechStart();
+      },
+      onSpeechRealStart: () => {
+        // Echo guard: if assistant audio is actively playing through speakers,
+        // suppress false triggers unless speech probability exceeds the higher playback threshold
+        if (
+          this.options.isPlaybackActive() &&
+          this.lastSpeechProb < this.options.positiveSpeechThresholdDuringPlayback
+        ) {
+          return;
         }
-      }
-      this.lastProcessTime = now;
+        this.options.onSpeechRealStart();
+      },
+      onVADMisfire: () => {
+        this.options.onVADMisfire();
+      },
+      onSpeechEnd: (audio: Float32Array) => {
+        const pcm16 = float32ToPcm16(audio);
+        this.options.onSpeechEnd(pcm16);
+      },
+      onFrameProcessed: (probs, frame) => {
+        this.lastSpeechProb = probs.isSpeech;
 
-      // Compute RMS energy
-      let sum = 0;
-      for (let i = 0; i < input.length; i++) {
-        sum += input[i] * input[i];
-      }
-      const rms = Math.sqrt(sum / input.length);
-
-      const chunkMs = (input.length / e.inputBuffer.sampleRate) * 1000;
-
-      if (rms > this.options.energyThreshold) {
-        this.silenceTimer = 0;
-        if (!this.isSpeaking) {
-          this.speechStartTimer += chunkMs;
-          if (this.speechStartTimer >= 150) {
-            this.isSpeaking = true;
-            this.options.onSpeechStart();
+        // Callback interval jitter tracking (Phase 11 and Phase 12)
+        const now = performance.now();
+        if (this.lastProcessTime > 0) {
+          const actualIntervalMs = now - this.lastProcessTime;
+          const expectedIntervalMs = (frame.length / 16000) * 1000;
+          const jitter = Math.abs(actualIntervalMs - expectedIntervalMs);
+          this.jitterSumMs += jitter;
+          this.jitterCount++;
+          if (jitter > this.maxJitterMs) {
+            this.maxJitterMs = jitter;
           }
         }
-      } else {
-        this.speechStartTimer = 0;
-        if (this.isSpeaking) {
-          this.silenceTimer += chunkMs;
-          if (this.silenceTimer >= this.options.silenceDurationMs) {
-            this.finishUtterance(e.inputBuffer.sampleRate);
-            return;
-          }
-        }
-      }
-
-      if (this.isSpeaking) {
-        this.bufferChunks.push(new Float32Array(input));
-      }
+        this.lastProcessTime = now;
+      },
     };
-  }
 
-  private finishUtterance(originalSampleRate: number): void {
-    this.isSpeaking = false;
-    this.silenceTimer = 0;
-    if (this.bufferChunks.length === 0) return;
-
-    // Concat chunks
-    const totalLen = this.bufferChunks.reduce((acc, c) => acc + c.length, 0);
-    const combined = new Float32Array(totalLen);
-    let offset = 0;
-    for (const chunk of this.bufferChunks) {
-      combined.set(chunk, offset);
-      offset += chunk.length;
-    }
-    this.bufferChunks = [];
-
-    // Downsample to 16 kHz mono PCM16
-    const pcm16 = this.downsampleToPcm16(combined, originalSampleRate, this.options.sampleRate);
-    this.options.onSpeechEnd(pcm16);
-  }
-
-  private downsampleToPcm16(
-    buffer: Float32Array,
-    inputRate: number,
-    targetRate: number,
-  ): Int16Array {
-    if (inputRate === targetRate) {
-      const output = new Int16Array(buffer.length);
-      for (let i = 0; i < buffer.length; i++) {
-        const s = Math.max(-1, Math.min(1, buffer[i]));
-        output[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-      }
-      return output;
-    }
-
-    const ratio = inputRate / targetRate;
-    const newLength = Math.round(buffer.length / ratio);
-    const result = new Int16Array(newLength);
-
-    for (let i = 0; i < newLength; i++) {
-      const originIndex = Math.floor(i * ratio);
-      const s = Math.max(-1, Math.min(1, buffer[originIndex]));
-      result[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-    }
-
-    return result;
+    this.vad = await MicVAD.new(vadOptions);
+    this.isRecording = true;
   }
 
   stop(): void {
     this.isRecording = false;
-    this.isSpeaking = false;
-    this.bufferChunks = [];
+    if (this.vad) {
+      const instance = this.vad;
+      this.vad = null;
+      void instance.destroy().catch(() => {});
+    }
+  }
 
-    if (this.processor) {
-      this.processor.disconnect();
-      this.processor.onaudioprocess = null;
-      this.processor = null;
-    }
-    if (this.source) {
-      this.source.disconnect();
-      this.source = null;
-    }
-    if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
-      this.stream = null;
-    }
-    if (this.audioCtx) {
-      try {
-        void this.audioCtx.close();
-      } catch {
-        // ignore
-      }
-      this.audioCtx = null;
+  async destroy(): Promise<void> {
+    this.isRecording = false;
+    if (this.vad) {
+      const instance = this.vad;
+      this.vad = null;
+      await instance.destroy();
     }
   }
 
@@ -227,5 +192,8 @@ export class AudioRecorder {
       sampleCount: this.jitterCount,
     };
   }
-}
 
+  getOptions(): Required<AudioRecorderOptions> {
+    return { ...this.options };
+  }
+}
