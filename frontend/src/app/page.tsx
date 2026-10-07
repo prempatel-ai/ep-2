@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ChatView } from "@/features/chat/ChatView";
 import { VoiceView } from "@/features/voice/VoiceView";
+import { ImageCheckView } from "@/features/image/ImageCheckView";
 import { Sidebar } from "@/features/history/Sidebar";
 import { useConversationHistory } from "@/features/history/useConversationHistory";
+import { getConfig } from "@/api/http";
 import type { LanguageCode } from "@/api/types";
 
 const emptySubscribe = () => () => {};
@@ -19,7 +21,24 @@ const EXPLORE_TOPIC_PROMPTS = {
 
 export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("gu");
-  const [activeMode, setActiveMode] = useState<"text" | "voice">("text");
+  const [activeMode, setActiveMode] = useState<"text" | "voice" | "image">("text");
+  const [imageCheckEnabled, setImageCheckEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    let mounted = true;
+    getConfig()
+      .then((cfg) => {
+        if (mounted && cfg?.image_check) {
+          setImageCheckEnabled(true);
+        }
+      })
+      .catch(() => {
+        // Feature remains disabled if backend is offline or unreachable
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const isMobile = useSyncExternalStore(
     emptySubscribe,
@@ -76,6 +95,9 @@ export default function Home() {
       onLanguageChange={setLanguage}
       activeMode={activeMode}
       onSwitchToVoice={() => setActiveMode("voice")}
+      imageCheckEnabled={imageCheckEnabled}
+      onSwitchToImageCheck={() => setActiveMode("image")}
+      onSwitchToTextChat={() => setActiveMode("text")}
       onNewConversation={handleNewConversation}
       isSidebarOpen={isSidebarOpen}
       onToggleSidebar={() => setSidebarOverride(!isSidebarOpen)}
@@ -104,6 +126,11 @@ export default function Home() {
         <VoiceView
           currentLanguage={language}
           onExitVoice={() => setActiveMode("text")}
+        />
+      ) : activeMode === "image" ? (
+        <ImageCheckView
+          currentLanguage={language}
+          onExit={() => setActiveMode("text")}
         />
       ) : (
         <ChatView

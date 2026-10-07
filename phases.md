@@ -28,7 +28,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 17: Image Check, scope, safety design and proposals (documents only) (2026-10-07)
 - [x] Phase 18: Image Check, run MedGemma 4B locally and verify it (2026-10-07)
 - [x] Phase 19: Image Check, backend port, adapter, guard and endpoint (2026-10-07)
-- [ ] Phase 20: Image Check, frontend
+- [x] Phase 20: Image Check, frontend (2026-10-07)
 - [ ] Phase 21: Image Check, evaluation and clinical safety review
 - [ ] Phase 22: Image Check, integration, packaging and limitations
 

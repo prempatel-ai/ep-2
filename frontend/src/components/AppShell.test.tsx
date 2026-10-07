@@ -24,4 +24,14 @@ describe("AppShell Scaffold", () => {
     expect(screen.getByText(/This tool provides clinical information only/)).toBeDefined();
     expect(screen.getByText(/112 \(National Emergency\)/)).toBeDefined();
   });
+
+  it("hides Image Check button when imageCheckEnabled is false or default", () => {
+    render(<AppShell currentLanguage="en" imageCheckEnabled={false} onSwitchToImageCheck={() => {}} />);
+    expect(screen.queryByLabelText("Open image check tool")).toBeNull();
+  });
+
+  it("renders Image Check button when imageCheckEnabled is true", () => {
+    render(<AppShell currentLanguage="en" imageCheckEnabled={true} onSwitchToImageCheck={() => {}} />);
+    expect(screen.getByLabelText("Open image check tool")).toBeDefined();
+  });
 });

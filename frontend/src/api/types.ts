@@ -21,6 +21,7 @@ export interface ServerConfig {
   languages: LanguageInfo[];
   default_language: LanguageCode;
   voice: boolean;
+  image_check?: boolean;
   audio: AudioConfig;
 }
 
@@ -29,11 +30,36 @@ export interface ReadinessResponse {
   llm: boolean;
   faq_entries: number;
   voice: boolean;
+  image_check?: boolean;
 }
 
 export interface HealthResponse {
   status: "ok";
   version: string;
+}
+
+// ---------------------------------------------------------------------------
+// Image Check Types - POST /v1/image-check
+// ---------------------------------------------------------------------------
+
+export type ImageCheckStatus =
+  | "ok"
+  | "unclear_image"
+  | "not_a_breast_photo"
+  | "unavailable"
+  | "error";
+
+export interface ImageCheckMessages {
+  findings_summary: string;
+  referral_guidance: string;
+  educational_disclaimer: string;
+}
+
+export interface ImageCheckResponse {
+  status: ImageCheckStatus;
+  findings: string[];
+  referral_required: boolean;
+  messages: ImageCheckMessages;
 }
 
 export type AnswerSource = "safety" | "faq" | "model";

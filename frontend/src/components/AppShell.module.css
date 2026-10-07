@@ -213,6 +213,42 @@
   color: #0d9488;
 }
 
+.imageCheckButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.imageCheckButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.imageCheckButton:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 1px;
+}
+
+.imageCheckButtonIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #4b5563;
+}
+
 /* Main Conversation Canvas */
 .main {
   flex: 1;

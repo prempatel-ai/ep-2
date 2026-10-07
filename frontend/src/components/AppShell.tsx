@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { Mic, PanelLeft, Activity } from "lucide-react";
+import { Mic, PanelLeft, Activity, Camera } from "lucide-react";
 import styles from "./AppShell.module.css";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -12,12 +12,15 @@ interface AppShellProps {
   isOnline?: boolean;
   onSwitchToVoice?: () => void;
   onNewConversation?: () => void;
-  activeMode?: "text" | "voice";
+  activeMode?: "text" | "voice" | "image";
   sidebar?: ReactNode;
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
   activeConversationTitle?: string | null;
   onOpenClinicalDetails?: () => void;
+  imageCheckEnabled?: boolean;
+  onSwitchToImageCheck?: () => void;
+  onSwitchToTextChat?: () => void;
 }
 
 export function AppShell({
@@ -32,6 +35,9 @@ export function AppShell({
   onToggleSidebar,
   activeConversationTitle,
   onOpenClinicalDetails,
+  imageCheckEnabled = false,
+  onSwitchToImageCheck,
+  onSwitchToTextChat,
 }: AppShellProps) {
   const t = getTranslation(currentLanguage);
   const [showEmergency, setShowEmergency] = useState(false);
@@ -123,7 +129,36 @@ export function AppShell({
                 </button>
               )}
 
-              {/* 4. Voice Mode Action (Desktop & Tablet only) */}
+              {/* 4. Image Check Action (Hidden when backend reports feature off) */}
+              {imageCheckEnabled && onSwitchToImageCheck && activeMode !== "image" && (
+                <button
+                  type="button"
+                  onClick={onSwitchToImageCheck}
+                  className={styles.imageCheckButton}
+                  aria-label="Open image check tool"
+                >
+                  <Camera size={14} className={styles.imageCheckButtonIcon} aria-hidden="true" />
+                  <span>
+                    {t.imageCheck.navButton && t.imageCheck.navButton !== "[NEEDS HUMAN TRANSLATION]"
+                      ? t.imageCheck.navButton
+                      : "Image check"}
+                  </span>
+                </button>
+              )}
+
+              {/* Back to Chat Action when in Image Check Mode */}
+              {activeMode === "image" && onSwitchToTextChat && (
+                <button
+                  type="button"
+                  onClick={onSwitchToTextChat}
+                  className={styles.imageCheckButton}
+                  aria-label="Return to chat"
+                >
+                  <span>Chat</span>
+                </button>
+              )}
+
+              {/* 5. Voice Mode Action (Desktop & Tablet only) */}
               {onSwitchToVoice && activeMode === "text" && (
                 <button
                   type="button"

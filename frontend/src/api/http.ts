@@ -4,6 +4,8 @@ import type {
   HealthResponse,
   ChatRequest,
   ChatStreamEvent,
+  ImageCheckResponse,
+  LanguageCode,
 } from "./types";
 import { parseSseStream } from "./sse";
 
@@ -72,4 +74,42 @@ export async function* chat(
 
   const reader = res.body.getReader();
   yield* parseSseStream(reader);
+}
+
+export async function checkImage(
+  file: File | Blob,
+  language: LanguageCode = "en",
+  signal?: AbortSignal,
+): Promise<ImageCheckResponse> {
+  const formData = new FormData();
+  formData.append("image", file, file instanceof File ? file.name : "upload.png");
+  formData.append("language", language);
+
+  const res = await fetch(`${API_BASE}/v1/image-check`, {
+    method: "POST",
+    body: formData,
+    signal,
+  });
+
+  if (!res.ok) {
+    let errorMessage = `Image check failed with HTTP ${res.status}`;
+    try {
+      const errJson = await res.json();
+      if (errJson?.error?.message) {
+        errorMessage = errJson.error.message;
+      } else if (errJson?.message) {
+        errorMessage = errJson.message;
+      } else if (errJson?.detail) {
+        errorMessage =
+          typeof errJson.detail === "string"
+            ? errJson.detail
+            : JSON.stringify(errJson.detail);
+      }
+    } catch {
+      // ignore
+    }
+    throw new Error(errorMessage);
+  }
+
+  return res.json();
 }

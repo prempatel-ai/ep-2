@@ -26,6 +26,32 @@ export const en = {
     faq: "Verified source",
     model: "Synthesized response",
   },
+  imageCheck: {
+    navButton: "Image check",
+    title: "Visible Skin Change Check",
+    subtitle: "Local observational awareness aid",
+    warningNotice:
+      "This is not a medical diagnosis. An image check cannot detect or rule out breast cancer.",
+    privacyNotice:
+      "Your photograph is processed entirely on this device and is never saved, stored, or transmitted anywhere.",
+    adultConsent:
+      "I confirm that I am 18 years of age or older and understand that this tool is not a medical diagnosis.",
+    choosePhoto: "Choose photo",
+    useCamera: "Take photo",
+    changePhoto: "Change photo",
+    removePhoto: "Remove photo",
+    supportedFormats: "Supported formats: JPEG, PNG, WebP (up to 10 MB)",
+    analyzingTitle: "Analyzing image locally...",
+    analyzingMessage:
+      "Running MedGemma observation model on this device. This may take several seconds.",
+    cancelAnalysis: "Cancel",
+    clearAndStartOver: "Clear and start over",
+    findingsHeading: "Observable surface skin categories",
+    referralHeading: "Mandatory Clinical Guidance",
+    educationalDisclaimerHeading: "Notice",
+    retakeGuidanceHeading: "Photo Quality Guidance",
+    errorHeading: "Service Notice",
+  },
 };
 
 export type TranslationKeys = typeof en;
