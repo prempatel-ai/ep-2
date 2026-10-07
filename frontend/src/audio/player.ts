@@ -17,7 +17,7 @@ export class AudioQueuePlayer {
     this.onFinishedCallback = onFinished;
   }
 
-  private initCtx(): AudioContext {
+  public initCtx(): AudioContext {
     if (!this.audioCtx) {
       const AudioContextClass =
         window.AudioContext ||
@@ -30,8 +30,26 @@ export class AudioQueuePlayer {
     return this.audioCtx;
   }
 
+  public unlock(): void {
+    try {
+      const ctx = this.initCtx();
+      if (ctx.state === "suspended") {
+        void ctx.resume();
+      }
+    } catch {
+      // AudioContext creation or resume might fail if strictly blocked
+    }
+  }
+
+  public isSuspended(): boolean {
+    return this.audioCtx ? this.audioCtx.state === "suspended" : false;
+  }
+
   async enqueueWav(index: number, wavBytes: Uint8Array): Promise<void> {
     const ctx = this.initCtx();
+    if (ctx.state === "suspended") {
+      await ctx.resume().catch(() => {});
+    }
     const arrayBuffer = new ArrayBuffer(wavBytes.byteLength);
     new Uint8Array(arrayBuffer).set(wavBytes);
 
@@ -63,15 +81,32 @@ export class AudioQueuePlayer {
     const nextItem = this.queue.shift();
     if (!nextItem || !this.audioCtx) return;
 
+    if (this.audioCtx.state === "suspended") {
+      void this.audioCtx.resume();
+    }
+
     this.isPlaying = true;
     const source = this.audioCtx.createBufferSource();
     source.buffer = nextItem.buffer;
     source.connect(this.audioCtx.destination);
 
-    source.onended = () => {
+    let ended = false;
+    const onEnd = () => {
+      if (ended) return;
+      ended = true;
       this.currentSource = null;
       this.playNext();
     };
+
+    source.onended = onEnd;
+
+    // Safety fallback: if source.onended fails to fire (e.g. stalled audio clock)
+    const timeoutMs = Math.ceil((nextItem.buffer.duration + 1.0) * 1000);
+    setTimeout(() => {
+      if (this.currentSource === source && !ended) {
+        onEnd();
+      }
+    }, timeoutMs);
 
     this.currentSource = source;
     source.start(0);

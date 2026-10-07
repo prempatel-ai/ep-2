@@ -116,9 +116,17 @@ class _VoiceConnection:
             raise InvalidAudioError("Utterance is too long.")
         clip = clip_from_pcm16(data, self._sample_rate)
         if clip.duration_s * 1000 < self._min_ms:
+            logger.info(
+                "Voice utterance too short (%.0fms < %.0fms), ignoring",
+                clip.duration_s * 1000,
+                self._min_ms,
+            )
             await self._cancel_turn()
             await self._send_json({"type": "no_speech"})
             return
+        logger.info(
+            "Voice utterance received: %d bytes (%.2fs)", len(data), clip.duration_s
+        )
         await self._start_turn(
             self._container.turns.run_voice_turn(self._session, clip, self._language)
         )

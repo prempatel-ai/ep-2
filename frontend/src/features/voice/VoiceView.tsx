@@ -43,6 +43,22 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   }, [voiceState]);
 
 
+  const [notice, setNotice] = useState<string | null>(null);
+  const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasStartedRef = useRef(false);
+
+  const showNotice = useCallback((msg: string) => {
+    if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+    setNotice(msg);
+    noticeTimerRef.current = setTimeout(() => {
+      setNotice(null);
+    }, 4500);
+  }, []);
+
+  const unlockAudio = useCallback(() => {
+    playerRef.current?.unlock();
+  }, []);
+
   const handleInterrupt = useCallback(() => {
     playerRef.current?.flush();
     socketRef.current?.sendInterrupt();
@@ -50,9 +66,12 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   }, []);
 
   useEffect(() => {
+    hasStartedRef.current = false;
     playerRef.current = new AudioQueuePlayer(() => {
       dispatch({ type: "REPLY_FINISHED" });
     });
+    // Attempt proactive unlock
+    playerRef.current.unlock();
 
     const recorder = new AudioRecorder({
       isPlaybackActive: () => {
@@ -70,6 +89,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       },
       onVADMisfire: () => {
         dispatch({ type: "VAD_MISFIRE" });
+        showNotice("Sound was too brief to detect speech.");
       },
       onSpeechEnd: (pcmData) => {
         dispatch({ type: "SPEECH_ENDED" });
@@ -89,13 +109,18 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     const socket = new VoiceSocket({
       onReady: (_sessId, voiceAvail) => {
         setVoiceServerReady(voiceAvail);
-        dispatch({ type: "START_LISTENING" });
-        void recorderRef.current?.start().catch((err: unknown) => {
-          const msg = err instanceof Error ? err.message : "Microphone access denied";
-          dispatch({ type: "ERROR", message: msg });
-        });
+        if (!hasStartedRef.current) {
+          hasStartedRef.current = true;
+          dispatch({ type: "START_LISTENING" });
+          void recorderRef.current?.start().catch((err: unknown) => {
+            const msg = err instanceof Error ? err.message : "Microphone access denied";
+            dispatch({ type: "ERROR", message: msg });
+          });
+        }
       },
       onTranscript: (text) => {
+        if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+        setNotice(null);
         dispatch({ type: "TRANSCRIPT_READY", text });
         setLatestAssistantText("");
         setLatestSource(null);
@@ -106,6 +131,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         setLatestSource(source as "safety" | "faq" | "model");
       },
       onAudio: (index, wavBytes) => {
+        playerRef.current?.unlock();
         void playerRef.current?.enqueueWav(index, wavBytes);
       },
       onDone: (source, m) => {
@@ -118,6 +144,7 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
       },
       onNoSpeech: () => {
         dispatch({ type: "NO_SPEECH" });
+        showNotice("No clear speech detected. Please speak closer to your microphone.");
       },
       onInterrupted: () => {
         playerRef.current?.flush();
@@ -133,11 +160,12 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
     socket.connect(undefined, currentLanguage);
 
     return () => {
+      if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
       recorderRef.current?.stop();
       playerRef.current?.close();
       socketRef.current?.disconnect();
     };
-  }, [currentLanguage, handleInterrupt]);
+  }, [currentLanguage, handleInterrupt, showNotice]);
 
 
   const getStateLabel = () => {
@@ -157,7 +185,11 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onClick={unlockAudio}
+      onTouchStart={unlockAudio}
+    >
       <DevPanel
         metrics={metrics}
         currentTurn={voiceState.currentTurn}
@@ -199,13 +231,24 @@ export function VoiceView({ currentLanguage, onExitVoice }: VoiceViewProps) {
         <div className={styles.micContainer}>
           <VoicePresence
             state={voiceState.machineState}
-            onPress={voiceState.machineState === "speaking" ? handleInterrupt : undefined}
+            onPress={() => {
+              unlockAudio();
+              if (voiceState.machineState === "speaking") {
+                handleInterrupt();
+              }
+            }}
           />
         </div>
 
         <div className={styles.statusSection}>
           <h3 className={styles.statusHeading}>{getStateLabel()}</h3>
-          <p className={styles.statusSubtext}>Speak naturally in Gujarati, Hindi, or English</p>
+          {notice ? (
+            <p className={styles.noticeText} role="status">
+              {notice}
+            </p>
+          ) : (
+            <p className={styles.statusSubtext}>Speak naturally in Gujarati, Hindi, or English</p>
+          )}
         </div>
 
         {/* Clean Controls: Stop and Exit */}

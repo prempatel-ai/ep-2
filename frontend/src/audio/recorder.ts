@@ -41,6 +41,8 @@ type VADInstance = Awaited<ReturnType<typeof MicVAD.new>>;
 export class AudioRecorder {
   private vad: VADInstance | null = null;
   private isRecording = false;
+  private isStarting = false;
+  private shouldStop = false;
   private options: Required<AudioRecorderOptions>;
   private lastProcessTime = 0;
   private maxJitterMs = 0;
@@ -84,7 +86,9 @@ export class AudioRecorder {
   }
 
   async start(): Promise<void> {
-    if (this.isRecording) return;
+    if (this.isRecording || this.isStarting) return;
+    this.isStarting = true;
+    this.shouldStop = false;
 
     this.lastProcessTime = 0;
     this.maxJitterMs = 0;
@@ -109,18 +113,30 @@ export class AudioRecorder {
       preSpeechPadMs: this.options.preSpeechPadMs,
       startOnLoad: true,
       getStream: async () => {
-        return await navigator.mediaDevices.getUserMedia({
-          audio: {
-            deviceId:
-              savedMicId && savedMicId !== "default"
-                ? { exact: savedMicId }
-                : undefined,
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
+        try {
+          return await navigator.mediaDevices.getUserMedia({
+            audio: {
+              deviceId:
+                savedMicId && savedMicId !== "default"
+                  ? { exact: savedMicId }
+                  : undefined,
+              channelCount: 1,
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+        } catch {
+          // Fallback if specific deviceId constraint is overconstrained or missing
+          return await navigator.mediaDevices.getUserMedia({
+            audio: {
+              channelCount: 1,
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+        }
       },
       onSpeechStart: () => {
         this.options.onSpeechStart();
@@ -162,11 +178,21 @@ export class AudioRecorder {
       },
     };
 
-    this.vad = await MicVAD.new(vadOptions);
-    this.isRecording = true;
+    try {
+      const instance = await MicVAD.new(vadOptions);
+      if (this.shouldStop) {
+        await instance.destroy().catch(() => {});
+        return;
+      }
+      this.vad = instance;
+      this.isRecording = true;
+    } finally {
+      this.isStarting = false;
+    }
   }
 
   stop(): void {
+    this.shouldStop = true;
     this.isRecording = false;
     if (this.vad) {
       const instance = this.vad;
@@ -176,6 +202,7 @@ export class AudioRecorder {
   }
 
   async destroy(): Promise<void> {
+    this.shouldStop = true;
     this.isRecording = false;
     if (this.vad) {
       const instance = this.vad;

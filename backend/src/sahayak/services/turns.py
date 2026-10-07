@@ -78,10 +78,22 @@ class TurnService:
 
         text = transcript.text.strip()
         if not text:
+            logger.info(
+                "STT completed in %.0fms: detected no speech (duration=%.2fs)",
+                stt_ms,
+                audio.duration_s,
+            )
             yield NoSpeech()
             return
 
         resolved = language or transcript.language or detect_language(text, self._default_language)
+        logger.info(
+            "STT completed in %.0fms: recognized %d words, language=%s (duration=%.2fs)",
+            stt_ms,
+            len(text.split()),
+            resolved.value if resolved else "unknown",
+            audio.duration_s,
+        )
         yield TranscriptReady(text=text, language=resolved)
 
         async with aclosing(
