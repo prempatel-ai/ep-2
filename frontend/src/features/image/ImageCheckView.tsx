@@ -8,6 +8,8 @@ import {
   RotateCcw,
   AlertCircle,
   Activity,
+  Shield,
+  ArrowLeft,
 } from "lucide-react";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -158,8 +160,8 @@ export function ImageCheckView({
     <div className={styles.container} lang={currentLanguage}>
       {/* Title & Purpose Header */}
       <div className={styles.headerBlock}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", gap: "1rem" }}>
-          <div>
+        <div className={styles.headerRow}>
+          <div className={styles.headerTextGroup}>
             <h2 className={styles.title}>{t.imageCheck.title}</h2>
             <p className={styles.subtitle}>{t.imageCheck.subtitle}</p>
           </div>
@@ -170,28 +172,44 @@ export function ImageCheckView({
               className={styles.secondaryButton}
               aria-label="Back to chat"
             >
+              <ArrowLeft size={16} aria-hidden="true" />
               Back to chat
             </button>
           )}
         </div>
       </div>
 
-      {/* Prominent Mandatory Safety Warning */}
-      <div className={`${styles.noticeCard} ${styles.noticeWarning}`} role="note">
-        <h3 className={styles.noticeTitle}>
-          {t.imageCheck.educationalDisclaimerHeading}
-        </h3>
-        <p className={styles.noticeText}>{t.imageCheck.warningNotice}</p>
-      </div>
+      {/* Prominent Safety & Privacy Disclaimers */}
+      <div className={styles.noticeGrid}>
+        <div className={`${styles.noticeCard} ${styles.noticeWarning}`} role="note">
+          <div className={styles.noticeIconWrapper} aria-hidden="true">
+            <AlertCircle size={18} />
+          </div>
+          <div className={styles.noticeContent}>
+            <h3 className={styles.noticeTitle}>
+              {t.imageCheck.educationalDisclaimerHeading}
+            </h3>
+            <p className={styles.noticeText}>{t.imageCheck.warningNotice}</p>
+          </div>
+        </div>
 
-      {/* Privacy Notice */}
-      <div className={`${styles.noticeCard} ${styles.noticePrivacy}`} role="note">
-        <h3 className={styles.noticeTitle}>Privacy</h3>
-        <p className={styles.noticeText}>{t.imageCheck.privacyNotice}</p>
+        <div className={`${styles.noticeCard} ${styles.noticePrivacy}`} role="note">
+          <div className={styles.noticeIconWrapper} aria-hidden="true">
+            <Shield size={18} />
+          </div>
+          <div className={styles.noticeContent}>
+            <h3 className={styles.noticeTitle}>Privacy</h3>
+            <p className={styles.noticeText}>{t.imageCheck.privacyNotice}</p>
+          </div>
+        </div>
       </div>
 
       {/* Step 1: 18+ Adult Consent Checkbox */}
-      <label className={styles.consentBox}>
+      <label
+        className={`${styles.consentBox} ${
+          state.adultConfirmed ? styles.consentBoxActive : ""
+        }`}
+      >
         <input
           type="checkbox"
           checked={state.adultConfirmed}
@@ -251,7 +269,15 @@ export function ImageCheckView({
 
             {!state.previewUrl ? (
               <div className={styles.uploadArea}>
-                <Upload size={36} color="#0d9488" aria-hidden="true" />
+                <div className={styles.uploadIconBadge} aria-hidden="true">
+                  <Upload size={26} />
+                </div>
+                <div className={styles.uploadTextGroup}>
+                  <h3 className={styles.uploadHeading}>Upload or capture a photo</h3>
+                  <p className={styles.supportedFormats}>
+                    {t.imageCheck.supportedFormats}
+                  </p>
+                </div>
                 <div className={styles.pickerButtonGroup}>
                   <button
                     type="button"
@@ -270,9 +296,6 @@ export function ImageCheckView({
                     {t.imageCheck.useCamera}
                   </button>
                 </div>
-                <p className={styles.supportedFormats}>
-                  {t.imageCheck.supportedFormats}
-                </p>
               </div>
             ) : (
               <div className={styles.previewCard}>
