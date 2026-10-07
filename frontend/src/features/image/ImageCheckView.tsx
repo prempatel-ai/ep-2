@@ -160,7 +160,8 @@ export function ImageCheckView({
 
   return (
     <div className={styles.container} lang={currentLanguage}>
-      {/* Header Area */}
+      <div className={styles.contentInner}>
+        {/* Header Area */}
       <header className={styles.header}>
         {onExit && (
           <button
@@ -444,6 +445,7 @@ export function ImageCheckView({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
