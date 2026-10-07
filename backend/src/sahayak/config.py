@@ -14,6 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from sahayak.domain.language import Language
 
+PACKAGE_DIR = Path(__file__).resolve().parents[2]
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
 
@@ -31,8 +32,8 @@ class LLMSettings(BaseModel):
 
 class RetrievalSettings(BaseModel):
     backend: Literal["chroma", "disabled"] = "chroma"
-    faq_path: Path = Path("data/faqs.jsonl")
-    persist_dir: Path = Path("data/chroma")
+    faq_path: Path = PACKAGE_DIR / "data" / "faqs.jsonl"
+    persist_dir: Path = PACKAGE_DIR / "data" / "chroma"
     embed_model: str = "intfloat/multilingual-e5-small"
     embed_device: str = "cpu"
     query_prefix: str = "query: "
