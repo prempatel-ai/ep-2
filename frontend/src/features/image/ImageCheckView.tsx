@@ -2,14 +2,16 @@
 
 import React, { useReducer, useRef, useEffect, useCallback } from "react";
 import {
-  Upload,
+  ImagePlus,
   Camera,
   X,
   RotateCcw,
-  AlertCircle,
   Activity,
-  Shield,
-  ArrowLeft,
+  Lock,
+  FileText,
+  ChevronLeft,
+  HardDrive,
+  AlertTriangle,
 } from "lucide-react";
 import type { LanguageCode } from "@/api/types";
 import { getTranslation } from "@/i18n";
@@ -158,56 +160,58 @@ export function ImageCheckView({
 
   return (
     <div className={styles.container} lang={currentLanguage}>
-      {/* Title & Purpose Header */}
-      <div className={styles.headerBlock}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerTextGroup}>
-            <h2 className={styles.title}>{t.imageCheck.title}</h2>
-            <p className={styles.subtitle}>{t.imageCheck.subtitle}</p>
+      {/* Header Area */}
+      <header className={styles.header}>
+        {onExit && (
+          <button
+            type="button"
+            onClick={onExit}
+            className={styles.backButton}
+            aria-label="Back to chat"
+          >
+            <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />
+            <span>Back to chat</span>
+          </button>
+        )}
+        <div className={styles.headerTitleGroup}>
+          <div className={styles.badgeRow}>
+            <span className={styles.deviceBadge}>
+              <HardDrive size={12} strokeWidth={1.75} aria-hidden="true" />
+              On-Device MedGemma 4B
+            </span>
           </div>
-          {onExit && (
-            <button
-              type="button"
-              onClick={onExit}
-              className={styles.secondaryButton}
-              aria-label="Back to chat"
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              Back to chat
-            </button>
-          )}
+          <h2 className={styles.title}>{t.imageCheck.title}</h2>
+          <p className={styles.subtitle}>{t.imageCheck.subtitle}</p>
         </div>
-      </div>
+      </header>
 
-      {/* Prominent Safety & Privacy Disclaimers */}
-      <div className={styles.noticeGrid}>
-        <div className={`${styles.noticeCard} ${styles.noticeWarning}`} role="note">
-          <div className={styles.noticeIconWrapper} aria-hidden="true">
-            <AlertCircle size={18} />
-          </div>
-          <div className={styles.noticeContent}>
-            <h3 className={styles.noticeTitle}>
+      {/* Unified Institutional Disclosure Panel */}
+      <div className={styles.disclosurePanel} role="note">
+        <div className={styles.disclosureItem}>
+          <div className={styles.disclosureHeader}>
+            <FileText size={14} strokeWidth={1.75} className={styles.disclosureIcon} aria-hidden="true" />
+            <span className={styles.disclosureTitle}>
               {t.imageCheck.educationalDisclaimerHeading}
-            </h3>
-            <p className={styles.noticeText}>{t.imageCheck.warningNotice}</p>
+            </span>
           </div>
+          <p className={styles.disclosureText}>{t.imageCheck.warningNotice}</p>
         </div>
 
-        <div className={`${styles.noticeCard} ${styles.noticePrivacy}`} role="note">
-          <div className={styles.noticeIconWrapper} aria-hidden="true">
-            <Shield size={18} />
+        <div className={styles.disclosureDivider} aria-hidden="true" />
+
+        <div className={styles.disclosureItem}>
+          <div className={styles.disclosureHeader}>
+            <Lock size={14} strokeWidth={1.75} className={styles.disclosureIcon} aria-hidden="true" />
+            <span className={styles.disclosureTitle}>Privacy</span>
           </div>
-          <div className={styles.noticeContent}>
-            <h3 className={styles.noticeTitle}>Privacy</h3>
-            <p className={styles.noticeText}>{t.imageCheck.privacyNotice}</p>
-          </div>
+          <p className={styles.disclosureText}>{t.imageCheck.privacyNotice}</p>
         </div>
       </div>
 
-      {/* Step 1: 18+ Adult Consent Checkbox */}
+      {/* 18+ Adult Consent Checkbox */}
       <label
         className={`${styles.consentBox} ${
-          state.adultConfirmed ? styles.consentBoxActive : ""
+          state.adultConfirmed ? styles.consentBoxChecked : ""
         }`}
       >
         <input
@@ -268,23 +272,25 @@ export function ImageCheckView({
             />
 
             {!state.previewUrl ? (
-              <div className={styles.uploadArea}>
-                <div className={styles.uploadIconBadge} aria-hidden="true">
-                  <Upload size={26} />
+              <div className={styles.dropZone}>
+                <div className={styles.dropZoneIcon} aria-hidden="true">
+                  <ImagePlus size={22} strokeWidth={1.75} />
                 </div>
-                <div className={styles.uploadTextGroup}>
-                  <h3 className={styles.uploadHeading}>Upload or capture a photo</h3>
-                  <p className={styles.supportedFormats}>
+                <div className={styles.dropZoneText}>
+                  <span className={styles.dropZoneHeading}>
+                    Upload or capture a photo for observation
+                  </span>
+                  <span className={styles.dropZoneSubtext}>
                     {t.imageCheck.supportedFormats}
-                  </p>
+                  </span>
                 </div>
-                <div className={styles.pickerButtonGroup}>
+                <div className={styles.buttonGroup}>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className={styles.primaryButton}
                   >
-                    <Upload size={16} aria-hidden="true" />
+                    <ImagePlus size={15} strokeWidth={1.75} aria-hidden="true" />
                     {t.imageCheck.choosePhoto}
                   </button>
                   <button
@@ -292,7 +298,7 @@ export function ImageCheckView({
                     onClick={() => cameraInputRef.current?.click()}
                     className={styles.secondaryButton}
                   >
-                    <Camera size={16} aria-hidden="true" />
+                    <Camera size={15} strokeWidth={1.75} aria-hidden="true" />
                     {t.imageCheck.useCamera}
                   </button>
                 </div>
@@ -312,9 +318,9 @@ export function ImageCheckView({
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className={styles.dangerButton}
+                    className={styles.textDangerButton}
                   >
-                    <X size={14} aria-hidden="true" />
+                    <X size={15} strokeWidth={1.75} aria-hidden="true" />
                     {t.imageCheck.removePhoto}
                   </button>
                   <button
@@ -322,7 +328,7 @@ export function ImageCheckView({
                     onClick={handleStartAnalysis}
                     className={styles.primaryButton}
                   >
-                    <Activity size={16} aria-hidden="true" />
+                    <Activity size={15} strokeWidth={1.75} aria-hidden="true" />
                     Check Photo
                   </button>
                 </div>
@@ -335,22 +341,25 @@ export function ImageCheckView({
       {state.step === "result" && state.result && (
         <div className={styles.resultSection} aria-live="polite">
           {/* Findings Summary Card */}
-          <div className={styles.resultCard}>
-            <h3 className={styles.cardHeading}>
-              {t.imageCheck.findingsHeading}
-            </h3>
-            <p className={styles.cardText}>
+          <div className={styles.clinicalReportCard}>
+            <div className={styles.reportHeader}>
+              <span className={styles.reportEyebrow}>Observations</span>
+              <h3 className={styles.reportTitle}>
+                {t.imageCheck.findingsHeading}
+              </h3>
+            </div>
+            <p className={styles.reportSummary}>
               {state.result.messages.findings_summary}
             </p>
 
             {/* Structured Observation Category Tags (Neutral Styling) */}
             {state.result.findings && state.result.findings.length > 0 && (
               <ul
-                className={styles.findingsTagList}
+                className={styles.tagList}
                 aria-label="Observed categories"
               >
                 {state.result.findings.map((f) => (
-                  <li key={f} className={styles.findingTag}>
+                  <li key={f} className={styles.tagItem}>
                     {f}
                   </li>
                 ))}
@@ -360,32 +369,35 @@ export function ImageCheckView({
 
           {/* Mandatory Clinical Referral Card - 100% Present Across Every Outcome */}
           <div className={styles.referralCard} role="alert">
-            <h3 className={styles.referralHeading}>
-              {t.imageCheck.referralHeading}
-            </h3>
-            <p className={styles.referralText}>
+            <div className={styles.referralHeader}>
+              <span className={styles.referralTag}>Important</span>
+              <h3 className={styles.referralHeading}>
+                {t.imageCheck.referralHeading}
+              </h3>
+            </div>
+            <p className={styles.referralBody}>
               {state.result.messages.referral_guidance}
             </p>
           </div>
 
-          {/* Disclaimer Card */}
-          <div className={styles.resultCard}>
-            <h3 className={styles.cardHeading}>
+          {/* Educational Disclaimer Card */}
+          <div className={styles.subtleNoticeCard}>
+            <h4 className={styles.subtleNoticeHeading}>
               {t.imageCheck.educationalDisclaimerHeading}
-            </h3>
-            <p className={styles.cardText}>
+            </h4>
+            <p className={styles.subtleNoticeText}>
               {state.result.messages.educational_disclaimer}
             </p>
           </div>
 
           {/* Action Bar: Clear & Start Over */}
-          <div className={styles.bottomActionBar}>
+          <div className={styles.actionRow}>
             <button
               type="button"
               onClick={handleClearAndReset}
               className={styles.secondaryButton}
             >
-              <RotateCcw size={16} aria-hidden="true" />
+              <RotateCcw size={14} strokeWidth={1.75} aria-hidden="true" />
               {t.imageCheck.clearAndStartOver}
             </button>
           </div>
@@ -397,7 +409,7 @@ export function ImageCheckView({
         <div className={styles.resultSection} role="alert" aria-live="polite">
           <div className={styles.errorCard}>
             <h3 className={styles.errorHeading}>
-              <AlertCircle size={16} aria-hidden="true" />
+              <AlertTriangle size={15} strokeWidth={1.75} aria-hidden="true" />
               {" "}
               {t.imageCheck.errorHeading}
             </h3>
@@ -408,22 +420,25 @@ export function ImageCheckView({
 
           {/* Mandatory Clinical Guidance Fallback */}
           <div className={styles.referralCard}>
-            <h3 className={styles.referralHeading}>
-              {t.imageCheck.referralHeading}
-            </h3>
-            <p className={styles.referralText}>
+            <div className={styles.referralHeader}>
+              <span className={styles.referralTag}>Important</span>
+              <h3 className={styles.referralHeading}>
+                {t.imageCheck.referralHeading}
+              </h3>
+            </div>
+            <p className={styles.referralBody}>
               Please consult a medical doctor or visit your nearest primary health
               centre for an in-person clinical examination.
             </p>
           </div>
 
-          <div className={styles.bottomActionBar}>
+          <div className={styles.actionRow}>
             <button
               type="button"
               onClick={handleClearAndReset}
               className={styles.secondaryButton}
             >
-              <RotateCcw size={16} aria-hidden="true" />
+              <RotateCcw size={14} strokeWidth={1.75} aria-hidden="true" />
               {t.imageCheck.clearAndStartOver}
             </button>
           </div>
