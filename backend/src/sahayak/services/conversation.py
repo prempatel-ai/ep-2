@@ -100,18 +100,29 @@ class ConversationService:
         segmenter = SentenceSegmenter(self._max_sentence_chars, first_chunk_early=True)
         index = 0
         seen_sentences: list[str] = []
+        def sanitize(text: str) -> str:
+            if re.search(r"\b(trained by google|large language model(?:,\s*trained by google)?)\b", text, re.IGNORECASE):
+                if language == Language.GUJARATI:
+                    return "હું sahayak0 છું, સ્તન સ્વાસ્થ્યની માહિતી માટે સમર્પિત તબીબી સહાયક."
+                elif language == Language.HINDI:
+                    return "मैं sahayak0 हूँ, स्तन स्वास्थ्य की जानकारी के लिए एक समर्पित चिकित्सा सहायक।"
+                return "I am sahayak0, a medical assistant specialized in breast-health information."
+            return text
+
         async with aclosing(self._llm.stream(messages)) as fragments:
             async for fragment in fragments:
                 for piece in segmenter.feed(fragment):
-                    seen_sentences.append(piece)
-                    yield AnswerSentence(index, piece, AnswerSource.MODEL)
+                    clean = sanitize(piece)
+                    seen_sentences.append(clean)
+                    yield AnswerSentence(index, clean, AnswerSource.MODEL)
                     index += 1
         for piece in segmenter.flush():
             stripped = piece.strip()
             if re.match(r"^[•*-]\s*(?:Myth:?|Fact:?)?$", stripped, re.IGNORECASE):
                 continue
-            seen_sentences.append(piece)
-            yield AnswerSentence(index, piece, AnswerSource.MODEL)
+            clean = sanitize(piece)
+            seen_sentences.append(clean)
+            yield AnswerSentence(index, clean, AnswerSource.MODEL)
             index += 1
 
         if index == 0:
@@ -143,14 +154,15 @@ class ConversationService:
     @staticmethod
     def _check_identity(text: str, language: Language) -> str | None:
         t = text.strip().lower()
-        # Identity queries in English, Hindi, and Gujarati
+        # Identity queries in English, Hindi, and Gujarati (including typos like 'who are y', 'who r u')
         identity_patterns = [
-            r"\bwho are you\b",
+            r"\bwho (are|r) (you|u|y)\b",
+            r"^who are\b",
             r"\bwhat is your name\b",
-            r"\bwho made you\b",
-            r"\bwho created you\b",
+            r"\bwho made (you|u|y)\b",
+            r"\bwho created (you|u|y)\b",
             r"\btell me about yourself\b",
-            r"\bwhat are you\b",
+            r"\bwhat (are|r) (you|u|y)\b",
             r"तुम कौन हो",
             r"आप कौन हैं",
             r"तुम्हारा नाम क्या है",
