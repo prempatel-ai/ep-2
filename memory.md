@@ -217,4 +217,12 @@
   - STT: `Systran/faster-whisper-small`
   - TTS: `facebook/mms-tts-guj`, `facebook/mms-tts-hin`, `facebook/mms-tts-eng`
   - Image: `medgemma:4b` via local Ollama
-  - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)
+  - Offline usage env: `$env:HF_HUB_OFFLINE="1"` (or `export HF_HUB_OFFLINE=1`)
+
+## Phase 23: Clinical FAQ Vector DB and Sourced RAG Pipeline (2026-10-07)
+- Ingested 3,197 curated clinical oncology and breast health FAQs from MedQuad (NIH/NCI/MedlinePlus) and ChatDoctor (HealthCareMagic Physician Consultations) into `backend/data/faqs.jsonl`.
+- Updated `FAQEntry`, `FAQHit`, `ChromaFAQIndex`, and `faq_loader` to persist and retrieve source attribution metadata (`source`).
+- Rebuilt ChromaDB collection (`backend/data/chroma`) with 3,197 entries using on-device `intfloat/multilingual-e5-small`.
+- Configured RAG pipeline in `PromptBuilder` and `ConversationService` to ground answers on verified clinical references and cite verified sources (`Sources: ...`) at the end of the response.
+- Enhanced frontend `ClinicalContent.tsx` to detect and render `Sources:` in a dedicated institutional verified citation block.
+- All 114 backend tests and 73 frontend tests pass cleanly. Verified live streaming chat retrieval with verified source citation.

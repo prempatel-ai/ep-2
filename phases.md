@@ -31,6 +31,7 @@ anything unrun **UNVERIFIED**, never touch the do-not-touch list, and finish wit
 - [x] Phase 20: Image Check, frontend (2026-10-07)
 - [ ] Phase 21: Image Check, evaluation and clinical safety review
 - [ ] Phase 22: Image Check, integration, packaging and limitations
+- [x] Phase 23: Clinical FAQ Vector DB and Sourced RAG Pipeline (2026-10-07)
 
 **Skeleton complete = Phases 0 to 8.** Phases 9 and 10 turn it into something measured and real.
 **Voice v2 = Phases 11 to 16.** An optional track that made the voice conversation feel more human. The builder
@@ -873,6 +874,26 @@ reviewer has reviewed the report and agrees in writing. Record the decision in `
 
 **Out of scope:** new features, enabling the feature by default, any claim about clinical performance beyond the
 reviewed report.
+
+---
+
+## Phase 23: Clinical FAQ Vector DB and Sourced RAG Pipeline
+
+**Why:** Ground the assistant in thousands of verified clinical Q&As (MedQuad NIH/NCI + ChatDoctor verified medical consultations), embed and index them into local ChromaDB with source attribution, and ensure every answer is grounded with citation of verified sources.
+
+**Tasks**
+1. Ingestion: Write `backend/scripts/ingest_clinical_faqs.py` to ingest and curate medical Q&A datasets (MedQuad NIH/NCI + ChatDoctor clinical consultations), filter for oncology, breast health, symptoms, screening, and treatment, attaching verified source attribution metadata to each record in `backend/data/faqs.jsonl`.
+2. Vector Indexing: Extend `FAQEntry`, `FAQHit`, `ChromaFAQIndex`, and `faq_loader` to store and query source metadata. Run `sahayak-index` to embed and index all clinical FAQs into `backend/data/chroma`.
+3. Sourced RAG: Update `PromptBuilder` and `ConversationService` so that retrieved reference FAQs are used as context and verified sources are cited at the end of the response (`Sources: ...`).
+4. Frontend Citation UI: Enhance the chat message rendering to display verified source citations clearly with an institutional badge.
+5. Verification: Verify via unit tests, live chat queries, and source citation checks.
+
+**Acceptance checks**
+- `ingest_clinical_faqs.py` generates `backend/data/faqs.jsonl` with thousands of curated clinical Q&A records.
+- `sahayak-index` indexes all entries into `backend/data/chroma` without error.
+- `GET /ready` reports thousands of indexed FAQ entries.
+- Asking medical and breast health questions in chat triggers vector retrieval and returns answers citing their verified sources at the end.
+- Full backend and frontend test suites pass with zero regressions.
 
 ---
 

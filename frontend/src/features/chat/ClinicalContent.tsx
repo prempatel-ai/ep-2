@@ -25,6 +25,7 @@ type Block =
   | { type: "heading"; text: string }
   | { type: "bullets"; items: string[] }
   | { type: "numbers"; items: string[] }
+  | { type: "sources"; text: string }
   | { type: "paragraph"; lines: string[] };
 
 function parseBlocks(content: string): Block[] {
@@ -69,6 +70,12 @@ function parseBlocks(content: string): Block[] {
       flushAll();
       const text = trimmed.replace(/^#+\s*/, "");
       blocks.push({ type: "heading", text });
+      continue;
+    }
+
+    if (/^Sources?:\s*/i.test(trimmed)) {
+      flushAll();
+      blocks.push({ type: "sources", text: trimmed });
       continue;
     }
 
@@ -153,6 +160,17 @@ export function ClinicalContent({ content, isStreaming = false }: ClinicalConten
                 );
               })}
             </ul>
+          );
+        }
+
+        if (block.type === "sources") {
+          return (
+            <div key={blockIndex} className={styles.sourcesBox} role="note">
+              <span className={styles.sourcesLabel}>Verified Sources</span>
+              <span className={styles.sourcesText}>
+                {parseInline(block.text.replace(/^Sources?:\s*/i, ""))}
+              </span>
+            </div>
           );
         }
 

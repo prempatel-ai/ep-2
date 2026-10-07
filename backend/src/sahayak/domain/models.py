@@ -21,6 +21,7 @@ class FAQEntry:
     question: str
     answer: str
     language: Language | None = None
+    source: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +29,7 @@ class FAQHit:
     question: str
     answer: str
     score: float  # cosine similarity in [0, 1]
+    source: str = ""
 
 
 class AnswerSource(StrEnum):

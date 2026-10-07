@@ -74,7 +74,10 @@ class ConversationService:
         result = await self._retrieval.lookup(text)
 
         if result.mode is RetrievalMode.DIRECT:
-            for sentence in self._split(result.hits[0].answer, AnswerSource.FAQ):
+            answer_text = result.hits[0].answer
+            if result.hits[0].source and "Sources:" not in answer_text:
+                answer_text = f"{answer_text}\n\nSources: {result.hits[0].source}"
+            for sentence in self._split(answer_text, AnswerSource.FAQ):
                 yield sentence
             return
 
@@ -87,12 +90,15 @@ class ConversationService:
 
         segmenter = SentenceSegmenter(self._max_sentence_chars, first_chunk_early=True)
         index = 0
+        seen_sentences: list[str] = []
         async with aclosing(self._llm.stream(messages)) as fragments:
             async for fragment in fragments:
                 for piece in segmenter.feed(fragment):
+                    seen_sentences.append(piece)
                     yield AnswerSentence(index, piece, AnswerSource.MODEL)
                     index += 1
         for piece in segmenter.flush():
+            seen_sentences.append(piece)
             yield AnswerSentence(index, piece, AnswerSource.MODEL)
             index += 1
 
@@ -100,6 +106,12 @@ class ConversationService:
             logger.warning("language model returned an empty reply")
             fallback = NO_ANSWER.get(language, NO_ANSWER[Language.ENGLISH])
             yield AnswerSentence(0, fallback, AnswerSource.SAFETY)
+        elif result.mode is RetrievalMode.CONTEXT and result.hits:
+            full_reply = " ".join(seen_sentences)
+            if "Sources:" not in full_reply and "Source:" not in full_reply:
+                sources = list(dict.fromkeys(h.source for h in result.hits if h.source))
+                if sources:
+                    yield AnswerSentence(index, f"Sources: {', '.join(sources)}", AnswerSource.FAQ)
 
     def _split(self, text: str, source: AnswerSource) -> list[AnswerSentence]:
         segmenter = SentenceSegmenter(self._max_sentence_chars)

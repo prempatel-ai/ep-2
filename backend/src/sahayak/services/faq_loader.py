@@ -55,7 +55,7 @@ def load_faq_entries(path: Path) -> tuple[list[FAQEntry], LoadReport]:
             report.invalid.append((line_no, record))
             continue
 
-        question, answer, language = record
+        question, answer, language, source = record
         key = normalise_question(question)
         if key in seen:
             if seen[key] == answer:
@@ -65,7 +65,7 @@ def load_faq_entries(path: Path) -> tuple[list[FAQEntry], LoadReport]:
             continue
         seen[key] = answer
         entry_id = hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
-        entries.append(FAQEntry(entry_id, question, answer, language))
+        entries.append(FAQEntry(entry_id, question, answer, language, source))
         report.loaded += 1
 
     if not entries:
@@ -73,8 +73,8 @@ def load_faq_entries(path: Path) -> tuple[list[FAQEntry], LoadReport]:
     return entries, report
 
 
-def _parse_record(line: str) -> tuple[str, str, Language | None] | str:
-    """Return ``(question, answer, language)`` or a string describing why it is invalid."""
+def _parse_record(line: str) -> tuple[str, str, Language | None, str] | str:
+    """Return ``(question, answer, language, source)`` or a string describing why it is invalid."""
     try:
         data = json.loads(line)
     except json.JSONDecodeError as exc:
@@ -93,4 +93,5 @@ def _parse_record(line: str) -> tuple[str, str, Language | None] | str:
         language = Language.parse(str(code))
         if language is None:
             return f"unsupported language {code!r}"
-    return question.strip(), answer.strip(), language
+    source = data.get("source") or data.get("source_url") or ""
+    return question.strip(), answer.strip(), language, str(source).strip()

@@ -56,7 +56,14 @@ class ChromaFAQIndex:
         hits = []
         for meta, distance in zip(result["metadatas"][0], result["distances"][0], strict=True):
             score = min(1.0, max(0.0, 1.0 - float(distance)))
-            hits.append(FAQHit(question=meta["question"], answer=meta["answer"], score=score))
+            hits.append(
+                FAQHit(
+                    question=meta["question"],
+                    answer=meta["answer"],
+                    score=score,
+                    source=meta.get("source", ""),
+                )
+            )
         return hits
 
     async def rebuild(
@@ -93,6 +100,7 @@ class ChromaFAQIndex:
                     "question": e.question,
                     "answer": e.answer,
                     "lang": e.language.value if isinstance(e.language, Language) else "",
+                    "source": e.source,
                 }
                 for e in batch
             ],

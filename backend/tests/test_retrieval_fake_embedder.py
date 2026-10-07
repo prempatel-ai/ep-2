@@ -134,3 +134,16 @@ class TestChromaFAQIndexFakeEmbedder(unittest.IsolatedAsyncioTestCase):
             idx = await self._make_index(Path(tmp))
             hits = await idx.search("anything", limit=5)
         self.assertEqual(hits, [])
+
+    async def test_search_preserves_source_attribution(self) -> None:
+        """Every returned FAQHit preserves the source field stored in metadata."""
+        entries_with_sources = [
+            FAQEntry(id="s1", question="What is clinical test 1?", answer="Answer 1.", source="National Cancer Institute"),
+            FAQEntry(id="s2", question="What is clinical test 2?", answer="Answer 2.", source="HealthCareMagic Consultations"),
+        ]
+        with self._tmpdir() as tmp:
+            idx = await self._make_index(Path(tmp))
+            await idx.rebuild(entries_with_sources)
+            hits = await idx.search("clinical test 1", limit=2)
+            self.assertGreater(len(hits), 0)
+            self.assertTrue(any(h.source == "National Cancer Institute" for h in hits))
