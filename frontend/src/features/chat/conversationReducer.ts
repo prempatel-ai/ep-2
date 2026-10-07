@@ -47,6 +47,54 @@ export const initialConversationState: ConversationState = {
   error: null,
 };
 
+/**
+ * Intelligently joins progressive sentence items while preserving markdown headings,
+ * bullet lists, numbered points, and verified source citations without collapsing
+ * everything into a single run-on paragraph.
+ */
+export function joinSentences(sentences: string[]): string {
+  if (sentences.length === 0) return "";
+  let result = "";
+
+  for (let i = 0; i < sentences.length; i++) {
+    const raw = sentences[i];
+    const text = raw.trim();
+    if (!text) continue;
+
+    if (result.length === 0) {
+      result = text;
+      continue;
+    }
+
+    const prev = result.trimEnd();
+    const isHeading = /^#{1,6}\s+/.test(text);
+    const isBullet = /^[•*-]\s+/.test(text);
+    const isNumber = /^\d+\.\s+/.test(text);
+    const isSource = /^Sources?:\s*/i.test(text);
+
+    if (isHeading || isSource) {
+      // Strip any dangling incomplete bullet stubs right before sources
+      const cleanedPrev = isSource
+        ? prev.replace(/(?:\r?\n)?^[•*-]\s*(?:Myth:?|Fact:?)?$/im, "").trimEnd()
+        : prev;
+      result = `${cleanedPrev}\n\n${text}`;
+    } else if (isBullet || isNumber) {
+      // Check if the previous line was also a list item
+      const lastLine = prev.slice(prev.lastIndexOf("\n") + 1);
+      const prevWasList = /^[•*-]\s+/.test(lastLine) || /^\d+\.\s+/.test(lastLine);
+      result = prevWasList ? `${prev}\n${text}` : `${prev}\n\n${text}`;
+    } else {
+      if (prev.endsWith("\n")) {
+        result = `${prev}${text}`;
+      } else {
+        result = `${prev} ${text}`;
+      }
+    }
+  }
+
+  return result.trim();
+}
+
 export function conversationReducer(
   state: ConversationState,
   action: ConversationAction,
@@ -91,12 +139,12 @@ export function conversationReducer(
           if (msg.id !== action.assistantId) return msg;
           const currentSentences = msg.sentences || [];
           const updatedSentences = [...currentSentences, action.sentence];
-          const newText = updatedSentences.map((s) => s.text).join(" ").trim();
+          const newText = joinSentences(updatedSentences.map((s) => s.text));
           return {
             ...msg,
             sentences: updatedSentences,
             text: newText,
-            source: action.sentence.source, // current sentence source or prominent source
+            source: action.sentence.source,
           };
         }),
       };

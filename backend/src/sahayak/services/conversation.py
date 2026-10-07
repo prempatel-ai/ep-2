@@ -9,6 +9,7 @@ Order of precedence:
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import AsyncIterator
 from contextlib import aclosing
 
@@ -98,6 +99,9 @@ class ConversationService:
                     yield AnswerSentence(index, piece, AnswerSource.MODEL)
                     index += 1
         for piece in segmenter.flush():
+            stripped = piece.strip()
+            if re.match(r"^[•*-]\s*(?:Myth:?|Fact:?)?$", stripped, re.IGNORECASE):
+                continue
             seen_sentences.append(piece)
             yield AnswerSentence(index, piece, AnswerSource.MODEL)
             index += 1

@@ -49,7 +49,7 @@ class PromptBuilder:
     def _format_context(context: Sequence[FAQHit]) -> str:
         lines = [
             "Verified clinical reference information. Base factual statements only on this.",
-            "At the end of your response, always cite the verified sources under a 'Sources:' line.",
+            "Do not write a manual Sources line; citations will be appended automatically.",
         ]
         for number, hit in enumerate(context, start=1):
             src = f" (Source: {hit.source})" if hit.source else ""

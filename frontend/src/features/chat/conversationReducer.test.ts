@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   conversationReducer,
   initialConversationState,
+  joinSentences,
   type ConversationState,
 } from "./conversationReducer";
 
@@ -183,3 +184,42 @@ describe("conversationReducer", () => {
     expect(s2).toEqual(initialConversationState);
   });
 });
+
+describe("joinSentences", () => {
+  it("joins standard sentences with single space", () => {
+    const res = joinSentences(["Hello world.", "How can I help you today?"]);
+    expect(res).toBe("Hello world. How can I help you today?");
+  });
+
+  it("places bullet points on newlines", () => {
+    const res = joinSentences([
+      "Here are common myths:",
+      "* **Myth 1:** Every lump is cancer.",
+      "* **Myth 2:** Only older women get it.",
+    ]);
+    expect(res).toBe(
+      "Here are common myths:\n\n* **Myth 1:** Every lump is cancer.\n* **Myth 2:** Only older women get it.",
+    );
+  });
+
+  it("places numbered items on newlines", () => {
+    const res = joinSentences([
+      "Key screening steps:",
+      "1. Clinical breast exam",
+      "2. Screening mammogram",
+    ]);
+    expect(res).toBe("Key screening steps:\n\n1. Clinical breast exam\n2. Screening mammogram");
+  });
+
+  it("separates sources with double newlines and cleans trailing bullet stubs", () => {
+    const res = joinSentences([
+      "Facts about mammograms.",
+      "* Myth:",
+      "Sources: HealthCareMagic Physician Consultations, NIH / National Cancer Institute & MedlinePlus",
+    ]);
+    expect(res).toBe(
+      "Facts about mammograms.\n\nSources: HealthCareMagic Physician Consultations, NIH / National Cancer Institute & MedlinePlus",
+    );
+  });
+});
+

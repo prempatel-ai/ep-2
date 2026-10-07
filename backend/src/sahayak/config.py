@@ -23,7 +23,7 @@ class LLMSettings(BaseModel):
     base_url: str = "http://127.0.0.1:8080/v1"
     model: str = "local"
     temperature: float = Field(0.3, ge=0.0, le=2.0)
-    max_tokens: int = Field(300, ge=16, le=2048)
+    max_tokens: int = Field(800, ge=16, le=2048)
     timeout_s: float = Field(60.0, gt=0)
     system_prompt_path: Path = RESOURCES_DIR / "system_prompt.txt"
     max_sentence_chars: int = Field(200, ge=40, le=600)

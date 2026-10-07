@@ -7,6 +7,37 @@
   line-height: 1.65;
 }
 
+.topSourceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 3px 10px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 2px;
+  cursor: default;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.topSourceBadge:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.topSourceIcon {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.topSourceText {
+  letter-spacing: -0.01em;
+}
+
 .paragraph {
   margin: 0;
   line-height: 1.65;
@@ -29,32 +60,32 @@
 .bulletList {
   list-style: none;
   padding: 0;
-  margin: 0 0 4px;
+  margin: 2px 0 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .bulletItem {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: #18181b;
 }
 
 .bulletDot {
   color: #0d9488;
   font-weight: bold;
-  font-size: 1.1rem;
-  line-height: 1.2;
+  font-size: 1rem;
+  line-height: 1.4;
   flex-shrink: 0;
   user-select: none;
 }
 
 .numberedList {
   padding-left: 20px;
-  margin: 0 0 4px;
+  margin: 2px 0 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -67,7 +98,18 @@
 
 .strongText {
   font-weight: 600;
-  color: #111827;
+  color: #0f172a;
+}
+
+.inlineLink {
+  color: #0f766e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.inlineLink:hover {
+  color: #115e59;
 }
 
 /* ChatGPT and Claude style streaming cursor */
@@ -113,28 +155,70 @@
   }
 }
 
-.sourcesBox {
+/* Institutional source citations footer matching ChatGPT / Claude */
+.sourcesSection {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 12px;
-  margin-top: 6px;
-  background-color: #f8fafc;
-  border-left: 3px solid #0d9488;
-  border-radius: 4px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
   font-size: 0.8125rem;
   line-height: 1.5;
-}
-
-.sourcesLabel {
-  font-weight: 600;
-  color: #0f766e;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 0.6875rem;
-}
-
-.sourcesText {
   color: #475569;
 }
 
+.sourcesHeader {
+  font-weight: 600;
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+.sourcesList {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.sourceItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  color: #334155;
+  text-decoration: underline;
+  text-decoration-color: #cbd5e1;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease, background-color 0.15s ease;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.sourceItem:hover {
+  color: #0d9488;
+  text-decoration-color: #0d9488;
+  background-color: #f0fdfa;
+}
+
+.sourceTitle {
+  font-weight: 400;
+}
+
+.sourceArrow {
+  font-size: 0.75rem;
+  color: #64748b;
+  user-select: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sourceItem:hover .sourceArrow {
+  color: #0d9488;
+  transform: translate(1px, -1px);
+}
+
+.sourceSeparator {
+  color: #94a3b8;
+  user-select: none;
+}
