@@ -36,9 +36,15 @@ class PromptBuilder:
         history: Sequence[ChatMessage] = (),
         context: Sequence[FAQHit] = (),
     ) -> list[ChatMessage]:
-        system = f"{self._system_prompt}\n\nReply in {language.english_name}."
+        system = (
+            f"{self._system_prompt}\n\n"
+            f"Reply in {language.english_name}.\n"
+            f"Important: You must compose and write your entire response strictly in {language.english_name} "
+            f"({language.native_name}) script only. Do not respond in English unless the requested language is English."
+        )
         if context:
-            system += "\n\n" + self._format_context(context)
+            system += "\n\n" + self._format_context(context, language)
+
         return [
             ChatMessage("system", system),
             *history,
@@ -46,9 +52,12 @@ class PromptBuilder:
         ]
 
     @staticmethod
-    def _format_context(context: Sequence[FAQHit]) -> str:
+    def _format_context(context: Sequence[FAQHit], language: Language | None = None) -> str:
+        lang_note = ""
+        if language and language != Language.ENGLISH:
+            lang_note = f" Translate and explain all facts from the reference strictly in {language.english_name} ({language.native_name})."
         lines = [
-            "Verified clinical reference information. Base factual statements only on this.",
+            f"Verified clinical reference information. Base factual statements only on this.{lang_note}",
             "Do not write a manual Sources line; citations will be appended automatically.",
         ]
         for number, hit in enumerate(context, start=1):
