@@ -121,12 +121,25 @@ class ConversationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(session.messages()[1].content, "One.")
         self.assertFalse(session.lock.locked())
 
+    async def test_identity_queries_return_sahayak_identity(self):
+        llm = FakeLLM(["unused"])
+        conv = make_conversation(llm)
+        session = make_session()
+        sentences = await collect(conv.respond(session, "Who are you?", Language.ENGLISH))
+        self.assertEqual(len(sentences), 1)
+        self.assertEqual(
+            sentences[0].text,
+            "I am sahayak0, a medical assistant specialized in breast-health information.",
+        )
+        self.assertEqual(llm.calls, [])
+
     async def test_model_failure_propagates_and_releases_the_lock(self):
         session = make_session()
         conv = make_conversation(FakeLLM(["Start. "], fail_with=RuntimeError("boom")))
         with self.assertRaises(RuntimeError):
             await collect(conv.respond(session, "q", Language.ENGLISH))
         self.assertFalse(session.lock.locked())
+
 
 
 def make_turns(llm, *, stt=None, tts=None, hits=()):

@@ -72,6 +72,12 @@ class ConversationService:
                 yield sentence
             return
 
+        identity_reply = self._check_identity(text, language)
+        if identity_reply is not None:
+            for sentence in self._split(identity_reply, AnswerSource.FAQ):
+                yield sentence
+            return
+
         result = await self._retrieval.lookup(text)
 
         if result.mode is RetrievalMode.DIRECT:
@@ -116,6 +122,32 @@ class ConversationService:
                 sources = list(dict.fromkeys(h.source for h in result.hits if h.source))
                 if sources:
                     yield AnswerSentence(index, f"Sources: {', '.join(sources)}", AnswerSource.FAQ)
+
+    @staticmethod
+    def _check_identity(text: str, language: Language) -> str | None:
+        t = text.strip().lower()
+        # Identity queries in English, Hindi, and Gujarati
+        identity_patterns = [
+            r"\bwho are you\b",
+            r"\bwhat is your name\b",
+            r"\bwho made you\b",
+            r"\bwho created you\b",
+            r"\btell me about yourself\b",
+            r"\bwhat are you\b",
+            r"तुम कौन हो",
+            r"आप कौन हैं",
+            r"तुम्हारा नाम क्या है",
+            r"आपका नाम क्या है",
+            r"તમે કોણ છો",
+            r"તમારું નામ શું છે",
+        ]
+        if any(re.search(pat, t, re.IGNORECASE) for pat in identity_patterns):
+            if language == Language.GUJARATI:
+                return "હું sahayak0 છું, સ્તન સ્વાસ્થ્યની માહિતી માટે સમર્પિત તબીબી સહાયક."
+            elif language == Language.HINDI:
+                return "मैं sahayak0 हूँ, स्तन स्वास्थ्य की जानकारी के लिए एक समर्पित चिकित्सा सहायक।"
+            return "I am sahayak0, a medical assistant specialized in breast-health information."
+        return None
 
     def _split(self, text: str, source: AnswerSource) -> list[AnswerSentence]:
         segmenter = SentenceSegmenter(self._max_sentence_chars)
