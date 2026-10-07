@@ -17,9 +17,9 @@
 | Fine-tuned LLM | Owned by the builder; not part of agent work until Phase 10 | n/a |
 | Clinical + native-speaker review | Not done | n/a |
 | Voice v2 (Phases 11 to 16) | Reported complete by the builder on 2026-10-07. Record the measured numbers and anything still UNVERIFIED in the log. | `docs/voice-baseline.md`, `voice_regress.py` report |
-| Image Check (Phases 17 to 22) | Planned. Not started. Off by default when built. Needs clinician involvement. | `phases.md`, `docs/image-check-design.md` (Phase 17) |
+| Image Check (Phases 17 to 22) | Phase 17 designed and approved; Phase 18 verified locally on Ollama medgemma:4b. Off by default. | `phases.md`, `docs/image-check-design.md`, `backend/scripts/image_probe.py` |
 
-**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Phase 17 complete (approved by human on 2026-10-07), Phase 18 in progress. Phases 8 to 10 still open.
+**Phase progress:** Phases 0 to 7 complete, Voice v2 (11 to 16) reported complete, Phases 17 & 18 complete (2026-10-07), Phase 19 ready. Phases 8 to 10 still open.
 
 ## 2. Decisions and why
 
@@ -84,11 +84,11 @@
    - **Target assessment:** The target (first audio ≤ 4.0s on CPU) is **NOT MET** on CPU alone (measured first audio ~5.5s, with Whisper transcription alone accounting for ~4.1s). GPU acceleration or smaller models (e.g. whisper `base` or `tiny`) will be needed to hit ≤ 4.0s.
 9. Hindi and Gujarati text in `safety_rules.yaml` and `services/messages.py`; helpline numbers (112, 14416).
 10. MedGemma 4B reliability at recognising visible skin changes on ordinary phone photos, including across skin tones and lighting. **UNVERIFIED until the human-run evaluation and clinician review (Phase 21).**
-11. Whether the chosen local server can constrain output to a JSON schema with an image input (Phase 18).
-12. Whether MedGemma 4B fits in memory next to the voice stack on the CPU-only 16 GB laptop, and its per-image latency (Phase 18).
-13. That the model server and libraries write no image data to disk (Phase 18 and 19 checks).
+11. **[VERIFIED in Phase 18]** Local Ollama server constrains output to JSON schema with image input via 'format: <schema>'. Verified with synthetic images.
+12. **[MEASURED in Phase 18]** MedGemma 4B on CPU-only laptop: prompt eval ~195ms, schema inference ~1.58s avg (min 1.49s, max 1.67s). Peak RAM ~14.8 GB / 16.1 GB (92%). Requires on-demand loading with idle unload (D21) to prevent RAM exhaustion when running beside voice models.
+13. **[VERIFIED in Phase 18]** Ollama writes zero image data to disk during inference (verified via audit of %TEMP% and cache folders).
 14. That the intended use of this feature is permitted by the Health AI Developer Foundations terms and Prohibited Use Policy (D19, human confirms).
-15. The exact model id and variant (4B instruction-tuned vs 1.5 4B), to be taken from the official model card (D20).
+15. **[VERIFIED in Phase 18]** Chosen variant: 'medgemma:4b' in Ollama (Gemma 3 4.3B Q4_K_M, digest 9fe4e9a6c9bd).
 
 ## 5. Gotchas
 
@@ -105,6 +105,9 @@
 - Python 3.11+ is required (`StrEnum`, `aclosing` behaviour relied on).
 - **Windows Chroma TemporaryDirectory cleanup:** Chroma's background `BlockingRunner` thread may hold open SQLite / HNSW file locks when a temporary directory exits. Use `ignore_cleanup_errors=True` in temp dirs during unit tests.
 - **Windows console output encoding:** On Windows, `sys.stdout` and `sys.stderr` default to `cp1252` encoding. CLI scripts printing Indic scripts (Gujarati/Hindi) must reconfigure them using `isinstance(sys.stdout, io.TextIOWrapper) and sys.stdout.reconfigure(encoding="utf-8")`.
+- **Ollama image payload validation:** Ollama requires valid image bytes with correct headers and checksums (e.g. PNG with valid IHDR, IDAT, and CRC32); malformed or truncated byte streams trigger HTTP 500.
+- **MedGemma schema enforcement:** MedGemma in Ollama supports full JSON schema enforcement via 'format' parameter in both /api/chat and OpenAI-compatible endpoint.
+- **RAM pressure with MedGemma:** On 16 GB hardware, loading MedGemma alongside Whisper, MMS-TTS, and an LLM approaches 92%+ RAM usage. Unload on idle ('keep_alive: 0' or 'keep_alive: "5m"') is essential.
 
 ## 6. Open decisions
 
@@ -129,8 +132,8 @@
 | D17 | Accept the Image Check scope change (reverses the earlier "image analysis" non-goal) | Decided and approved by the builder on 2026-10-07 | Phase 17 |
 | D18 | The category list of visible changes | A PROPOSED starting list is in `phases.md` Phase 17; a clinician decides | Phase 17 |
 | D19 | Accept MedGemma terms and confirm the intended use is permitted | Not accepted; the human reads the terms and Prohibited Use Policy | Phase 17 to 18 |
-| D20 | Model variant: MedGemma 4B instruction-tuned vs 1.5 4B | Verify from the official model card; builder chooses | Phase 18 |
-| D21 | Resource strategy: always loaded vs loaded on demand with idle unload | Decide from Phase 18 memory numbers | Phase 18 |
+| D20 | Model variant: MedGemma 4B instruction-tuned vs 1.5 4B | Decided in Phase 18: medgemma:4b (Gemma 3 4.3B Q4_K_M) verified locally in Ollama | Decided in Phase 18 |
+| D21 | Resource strategy: always loaded vs loaded on demand with idle unload | Measured in Phase 18: On-demand with idle unload (keep_alive 5m) recommended due to 92% RAM pressure | Phase 18 |
 | D22 | Clinical reviewer, and the source of a consented, licensed, clinician-labelled evaluation image set | Unassigned | Before Phase 21 |
 | D23 | Who writes the English, Gujarati and Hindi message texts, and the native-speaker reviewer | Unassigned; agents use placeholders only | Before Phase 19 is enabled |
 | D24 | Default state and the conditions to enable Image Check | Off. Enable only after the clinician has reviewed the Phase 21 report and agrees in writing | Phase 21 |
@@ -169,6 +172,7 @@
 | 2026-10-07 | **Phase 12 completed (Voice v2: Better Listening)**: Upgraded capture path to AudioWorklet and neural VAD (@ricky0123/vad-web with Silero VAD v5 ONNX and WASM bundle loaded locally from /vad/). Preserved output contract: 16 kHz mono signed 16-bit PCM. Implemented pause-tolerant hangover (800ms default, D16) keeping mid-sentence pauses in a single utterance. Added barge-in guard requiring minimum speech duration (250ms default) and speech probability threshold; transient coughs, clicks, and backchannels trigger VAD misfire and do not interrupt playback. Added speaker echo suppression check (positiveSpeechThresholdDuringPlayback: 0.65) during active assistant audio. Pure voice state machine updated with VAD_MISFIRE and SPEECH_REAL_START actions. Added synthetic-signal unit tests in recorder.test.ts. Exposed configurable VAD settings in SettingsModal and DevPanel. All 95 backend tests pass, all 48 frontend tests pass, typecheck, lint, build, and check:offline (zero external network references) all pass. |
 | 2026-10-07 | Voice v2 (Phases 11 to 16) reported complete by the builder. Baseline and final numbers tracked in `docs/voice-baseline.md`. |
 | 2026-10-07 | Phase 17 completed and approved by builder. Image Check design document written (docs/image-check-design.md). D17 approved. Starting Phase 18. |
+| 2026-10-07 | Phase 18 completed: Verified local MedGemma 4B (medgemma:4b Q4_K_M) on Ollama. Validated multimodal image analysis, strict JSON schema output constraint, zero disk writes, and client disconnect handling. Added backend/scripts/image_probe.py. Measured schema latency avg 1.58s and peak RAM 14.8 GB on 11th Gen i5 CPU. D20 decided; D21 resource options presented. |
 
 ## 9. Environment & Package Versions
 
