@@ -28,9 +28,9 @@ categories:
         - "ખૂબ (વધારે )?લોહી (નીકળે|વહે) છે"
         - "છાતીમાં (તીવ્ર )?દુખાવો થાય છે"
     replies:
-      en: "This sounds urgent. Please contact a doctor or go to the nearest hospital right away. In India you can call 112 for emergency help."
-      hi: "यह गंभीर लग रहा है। कृपया तुरंत डॉक्टर से संपर्क करें या नज़दीकी अस्पताल जाएँ। भारत में आप आपातकालीन मदद के लिए 112 पर कॉल कर सकते हैं।"
-      gu: "આ ગંભીર લાગે છે. કૃપા કરીને તરત ડૉક્ટરનો સંપર્ક કરો અથવા નજીકની હોસ્પિટલમાં જાઓ. ભારતમાં તમે કટોકટીની મદદ માટે 112 પર કૉલ કરી શકો છો."
+      en: "This sounds urgent. Please go to the nearest hospital right away or call India's emergency services: 112 (National Emergency), 108 (Free Emergency Ambulance), or 104 (National Health Helpline)."
+      hi: "यह गंभीर स्थिति लग रही है। कृपया तुरंत नजदीकी अस्पताल जाएं या भारत की आपातकालीन सेवाओं पर कॉल करें: 112 (राष्ट्रीय आपातकाल), 108 (मुफ्त एम्बुलेंस सेवा), या 104 (राष्ट्रीय स्वास्थ्य हेल्पलाइन)।"
+      gu: "આ ગંભીર કટોકટી લાગે છે. કૃપા કરીને તાત્કાલિક નજીકની હોસ્પિટલમાં જાઓ અથવા ભારતીય ઇમરજન્સી સેવાઓ પર કૉલ કરો: 112 (રાષ્ટ્રીય ઇમરજન્સી), 108 (મફત એમ્બ્યુલન્સ સેવા), અથવા 104 (રાષ્ટ્રીય આરોગ્ય હેલ્પલાઇન)."
 
   self_harm:
     patterns:
@@ -44,9 +44,9 @@ categories:
         - "આત્મહત્યા"
         - "મરી જવું છે|જીવવું નથી"
     replies:
-      en: "I'm really sorry you're feeling this much pain. You don't have to face it alone. Please talk to someone you trust, or call Tele-MANAS, India's free mental health helpline, on 14416. If you are in immediate danger, call 112."
-      hi: "मुझे बहुत दुख है कि आप इतना दर्द महसूस कर रहे हैं। आप अकेले नहीं हैं। कृपया किसी भरोसेमंद व्यक्ति से बात करें, या भारत की मुफ़्त मानसिक स्वास्थ्य हेल्पलाइन टेली-मानस को 14416 पर कॉल करें। अगर आप तुरंत खतरे में हैं, तो 112 पर कॉल करें।"
-      gu: "તમે આટલી પીડા અનુભવો છો તેનું મને ખૂબ દુઃખ છે. તમારે એકલા સહન કરવાની જરૂર નથી. કૃપા કરીને કોઈ વિશ્વાસુ વ્યક્તિ સાથે વાત કરો, અથવા ભારતની મફત માનસિક સ્વાસ્થ્ય હેલ્પલાઇન ટેલી-માનસ પર 14416 પર કૉલ કરો. જો તમે તાત્કાલિક જોખમમાં હો, તો 112 પર કૉલ કરો."
+      en: "You are not alone and support is available right now. Please reach out to India's government mental health & crisis helplines: Tele-MANAS on 14416 (or 1800-891-4416, 24x7 toll-free), KIRAN on 1800-599-0019, or call 112 for immediate emergency support."
+      hi: "आप अकेले नहीं हैं और तुरंत सहायता उपलब्ध है। कृपया भारत सरकार की मानसिक स्वास्थ्य हेल्पलाइन पर संपर्क करें: टेली-मानस (Tele-MANAS) 14416 (या 1800-891-4416, 24x7 टोल-फ्री), किरण (KIRAN) 1800-599-0019, या आपातकाल के लिए 112 पर कॉल करें।"
+      gu: "તમે એકલા નથી અને આ મુશ્કેલ સમયમાં મદદ ઉપલબ્ધ છે. કૃપા કરીને ભારત સરકારની માનસિક સ્વાસ્થ્ય હેલ્પલાઇન પર સંપર્ક કરો: ટેલી-માનસ (Tele-MANAS) 14416 (અથવા 1800-891-4416, 24x7 ટોલ-ફ્રી), કિરણ (KIRAN) 1800-599-0019, અથવા તાત્કાલિક મદદ માટે 112 પર કૉલ કરો."
 
   personal_medical:
     patterns:

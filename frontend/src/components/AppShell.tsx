@@ -187,9 +187,11 @@ export function AppShell({
               {t.disclaimer.notice}
             </p>
             <p className={styles.emergencyText}>
-              If you are experiencing severe pain, urgent symptoms, or a medical emergency, please contact local emergency services immediately:{" "}
-              <span className={styles.emergencyNumber}>112 (National Emergency)</span> or{" "}
-              <span className={styles.emergencyNumber}>14416 (Tele-MANAS)</span>.
+              If you are experiencing severe pain, urgent symptoms, or a medical crisis, please contact Indian government helplines immediately:{" "}
+              <span className={styles.emergencyNumber}>112 (National Emergency)</span>,{" "}
+              <span className={styles.emergencyNumber}>108 (Free Ambulance)</span>,{" "}
+              <span className={styles.emergencyNumber}>104 (Health Helpline)</span>, or{" "}
+              <span className={styles.emergencyNumber}>14416 (Tele-MANAS Mental Health)</span>.
             </p>
           </div>
 
@@ -210,8 +212,10 @@ export function AppShell({
             </div>
             {showEmergency && (
               <p className={styles.mobileEmergencyExpanded} role="region" aria-label="Emergency contact information">
-                If you are experiencing severe pain, urgent symptoms, or a medical emergency, contact local emergency services immediately:{" "}
-                <span className={styles.emergencyNumber}>112 (National Emergency)</span> or{" "}
+                If you are experiencing urgent symptoms or distress, contact Indian emergency helplines:{" "}
+                <span className={styles.emergencyNumber}>112 (Emergency)</span>,{" "}
+                <span className={styles.emergencyNumber}>108 (Ambulance)</span>,{" "}
+                <span className={styles.emergencyNumber}>104 (Health)</span>, or{" "}
                 <span className={styles.emergencyNumber}>14416 (Tele-MANAS)</span>.
               </p>
             )}
