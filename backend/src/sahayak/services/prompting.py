@@ -40,7 +40,8 @@ class PromptBuilder:
             f"{self._system_prompt}\n\n"
             f"Reply in {language.english_name}.\n"
             f"Important: You must compose and write your entire response strictly in {language.english_name} "
-            f"({language.native_name}) script only. Do not respond in English unless the requested language is English."
+            f"({language.native_name}) script only. Do not respond in English unless the requested language is English.\n"
+            f"Do not write meta prefixes like '{language.native_name}માં જવાબ:' or 'Answer:'. Begin directly with your medical explanation."
         )
         if context:
             system += "\n\n" + self._format_context(context, language)

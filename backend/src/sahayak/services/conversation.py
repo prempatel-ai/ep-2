@@ -101,13 +101,15 @@ class ConversationService:
         index = 0
         seen_sentences: list[str] = []
         def sanitize(text: str) -> str:
-            if re.search(r"\b(trained by google|large language model(?:,\s*trained by google)?)\b", text, re.IGNORECASE):
+            cleaned = re.sub(r"^(?:(?:ગુજરાતીમાં|હિન્દીમાં|ગુજરાતી|હિન્દી)\s*(?:જવાબ|ઉત્તર)?[:\s-]*)+", "", text, flags=re.IGNORECASE).strip()
+            cleaned = re.sub(r"^(?:Answer|Response)[:\s-]*", "", cleaned, flags=re.IGNORECASE).strip()
+            if re.search(r"\b(trained by google|large language model(?:,\s*trained by google)?)\b", cleaned, re.IGNORECASE):
                 if language == Language.GUJARATI:
                     return "હું sahayak0 છું, સ્તન સ્વાસ્થ્યની માહિતી માટે સમર્પિત તબીબી સહાયક."
                 elif language == Language.HINDI:
                     return "मैं sahayak0 हूँ, स्तन स्वास्थ्य की जानकारी के लिए एक समर्पित चिकित्सा सहायक।"
                 return "I am sahayak0, a medical assistant specialized in breast-health information."
-            return text
+            return cleaned or text
 
         async with aclosing(self._llm.stream(messages)) as fragments:
             async for fragment in fragments:
