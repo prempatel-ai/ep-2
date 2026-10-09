@@ -22,19 +22,25 @@ const EXPLORE_TOPIC_PROMPTS = {
 export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("gu");
   const [activeMode, setActiveMode] = useState<"text" | "voice" | "image">("text");
-  const [imageCheckEnabled, setImageCheckEnabled] = useState<boolean>(false);
+  const [imageCheckEnabled, setImageCheckEnabled] = useState<boolean>(true);
 
   useEffect(() => {
     let mounted = true;
-    getConfig()
-      .then((cfg) => {
-        if (mounted && cfg?.image_check) {
-          setImageCheckEnabled(true);
-        }
-      })
-      .catch(() => {
-        // Feature remains disabled if backend is offline or unreachable
-      });
+    const fetchConfig = () => {
+      getConfig()
+        .then((cfg) => {
+          if (mounted && typeof cfg?.image_check === "boolean") {
+            setImageCheckEnabled(cfg.image_check);
+          }
+        })
+        .catch(() => {
+          // If backend was still starting up, retry after 2 seconds
+          if (mounted) {
+            setTimeout(fetchConfig, 2000);
+          }
+        });
+    };
+    fetchConfig();
     return () => {
       mounted = false;
     };
